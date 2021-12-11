@@ -17,8 +17,9 @@ ___
 ## 支持与捐赠
 ___
 本项目由[PixelMC](http://pixelmc.cn/)团队提供长期支持与维护
-![Logo](fav.png)
-![Team_banner](banner_logo.png)
+<img src=“https://gitee.com/pixelmc/CustomSprays/raw/master/fav.png” width=200px>
+<img src=“https://gitee.com/pixelmc/CustomSprays/raw/master/banner_logo.png” width=400px>
+
 如果您有能力，可以考虑捐献我们，帮助我们做的更好！
 微信：
 [图片]
