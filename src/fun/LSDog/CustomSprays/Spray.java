@@ -9,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
@@ -35,19 +34,6 @@ public class Spray {
         Map.Entry<Block, BlockFace> voidBlock = SprayUtils.getTargetBlock(player);
         if (voidBlock == null) return false;
         try {
-            // 他妈的，发包！这鸡巴方法根本他妈的没法刷新展示框的真正位置！！！
-            /*
-            itemFrame = player.getWorld().spawn(voidBlock.getKey().getLocation(), ItemFrame.class);
-            Location loc = itemFrame.getLocation().clone();
-            loc.setYaw(voidBlock.getValue());
-            itemFrame.teleport(loc);
-            refreshLocation(itemFrame, Bukkit.getOnlinePlayers());
-            itemFrame.setItem(
-                    MapGetter.getImage( ImageGetter.getBufferedImage(
-                            Data.getImageString(player.getUniqueId())
-                    ) )
-            );
-            */
             itemFrameId = spawnItemFrameWithMap (
                     voidBlock.getKey().getRelative(voidBlock.getValue()).getLocation(),
                     voidBlock.getValue(),
@@ -83,7 +69,7 @@ public class Spray {
         itemFrame.getClass()
                 .getMethod("setLocation", double.class, double.class, double.class, float.class, float.class)
                 .invoke(itemFrame, location.getX(), location.getY(), location.getZ(), SprayUtils.getYawFromPositiveBlockFace(blockFace), 0);
-        // set invisible
+        // set invisible (useless)
         itemFrame.getClass()
                 .getMethod("setInvisible", boolean.class)
                 .invoke(itemFrame, true);
@@ -117,18 +103,10 @@ public class Spray {
 
         for (Player p : players){
             NMS.sendPacket(p, dataPacket);
-            //ItemStack temp = p.getItemInHand();
-            //p.setItemInHand((ItemStack) NMS.getCraftItemStackClass().getMethod("asBukkitCopy", NMS.getMcItemStackClass()).invoke(null, mapItem));
-            //p.setItemInHand(temp);
-            player.sendMap(mapView);
+            player.sendMap(mapView); // refresh mapView
         }
 
         return itemFrameId;
-    }
-
-    private void refreshLocation(Entity entity, Collection<? extends Player> players) throws Exception {
-        Object packet = NMS.getPacketClass("PacketPlayOutEntityTeleport").getConstructor(NMS.getMcEntityClass()).newInstance(NMS.getMcEntity(entity));
-        for (Player p : players) NMS.sendPacket(p, packet);
     }
 
     public void autoRemove() {
