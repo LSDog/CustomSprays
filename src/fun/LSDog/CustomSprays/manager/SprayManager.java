@@ -16,6 +16,7 @@ public class SprayManager {
     }
 
     public static void removeSpray(Player player, Spray spray) {
+        spray.destroy();
         List<Spray> list = sprayMap.getOrDefault(player.getUniqueId(), new ArrayList<>());
         list.remove(spray);
         sprayMap.put(player.getUniqueId(), list);

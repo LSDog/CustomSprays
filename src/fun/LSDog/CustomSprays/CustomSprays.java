@@ -22,33 +22,36 @@ public class CustomSprays extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!config.exists()) {
-            saveResource("config.yml", false);
-        }
-        if (!pluginData.exists()) {
-            saveResource("imageData.yml", false);
-        }
-        if (getConfig().getBoolean("use_MySQL")) {
-            Data.createTableIfNotExist(SprayUtils.getConnection());
-        }
+
+        if (!config.exists()) saveResource("config.yml", false);
+        if (!pluginData.exists()) saveResource("imageData.yml", false);
         prefix = getConfig().getString("custom_prefix");
+
+        if (getConfig().getBoolean("use_MySQL")) Data.createTableIfNotExist(SprayUtils.getConnection());
+
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());
+
+        if (Integer.parseInt(getMcVer().split("_")[1]) > 8 && getConfig().getBoolean("F_spray")) {
+            Bukkit.getPluginManager().registerEvents(new ToggleFEvent(), this);
+            log("F_spray enabled.");
+        }
+
         log("CustomSprays Enabled! plugin by §b§lLSDog§r.");
-        log("Running on "+getVersion());
+        log("Running on "+getMcVer());
     }
 
     @Override
     public void onDisable() {
-        // SprayManager.destroyAllSpray();
         try {
+            // ↓ SprayManager.destroyAllSpray();
             Class.forName("fun.LSDog.CustomSprays.manager.SprayManager").getMethod("destroyAllSpray").invoke(null);
         } catch (Exception ignored) {
         }
         log("CustomSprays disabled.");
     }
 
-    public static String getVersion() {
+    public static String getMcVer() {
         return version == null ? version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] : version;
     }
 

@@ -108,6 +108,11 @@ public class NMS {
         return mcWorldServerClass == null ? mcWorldServerClass = getMcClass("WorldServer") : mcWorldServerClass;
     }
 
+    private static Class<?> mcWorldMapClass = null;
+    public static Class<?> getMcWorldMapClass() {
+        return mcWorldMapClass == null ? mcWorldMapClass = getMcClass("WorldMap") : mcWorldMapClass;
+    }
+
     private static Class<?> mcEntityClass = null;
     public static Class<?> getMcEntityClass() {
         return mcEntityClass == null ? mcEntityClass = getMcClass("Entity") : mcEntityClass;
@@ -128,44 +133,59 @@ public class NMS {
         return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("PlayerConnection") : mcPlayerConnectionClass;
     }
 
-    private static Class<?> mcVec3D = null;
+    private static Class<?> mcVec3DClass = null;
     public static Class<?> getMcVec3DClass() {
-        return mcVec3D == null ? mcVec3D = getMcClass("Vec3D") : mcVec3D;
+        return mcVec3DClass == null ? mcVec3DClass = getMcClass("Vec3D") : mcVec3DClass;
     }
 
-    private static Class<?> mcItemStack = null;
+    private static Class<?> mcItemStackClass = null;
     public static Class<?> getMcItemStackClass() {
-        return mcItemStack == null ? mcItemStack = getMcClass("ItemStack") : mcItemStack;
+        return mcItemStackClass == null ? mcItemStackClass = getMcClass("ItemStack") : mcItemStackClass;
     }
 
-    private static Class<?> mcDataWatcher = null;
+    private static Class<?> mcItemClass = null;
+    public static Class<?> getMcItemClass() {
+        return mcItemClass == null ? mcItemClass = getMcClass("Item") : mcItemClass;
+    }
+
+    private static Class<?> mcItemsClass = null;
+    public static Class<?> getMcItemsClass() {
+        return mcItemsClass == null ? mcItemsClass = getMcClass("Items") : mcItemsClass;
+    }
+
+    private static Class<?> mcDataWatcherClass = null;
     public static Class<?> getMcDataWatcherClass() {
-        return mcDataWatcher == null ? mcDataWatcher = getMcClass("DataWatcher") : mcDataWatcher;
+        return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("DataWatcher") : mcDataWatcherClass;
     }
 
-    private static Class<?> mcDataWatcherObject = null;
+    private static Class<?> mcDataWatcherObjectClass = null;
     public static Class<?> getMcDataWatcherObjectClass() {
-        return mcDataWatcherObject == null ? mcDataWatcherObject = getMcClass("DataWatcherObject") : mcDataWatcherObject;
+        return mcDataWatcherObjectClass == null ? mcDataWatcherObjectClass = getMcClass("DataWatcherObject") : mcDataWatcherObjectClass;
     }
 
-    private static Class<?> mcDataWatcherSerializer = null;
+    private static Class<?> mcDataWatcherSerializerClass = null;
     public static Class<?> getMcDataWatcherSerializerClass() {
-        return mcDataWatcherSerializer == null ? mcDataWatcherSerializer = getMcClass("DataWatcherSerializer") : mcDataWatcherSerializer;
+        return mcDataWatcherSerializerClass == null ? mcDataWatcherSerializerClass = getMcClass("DataWatcherSerializer") : mcDataWatcherSerializerClass;
     }
 
-    private static Class<?> mcDataWatcherRegistry = null;
+    private static Class<?> mcDataWatcherRegistryClass = null;
     public static Class<?> getMcDataWatcherRegistryClass() {
-        return mcDataWatcherRegistry == null ? mcDataWatcherRegistry = getMcClass("DataWatcherRegistry") : mcDataWatcherRegistry;
+        return mcDataWatcherRegistryClass == null ? mcDataWatcherRegistryClass = getMcClass("DataWatcherRegistry") : mcDataWatcherRegistryClass;
     }
 
-    private static Class<?> mcBlockPosition = null;
+    private static Class<?> mcBlockPositionClass = null;
     public static Class<?> getMcBlockPositionClass() {
-        return mcBlockPosition == null ? mcBlockPosition = getMcClass("BlockPosition") : mcBlockPosition;
+        return mcBlockPositionClass == null ? mcBlockPositionClass = getMcClass("BlockPosition") : mcBlockPositionClass;
     }
 
-    private static Class<?> mcEnumDirection = null;
+    private static Class<?> mcEnumDirectionClass = null;
     public static Class<?> getMcEnumDirectionClass() {
-        return mcEnumDirection == null ? mcEnumDirection = getMcClass("EnumDirection") : mcEnumDirection;
+        return mcEnumDirectionClass == null ? mcEnumDirectionClass = getMcClass("EnumDirection") : mcEnumDirectionClass;
+    }
+
+    private static Class<?> mcPersistentCollectionClass = null;
+    public static Class<?> getMcPersistentCollectionClass() {
+        return mcPersistentCollectionClass == null ? mcPersistentCollectionClass = getMcClass("PersistentCollection") : mcPersistentCollectionClass;
     }
 
 

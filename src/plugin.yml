@@ -5,7 +5,7 @@ authors: [LSDog]
 
 commands:
   customsprays:
-    aliases: [sprays]
+    aliases: [cspray]
     description: 插件主命令
   spray:
     description: 喷喷漆
@@ -13,13 +13,10 @@ commands:
 permissions:
   CustomSprays.spray:
     default: true
-    description: 允许喷漆 | allow spray
-  CustomSprays.viewself:
-    default: true
-    description: 允许查看自己上传的图像 | can get a map from self (/customsprays view)
-  CustomSprays.viewothers:
+    description: 允许喷漆 | Allow spray
+  CustomSprays.view:
     default: op
-    description: 允许查看其他玩家的图像 | can get a map from any player (/customsprays view <player>)
+    description: 允许查看其他玩家的图像 | Can get a map from any player (/customsprays view <player>)
   CustomSprays.nocooldown:
     default: op
-    description: 没有上传，喷涂和查看的冷却 | no cooling for spray, upload and view
+    description: 没有上传和喷涂的冷却 | No cooling for spray and upload

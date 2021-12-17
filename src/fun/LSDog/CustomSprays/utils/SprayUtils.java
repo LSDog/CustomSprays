@@ -1,7 +1,6 @@
 package fun.LSDog.CustomSprays.utils;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -67,10 +66,6 @@ public class SprayUtils {
         return stringBuilder.toString();
     }
 
-    private static String version = null;
-    private static String getVersion() {
-        return version == null ? version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] : version;
-    }
     private static Method rayTraceMethod = null;
     public static Map.Entry<Block, BlockFace> getTargetBlock(Player player) throws Exception {
         Block targetBlock = player.getTargetBlock(null, CustomSprays.instant.getConfig().getInt("distance"));
@@ -106,13 +101,12 @@ public class SprayUtils {
         if (movingobjectposition == null) return null;
 
         BlockFace blockFace = enumDirectionToBlockFace(NMS.getDeclaredField(movingobjectposition, "direction"));
-        //Block voidBlock = targetBlock.getRelative(blockFace);
         return new AbstractMap.SimpleEntry<>(targetBlock, blockFace);
     }
 
     private static BlockFace enumDirectionToBlockFace(Object notch) throws Exception {
         if (notch == null) return BlockFace.SELF;
-        String name = (String) Class.forName("net.minecraft.server."+getVersion()+".EnumDirection").getMethod("name").invoke(notch);
+        String name = (String) Class.forName("net.minecraft.server."+CustomSprays.getMcVer()+".EnumDirection").getMethod("name").invoke(notch);
         switch (name) {
             case "DOWN": return BlockFace.DOWN;
             case "UP": return BlockFace.UP;
@@ -128,7 +122,7 @@ public class SprayUtils {
     public static Object blockFaceToEnumDirection(BlockFace blockFace) throws Exception {
         if (enumDirectionMap == null) {
             enumDirectionMap = new HashMap<>();
-            Object[] enums = Class.forName("net.minecraft.server."+getVersion()+".EnumDirection").getEnumConstants();
+            Object[] enums = Class.forName("net.minecraft.server."+CustomSprays.getMcVer()+".EnumDirection").getEnumConstants();
             for (Object o : enums) {
                 enumDirectionMap.put((String) o.getClass().getMethod("getName").invoke(o), o);
             }

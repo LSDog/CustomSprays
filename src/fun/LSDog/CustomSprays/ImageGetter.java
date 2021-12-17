@@ -1,6 +1,5 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.utils.SprayUtils;
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
@@ -44,11 +43,9 @@ public class ImageGetter implements Closeable {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept-Encoding", "identity");
             conn.setConnectTimeout(10000);
-            //conn.getHeaderField("Content-Length");
-            //CustomSprays.debug(conn.getResponseMessage());
             conn.getInputStream();
             size = conn.getContentLength()/1024;
-            if (size >= CustomSprays.instant.getConfig().getInt("file_size_limit")) return 3;
+            if (size >= CustomSprays.instant.getConfig().getInt("file_size_limit")+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {
             return 2;
@@ -58,9 +55,6 @@ public class ImageGetter implements Closeable {
         return 0;
     }
 
-    /**
-     * 从URL中读取图片,转换成流形式.
-     */
     public void getBufferedImage() {
         try {
             URL url = new URL(destUrl);
@@ -74,36 +68,33 @@ public class ImageGetter implements Closeable {
         }
     }
 
-    /**
-     * 保存为图片文件
-     */
-    public void saveToFile(File file) {
-        try {
-            ImageIO.write(image, "png", file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public String Get128pxImageBase64() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Base64OutputStream b64 = new Base64OutputStream(out);
+        ImageIO.write(get128pxImage(), "png", b64);
+        return out.toString("UTF-8");
     }
 
-    /**
-     * 读取输入流,转换为Base64字符串
-     */
-    public String GetImageStr() throws IOException {
+    public String GetImageBase64() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Base64OutputStream b64 = new Base64OutputStream(out);
         ImageIO.write(image, "png", b64);
         return out.toString("UTF-8");
     }
 
-    public String getImageFormat() {
+    private BufferedImage get128pxImage() {
+        BufferedImage bufferedImage = new BufferedImage(128,128,BufferedImage.TYPE_INT_ARGB);
+        bufferedImage.createGraphics().drawImage(image, 0, 0, 128, 128, null);
+        bufferedImage.getGraphics().dispose();
+        return bufferedImage;
+    }
+
+    public void saveToFile(File file) {
         try {
-            byte[] bt = new byte[2];
-            in.read(bt);
-            return SprayUtils.bytesToHexString(bt);
+            ImageIO.write(image, "png", file);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     @Override
