@@ -1,5 +1,6 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.utils;
 
+import fun.LSDog.CustomSprays.CustomSprays;
 import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.binary.Base64OutputStream;
 
@@ -42,7 +43,10 @@ public class ImageGetter implements Closeable {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept-Encoding", "identity");
+            conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
             conn.setConnectTimeout(10000);
+            conn.connect();
+            if (conn.getResponseCode() == 403) return 4;
             conn.getInputStream();
             size = conn.getContentLength()/1024;
             if (size >= CustomSprays.instant.getConfig().getInt("file_size_limit")+1) return 3;
@@ -59,6 +63,7 @@ public class ImageGetter implements Closeable {
         try {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(10000);
             in = conn.getInputStream();

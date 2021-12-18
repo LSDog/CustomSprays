@@ -1,10 +1,10 @@
 package fun.LSDog.CustomSprays.commands;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.ImageGetter;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.map.MapGetter;
 import fun.LSDog.CustomSprays.utils.Data;
+import fun.LSDog.CustomSprays.utils.ImageGetter;
 import fun.LSDog.CustomSprays.utils.SprayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -26,9 +26,12 @@ public class CommandCustomSprays implements TabExecutor {
         FileConfiguration config = CustomSprays.instant.getConfig();
         if (args.length == 0) {
             sender.sendMessage(CustomSprays.prefix +
-                    "\n        §b/cspray§r §3upload§l <url> §r§7- 上传图片链接 (尺寸§c建议为128*128px§r)" +
-                    "\n        §b/cspray§r §3view§l [player] §r§7- 查看玩家的自定义喷漆" +
-                    "\n        §7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\"");
+                    "\n    §b/cspray§r §3upload§l <url> §r§7- " + Data.getMsg(sender, "COMMAND_HELP.UPLOAD") +
+                    (sender.isOp() ?
+                            "\n    §b/cspray§r §3view§l [player] §r§7- " + Data.getMsg(sender, "COMMAND_HELP.VIEW") +
+                            "\n    §b/cspray§r §3reload§l §r§7- " + Data.getMsg(sender, "COMMAND_HELP.RELOAD")
+                    : "") +
+                    "\n\n  " +  Data.getMsg(sender, "COMMAND_HELP.TIP"));
             return true;
         }
 
@@ -36,12 +39,13 @@ public class CommandCustomSprays implements TabExecutor {
 
             case "reload":
                 if (!sender.isOp()) {
-                    sender.sendMessage(CustomSprays.prefix + "§c无权限！");
+                    sender.sendMessage(CustomSprays.prefix + Data.getMsg(sender, "NO_PERMISSION"));
                     return true;
                 }
                 CustomSprays.instant.reloadConfig();
                 CustomSprays.prefix = CustomSprays.instant.getConfig().getString("custom_prefix");
-                sender.sendMessage(CustomSprays.prefix + "重载成功!");
+                Data.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+                sender.sendMessage(CustomSprays.prefix + "OK!");
                 break;
 
 
@@ -50,25 +54,25 @@ public class CommandCustomSprays implements TabExecutor {
                     public void run() {
                         if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!");return; }
                         Player player = (Player) sender;
-                        if ((!player.isOp() || !player.hasPermission("CustomSprays.nocooldown")) && CoolDownManager.isUploadCooling(player)) {
+                        if ((!player.isOp() || !player.hasPermission("CustomSprays.noCD")) && CoolDownManager.isUploadCooling(player)) {
                             player.sendMessage(CustomSprays.prefix + "§c冷却中! §7("+CoolDownManager.getUploadCool(player)+")");
                             return;
                         }
                         CoolDownManager.addUploadCooldown(player);
 
-                        if (args.length == 1) { player.sendMessage(CustomSprays.prefix + "你忘了写图片的地址了！ 笨蛋！！");return; }
+                        if (args.length == 1) { player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.NO_URL"));return; }
                         String url = args[1];
-                        if (!SprayUtils.isURI(url)) { player.sendMessage(CustomSprays.prefix + "你给的URL完全无效啊！ 笨蛋！！！！");return; }
+                        if (!SprayUtils.isURI(url)) { player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));return; }
                         ImageGetter imageGetter = new ImageGetter(url);
                         byte result = imageGetter.checkImage();
                         if (result != 0) {
-                            if (result == 1) player.sendMessage(CustomSprays.prefix + "url连接失败了！ 可恶！！！");
-                            if (result == 2) player.sendMessage(CustomSprays.prefix + "url连接失败了！\n"+CustomSprays.prefix+"如果你提供的是§e§l https§r 那么可以改成§e§l http§r 链接尝试！");
-                            if (result == 3) player.sendMessage(CustomSprays.prefix + "你提供的文件太大了！ 有足足"+imageGetter.size+"K！ §7(最大可以上传 §f§l"+config.getInt("file_size_limit")+"k§r§7 的图片！)");
-                            if (result == 4) player.sendMessage(CustomSprays.prefix + "我们无法获取文件的大小！请换一个以图片后缀§7(.png/.jpg)§r的url试试吧......");
+                            if (result == 1) player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED"));
+                            if (result == 2) player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED")+"\n"+CustomSprays.prefix+Data.getMsg(player, "COMMAND_UPLOAD.CONNECT_HTTPS_FAILED"));
+                            if (result == 3) player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getInt("file_size_limit")+""));
+                            if (result == 4) player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
                             return;
                         }
-                        player.sendMessage(CustomSprays.prefix + "§7加载中... 请稍候......");
+                        player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
                         imageGetter.getBufferedImage();
                         // Debug: 保存下载的图片
                         // imageGetter.saveToFile(new File(CustomSprays.instant.getDataFolder() + "\\" + "imageTemp.png"));
@@ -76,14 +80,14 @@ public class CommandCustomSprays implements TabExecutor {
                         try {
                             imageStr = imageGetter.Get128pxImageBase64();
                         } catch (IllegalArgumentException e) {
-                            player.sendMessage(CustomSprays.prefix + "获取文件失败！ 可恶！！！");
+                            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
                             return;
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        CustomSprays.debug("§4§l" + player.getName() + "§r uploaded spray §7->§r (§e§l"+imageGetter.size+" K§r) " + url);
+                        CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+imageGetter.size+" K§r) " + url);
                         Data.saveImageString(player, imageStr);
-                        player.sendMessage(CustomSprays.prefix + "喷图案保存成功！");
+                        player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageGetter.close();
                     }
                 }.runTask(CustomSprays.instant);
@@ -99,7 +103,7 @@ public class CommandCustomSprays implements TabExecutor {
                     public void run() {
                         Player player = (Player) sender;
                         if (!player.hasPermission("CustomSprays.view")) {
-                            player.sendMessage(CustomSprays.prefix + "§c无权限！");
+                            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "NO_PERMISSION"));
                             return;
                         }
 
@@ -107,13 +111,16 @@ public class CommandCustomSprays implements TabExecutor {
                         if (args.length <= 1) targetPlayer = player;
                         else targetPlayer = Bukkit.getPlayerExact(args[1]);
                         if (targetPlayer == null) {
-                            sender.sendMessage(CustomSprays.prefix + "查无此人啦...");
+                            sender.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_VIEW.NO_PLAYER"));
                             return;
                         }
-                        if (Data.getImageString(targetPlayer.getUniqueId()) == null) { targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " 还没有上传图片呢");return; }
+                        if (Data.getImageString(targetPlayer) == null) {
+                            targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + Data.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE"));
+                            return;
+                        }
                         try {
-                            player.getInventory().addItem(MapGetter.getMap( MapGetter.getMapView(Data.getImage(targetPlayer.getUniqueId())) ));
-                            player.sendMessage(CustomSprays.prefix + "§c请注意！服务器重启后§e§l不会保存地图画§r, 请勿使用此功能作地图画");
+                            player.getInventory().addItem(MapGetter.getMap( MapGetter.getMapView(Data.getImage(targetPlayer)) ));
+                            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_VIEW.WARN"));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -122,7 +129,7 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             default:
-                sender.sendMessage(CustomSprays.prefix + "位置指令，使用 §3/cspray§r 查看帮助!");
+                sender.sendMessage(CustomSprays.prefix + Data.getMsg(sender, "UNKNOWN_COMMAND"));
         }
         return true;
     }
@@ -132,7 +139,11 @@ public class CommandCustomSprays implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return getTabs(args[0], "upload", "view", "reload");
+            if (sender.isOp()) {
+                return getTabs(args[0], "upload", "view", "reload");
+            } else {
+                return getTabs(args[0], "upload");
+            }
         } else {
             List<String> list = new ArrayList<>();
             Bukkit.getOnlinePlayers().forEach(p -> list.add(p.getName()));

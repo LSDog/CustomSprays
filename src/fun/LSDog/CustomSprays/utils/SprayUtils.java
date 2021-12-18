@@ -1,6 +1,7 @@
 package fun.LSDog.CustomSprays.utils;
 
 import fun.LSDog.CustomSprays.CustomSprays;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -24,15 +25,18 @@ public class SprayUtils {
     public static Connection getConnection() {
         ConfigurationSection config = CustomSprays.instant.getConfig();
         Connection connection;
-        String url = "jdbc:mysql://" + config.getString("MySQL.host") + ":" + config.getString("MySQL.port") + "/" + config.getString("MySQL.database") + "?useSSL=false?rewriteBatchedStatements=true";
+        String url = "jdbc:mysql://" + config.getString("MySQL.host") + ":" + config.getString("MySQL.port") + "/" + config.getString("MySQL.database") + "?useSSL=false&rewriteBatchedStatements=true";
         try {
             connection = DriverManager.getConnection(url, config.getString("MySQL.user"), config.getString("MySQL.password") );
         } catch (SQLException e) {
+            CustomSprays.log("\n\n\n\n");
             CustomSprays.log("§c############################################");
             CustomSprays.log("§c==== 无法获取MySQL连接！ ====");
             CustomSprays.log("§c请检查你的数据库!");
             CustomSprays.log("§c############################################");
             e.printStackTrace();
+            CustomSprays.log("\n\n\n\n");
+            Bukkit.shutdown();
             return null;
         }
         return connection;
@@ -48,22 +52,6 @@ public class SprayUtils {
 
     public static boolean isURI(String str) {
         return str.toLowerCase().startsWith("http");
-    }
-
-    public static String bytesToHexString(byte[] src) {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (src == null || src.length <= 0) {
-            return null;
-        }
-        for (byte b : src) {
-            int v = b & 0xFF;
-            String hv = Integer.toHexString(v);
-            if (hv.length() < 2) {
-                stringBuilder.append(0);
-            }
-            stringBuilder.append(hv);
-        }
-        return stringBuilder.toString();
     }
 
     private static Method rayTraceMethod = null;

@@ -34,7 +34,7 @@ public class NMS {
     }
 
     public static void sendPacket(Player player, Object packet) throws Exception {
-        getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
+        if (packet != null) getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
     }
 
 

@@ -1,4 +1,4 @@
-********![CustomSprays](banner.png)
+![CustomSprays](banner.png)
 
 
 # <b>CustomSprays</b>™ 
@@ -13,21 +13,19 @@ ___
 
 ## 用法
 ___
-[此处应该有gif图]
+![QuickUse](QuickUse.gif)
 
-    | 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
-    | /cspary upload <url>  -  上传图片
-    | /spary   -   对着墙喷漆
-
-> 如果服务器版本 ≥ 1.9，<b>【快速双击F键】</b>也可以喷漆！
+    1 | 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
+    2 | /cspary upload <url>  -  上传图片
+    3 | /spary         -         对着墙喷漆
+      |
+    4 | *** 如果服务器版本 ≥ 1.9，【快速双击F键】也可以喷漆！***
 
 > 更多设置请见 config.yml
 
 ## 版本支持
 ___
-> <b>经测试后支持</b> : 1.12
-
-> 理论支持<sup>\**需要测试*\*</sup> : | 1.8 | 1.9 | 1.10 | 1.11 |
+> <b>经 *测试* 后支持</b> : 1.8 | 1.9 | 1.10 | 1.11 | 1.12
 
 > <b>尚未支持</b> : ≥1.13
 
@@ -38,7 +36,9 @@ ___
 
 - 无 Bungeecord 端插件，所有数据皆由 MySQL/yml 进行存储
 
-- 纯发包实现喷漆【玩家无法交互、不产生任何废料 (map_xxx.dat)】 / 无需前置API
+- 纯发包实现喷漆【玩家无法交互 | 不生成map_xxx.dat】
+
+- 无需前置API，发包纯手搓（
 
 - 玩家上传图片链接 >> 文本存储图片 (image->base64) >> 喷漆(地图)自动消失
 
@@ -69,7 +69,7 @@ ___
 <img src=“https://gitee.com/pixelmc/CustomSprays/raw/master/fav.png” width=200px>
 <img src=“https://gitee.com/pixelmc/CustomSprays/raw/master/banner_logo.png” width=400px>
 
-如果您有能力，可以考虑捐献我们，帮助我们做的更好！
+如果您有能力，可以考虑捐献我们，帮助我们做得更好！
 
 微信：
 [图片]

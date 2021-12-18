@@ -1,21 +1,43 @@
+# # # # # # # # # # # # # # # # # # # # # # # #
+#  CustomSprays by LSDog
 #
-# CustomSprays by LSDog
+#  权限 | Permissions:
+#  CustomSprays.spray:
+#    default: true
+#    description: 允许喷漆 | Allow spray
+#  CustomSprays.view:
+#    default: op
+#    description: 允许查看其他玩家的图像 | Can get a map from any player (/customsprays view <player>)
+#  CustomSprays.noCD:
+#    default: op
+#    description: 没有上传和喷涂的冷却 | No cooling for spray and upload
 #
-# 权限 | Permissions:
-#   请自行查看 jar(插件文件) 内的 plugin.yml
-#   Go check plugin.yml in plugin jar file
-#
-#
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+use_MySQL: false
+# true -> 使用 MySQL存储 | false -> 使用 yml 存储
+# Use MySQL if true, otherwise save to imageData.yml
+# 默认|Default: false
+
+MySQL:
+  # 注意: 插件将会创建的表名为 "sprays"
+  # Mention: Plugin will create the table that names "sprays"
+  host: '127.0.0.1'
+  port: '3306'
+  database: 'minecraft'
+  user: 'root'
+  password: 'password'
+
 
 debug: true
 # Debug 会输出所有玩家上传的图片链接和文件大小
 # Debug Out put image link and file size
 # 默认|Default: true
 
-custom_prefix: "§6CustomSprays >>§r "
+custom_prefix: "§3§lCustomSprays >>§r "
 # 插件发送消息的前缀
 # Message prefix by plugin
-# 默认|Default: "§6CustomSprays >>§r "
+# 默认|Default: "§3§lCustomSprays >>§r "
 
 destroy: 40
 # 玩家喷漆自动消失时间 (秒)
@@ -28,8 +50,8 @@ distance: 4.5
 # 默认|Default: 4.5
 
 spray_cooldown: 30
-# 玩家喷漆和获取预览图的时间间隔 (秒)
-# Cool down between player spray or get map for a view (Second)
+# 玩家喷漆的时间间隔 (秒)
+# Cool down between player spray (Second)
 # 默认|Default: 30
 
 upload_cooldown: 60
@@ -44,20 +66,42 @@ file_size_limit: 256
 
 F_spray: true
 # 启用 双击"F" 喷漆, 仅在1.9及以上有效
-# Enable double click "F" to spray, only support version≥1.9
-
-use_MySQL: false
-# true -> 使用 MySQL存储 | false -> 使用 yml 存储
-# Use MySQL if true, otherwise save to imageData.yml
-# 默认|Default: false
-
-MySQL:
-  host: '127.0.0.1'
-  port: '1433'
-  database: 'minecraft'
-  user: 'root'
-  password: 'password'
+# Enable double "F" to spray, only support version≥1.9
 
 
+# 请注意, 此处不支持"&"作为颜色符号, 请使用"§"
+# Mention that we're not support color code "&", please use "§"
 Messages:
-  INPROGRESS:
+  # 所有信息支持 PlaceholderAPI
+  # All messages support PlaceholderAPI
+
+  UNKNOWN_COMMAND: "未知指令，使用 §3/cspray§r 查看帮助!"
+  NO_PERMISSION: "§c无权限！"
+
+  SPRAY:
+    TOO_MANY_ARGUMENTS: "此为喷漆指令 查看帮助请使用 §b/cspray§r 哦！"
+    IN_COOLING: "§c冷却中!"
+    NO_IMAGE: "笨蛋！ 你还没有上传图片呢！！！"
+    NO_IMAGE_TIP: "使用 §b/cspray§r §3upload§l <url>§r 来上传图片！"
+
+  COMMAND_HELP:
+    UPLOAD: "上传图片链接 (尺寸§c建议为128*128px§r)"
+    VIEW: "查看玩家的自定义喷漆"
+    RELOAD: "重载插件"
+    TIP: "§7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\""
+
+  COMMAND_UPLOAD:
+    NO_URL: "你忘了写图片的地址了！ 笨蛋！！"
+    NOT_URL: "你给的URL完全无效啊！ 笨蛋！！！！"
+    CONNECT_FAILED: "url连接失败了！"
+    CONNECT_HTTPS_FAILED: "如果你提供的是§e§l https§r 那么可以改成§e§l http§r 链接尝试！"
+    FILE_TOO_BIG: "你提供的文件太大了！ 有足足{size}K！ §7(最大可以上传 §f§l{limit}k§r§7 的图片！)"
+    CANT_GET_SIZE: "我们无法获取文件的大小！请换一个以图片后缀§7(.png/.jpg)§r的url试试吧......"
+    UPLOADING: "§7加载中... 请稍候......"
+    FAILED_GET_IMAGE: "获取文件失败！ 可恶！！！"
+    OK: "喷图案保存成功！"
+
+  COMMAND_VIEW:
+    NO_PLAYER: "查无此人啦..."
+    PLAYER_NO_IMAGE: " 还没有上传图片呢"
+    WARN: "§c请注意！服务器重启后§e§l不会保存被定义的地图§c, 请勿用此功能做地图画！！"

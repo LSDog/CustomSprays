@@ -17,28 +17,32 @@ public class CommandSpray implements CommandExecutor {
         Bukkit.getScheduler().runTask(CustomSprays.instant, () -> {
             if (!(sender instanceof Player)) return;
             Player player = ((Player) sender).getPlayer();
-            if (args.length != 0) { player.sendMessage(CustomSprays.prefix + "此为喷漆指令 上传图片请使用 §4/cspray§r upload §r哦！");return; }
-            if (player.isPermissionSet("CustomSprays.canSpray") && !player.hasPermission("CustomSprays.canSpray")) {
-                player.sendMessage(CustomSprays.prefix + "§c无权限！");
-                return;
-            }
-            if ((!player.isOp() || !player.hasPermission("CustomSprays.nocooldown")) && CoolDownManager.isSprayCooling(player)) {
-                player.sendMessage(CustomSprays.prefix + "§c冷却中! §7("+CoolDownManager.getSprayCool(player)+")");
-                return;
-            }
-            CoolDownManager.addSprayCooldown(player);
-            if (Data.getImageString(player.getUniqueId()) == null) {
-                player.sendMessage(CustomSprays.prefix + "笨蛋！你还没有上传图片呢！！！");
-                player.sendMessage(CustomSprays.prefix + "使用 §4/cspray§r upload <url> §r来上传图片！");
-                return;
-            }
-            try {
-                new Spray(player).create();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            if (args.length != 0) { player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.TOO_MANY_ARGUMENTS"));return; }
+            spray(player);
         });
         return true;
+    }
+
+    public static void spray(Player player) {
+        if (player.isPermissionSet("CustomSprays.canSpray") && !player.hasPermission("CustomSprays.canSpray")) {
+            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "NO_PERMISSION"));
+            return;
+        }
+        if ((!player.isOp() || !player.hasPermission("CustomSprays.noCD")) && CoolDownManager.isSprayCooling(player)) {
+            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
+            return;
+        }
+        CoolDownManager.addSprayCooldown(player);
+        if (Data.getImageString(player) == null) {
+            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.NO_IMAGE"));
+            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+            return;
+        }
+        try {
+            new Spray(player).create();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

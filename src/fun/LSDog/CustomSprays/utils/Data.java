@@ -1,19 +1,31 @@
 package fun.LSDog.CustomSprays.utils;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.ImageGetter;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.*;
-import java.util.UUID;
 
 public class Data {
 
-    public enum SaveType {
-        YML, MYSQL, SQLITE
+    public static boolean usePapi = false;
+
+    public static String getMsg(Player player, String path) {
+        String msg = CustomSprays.instant.getConfig().getString("Messages."+path);
+        if (usePapi) {
+            return PlaceholderAPI.setPlaceholders(player, msg);
+        } else return msg;
+    }
+
+    public static String getMsg(CommandSender sender, String path) {
+        if (sender instanceof Player) {
+            getMsg((Player) sender, path);
+        }
+        return CustomSprays.instant.getConfig().getString("Messages."+path);
     }
 
     @SuppressWarnings("all")
@@ -29,9 +41,7 @@ public class Data {
                 e.printStackTrace();
             }
         } else {
-            Connection con = SprayUtils.getConnection();
-            if (SprayUtils.checkConnectionIsNull(con)) return;
-            try (PreparedStatement stat = con.prepareStatement("REPLACE INTO profile(UUID,name,image) VALUES(?,?,?)")) {
+            try (Connection con = SprayUtils.getConnection(); PreparedStatement stat = con.prepareStatement("REPLACE INTO sprays(UUID,name,image) VALUES(?,?,?);")) {
                 stat.setString(1, player.getUniqueId().toString());
                 stat.setString(2, player.getName());
                 stat.setString(3, imageString);
@@ -43,26 +53,25 @@ public class Data {
     }
 
     @SuppressWarnings("all")
-    public static String getImageString(UUID uuid) {
+    public static String getImageString(Player player) {
         if (!CustomSprays.instant.getConfig().getBoolean("use_MySQL")) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(CustomSprays.instant.pluginData);
-            return config.getString(uuid.toString()+".image");
+            return config.getString(player.getUniqueId().toString()+".image");
         } else {
-            Connection con = SprayUtils.getConnection();
-            if (SprayUtils.checkConnectionIsNull(con)) return "";
-            try (PreparedStatement stat = con.prepareStatement("SELECT image FROM sprays WHERE uuid=?")) {
-                stat.setString(1, uuid.toString());
-                ResultSet resultSet = stat.executeQuery();
-                return resultSet.getString(1);
+            try (Connection con = SprayUtils.getConnection(); Statement stat = con.createStatement()) {
+                ResultSet resultSet = stat.executeQuery("SELECT image FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
+                if (resultSet.next()) return resultSet.getString("image");
             } catch (SQLException e) {
                 e.printStackTrace();
-                return "";
             }
         }
+        return null;
     }
 
-    public static BufferedImage getImage(UUID uuid) throws IOException {
-        return ImageGetter.getBufferedImage(getImageString(uuid));
+    public static BufferedImage getImage(Player player) throws IOException {
+        String string = getImageString(player);
+        if (string != null) return ImageGetter.getBufferedImage(string);
+        else return null;
     }
 
 
@@ -80,6 +89,12 @@ public class Data {
                     "primary key (UUID))");
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

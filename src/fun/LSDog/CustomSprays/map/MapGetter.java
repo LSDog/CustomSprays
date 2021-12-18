@@ -1,7 +1,5 @@
 package fun.LSDog.CustomSprays.map;
 
-import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,42 +10,14 @@ import org.bukkit.map.MapView;
 
 import java.awt.image.BufferedImage;
 
+@SuppressWarnings("deprecation")
 public class MapGetter {
-
-    public static short getFakeMapView() throws Exception {
-
-        MapView mapView = (MapView) NMS.getMcWorldMapClass().getField("mapView").get(getFakeWorldMap());
-        mapView.getRenderers().forEach(mapView::removeRenderer);
-
-        CustomSprays.debug("view ID = " + mapView.getId());
-        return mapView.getId();
-    }
-
-    private static Object getFakeWorldMap() throws Exception {
-
-        Object itemStack = NMS.getMcItemStackClass()
-                .getConstructor(NMS.getMcItemClass(), int.class, int.class, boolean.class)
-                .newInstance(NMS.getMcItemsClass().getField("MAP").get(null), 1, -1, false);
-        Object world = NMS.getMcWorld(Bukkit.getWorlds().get(0));
-
-        //itemStack.setData(world.b("map"));
-        NMS.getMcItemStackClass()
-                .getMethod("setData", int.class)
-                .invoke(itemStack,
-                        (int) NMS.getMcWorldClass()
-                                .getMethod("b", String.class)
-                                .invoke(world, "map")
-                );
-        String s = "map_" + itemStack.getClass().getMethod("getData").invoke(itemStack);
-
-        CustomSprays.debug("itemStack ID = " + s);
-        return NMS.getMcWorldMapClass().getConstructor(String.class).newInstance(s);
-    }
-
 
     public static ItemStack getMap(MapView mapView) {
 
-        ItemStack map = new ItemStack(Material.MAP, 1, mapView.getId());
+        short id = mapView.getId();
+        ItemStack map = new ItemStack(Material.MAP);
+        map.setDurability(id);
 
         return map;
     }
