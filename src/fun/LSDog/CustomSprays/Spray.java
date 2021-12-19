@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public class Spray {
@@ -36,9 +37,8 @@ public class Spray {
         try {
             Map.Entry<Block, BlockFace> voidBlock = SprayUtils.getTargetBlock(player);
             if (voidBlock == null) return;
-            if (voidBlock.getValue() == BlockFace.UP || voidBlock.getValue() == BlockFace.DOWN ) {
-                // TODO 1.13 以上版本 支持差别
-                return;
+            if (voidBlock.getValue() == BlockFace.UP || voidBlock.getValue() == BlockFace.DOWN) {
+                if (CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground")) return;
             }
             itemFrameId = spawnItemFrameWithMap (
                     voidBlock.getKey().getRelative(voidBlock.getValue()).getLocation(),
@@ -83,38 +83,61 @@ public class Spray {
         // get id
         itemFrameId = (int) itemFrame.getClass().getMethod("getId").invoke(itemFrame);
 
-
+        // get dataWatcher
         Object dataWatcher = itemFrame.getClass().getMethod("getDataWatcher").invoke(itemFrame);
         // set dataWatcher
-        switch (CustomSprays.getSubVer()) {
-            case 8:
-                dataWatcher = NMS.getMcDataWatcherClass().getConstructor(NMS.getMcEntityClass()).newInstance(itemFrame);
-                NMS.getMcDataWatcherClass()
-                        .getMethod("a", int.class, Object.class)
-                        .invoke(dataWatcher, 8, mcMap);
-                NMS.getMcDataWatcherClass().getMethod("update", int.class).invoke(dataWatcher, 8);
-                break;
-            case 9:
-            case 10: // 1_9~1_10-> "dataWatcher.set(DataWatcherRegistry.f.a(5), mcMap);"
-                dataWatcher.getClass()
-                        .getMethod("set", NMS.getMcDataWatcherObjectClass(), Object.class)
-                        .invoke(
-                                dataWatcher,
-                                NMS.getMcDataWatcherSerializerClass().getMethod("a", int.class)
-                                        .invoke(NMS.getField(NMS.getMcDataWatcherRegistryClass(),null,"f"), 6), com.google.common.base.Optional.of(mcMap)
-                        );
-                break;
-            default: // 1_10~1_12-> "dataWatcher.set(DataWatcherRegistry.f.a(6), mcMap);"
-                dataWatcher.getClass()
-                        .getMethod("set", NMS.getMcDataWatcherObjectClass(), Object.class)
-                        .invoke(
-                                dataWatcher,
-                                NMS.getMcDataWatcherSerializerClass().getMethod("a", int.class)
-                                        .invoke(NMS.getField(NMS.getMcDataWatcherRegistryClass(),null,"f"), 6), mcMap
-                        );
-                break;
-        }
+        if (CustomSprays.getSubVer() == 8) {
 
+            dataWatcher = NMS.getMcDataWatcherClass().getConstructor(NMS.getMcEntityClass()).newInstance(itemFrame);
+            NMS.getMcDataWatcherClass()
+                    .getMethod("a", int.class, Object.class)
+                    .invoke(dataWatcher, 8, mcMap);
+            NMS.getMcDataWatcherClass().getMethod("update", int.class).invoke(dataWatcher, 8);
+
+        } else {
+
+            String serializerName;
+            int slot;
+            Object data;
+
+            switch (CustomSprays.getSubVer()) {
+                case 9:
+                case 10:
+                    serializerName = "f";
+                    slot = 6;
+                    data = com.google.common.base.Optional.of(mcMap);
+                    break;
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                    serializerName = "f";
+                    slot = 6;
+                    data = mcMap;
+                    break;
+                case 15:
+                    serializerName = "g";
+                    slot = 7;
+                    data = mcMap;
+                    break;
+                case 16:
+                case 17:
+                default:
+                    serializerName = "g";
+                    slot = 8;
+                    data = mcMap;
+            }
+            // -> dataWatcher.set(DataWatcherRegistry.$serializerName.a($slot), $data);
+            dataWatcher.getClass()
+                    .getMethod("set", NMS.getMcDataWatcherObjectClass(), Object.class)
+                    .invoke(
+                            dataWatcher,
+                            NMS.getMcDataWatcherSerializerClass().getMethod("a", int.class)
+                                    .invoke(NMS.getField(NMS.getMcDataWatcherRegistryClass(),null, serializerName), slot)
+                            , data
+                    );
+
+        }
 
         Object dataPacket = NMS.getPacketClass("PacketPlayOutEntityMetadata")
                 .getConstructor(int.class, dataWatcher.getClass(), boolean.class)
@@ -128,7 +151,7 @@ public class Spray {
         } else {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
-                    .newInstance(mapViewId, (byte) 3, true, new ArrayList<>(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
+                    .newInstance(mapViewId, (byte) 3, false, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
         }
 
         for (Player p : players) {

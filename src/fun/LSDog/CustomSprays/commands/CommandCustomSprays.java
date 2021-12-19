@@ -3,8 +3,10 @@ package fun.LSDog.CustomSprays.commands;
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.map.MapGetter;
+import fun.LSDog.CustomSprays.map.MapImageByteCanvas;
 import fun.LSDog.CustomSprays.utils.Data;
 import fun.LSDog.CustomSprays.utils.ImageGetter;
+import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.SprayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -15,9 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CommandCustomSprays implements TabExecutor {
 
@@ -36,6 +36,20 @@ public class CommandCustomSprays implements TabExecutor {
         }
 
         switch (args[0].toLowerCase()) {
+
+            // TODO delete this
+            case "test":
+                if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!");return true; }
+                Player player = (Player) sender;
+                try {
+                    Object mapPacket = NMS.getPacketClass("PacketPlayOutMap")
+                            .getConstructor(int.class, byte.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
+                            .newInstance(player.getItemInHand().getDurability(), (byte) 3, false, Collections.emptyList(), new MapImageByteCanvas(Data.getImage(player)).getMapImageBuffer(), 0, 0, 128, 128);
+                    NMS.sendPacket(player, mapPacket);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
 
             case "reload":
                 if (!sender.isOp()) {
@@ -111,13 +125,12 @@ public class CommandCustomSprays implements TabExecutor {
                         if (args.length <= 1) targetPlayer = player;
                         else targetPlayer = Bukkit.getPlayerExact(args[1]);
                         if (targetPlayer == null) {
-                            sender.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_VIEW.NO_PLAYER"));
-                            return;
+                            sender.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_VIEW.NO_PLAYER")); return;
                         }
                         if (Data.getImageString(targetPlayer) == null) {
-                            targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + Data.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE"));
-                            return;
+                            targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + Data.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
+
                         try {
                             player.getInventory().addItem(MapGetter.getMap( MapGetter.getMapView(Data.getImage(targetPlayer)) ));
                             player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "COMMAND_VIEW.WARN"));

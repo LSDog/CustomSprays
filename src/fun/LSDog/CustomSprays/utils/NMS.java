@@ -92,10 +92,29 @@ public class NMS {
     public static Class<?> getMcClass(String name) {
         return getClass("net.minecraft.server."+version+"."+name);
     }
-    
+
+    private static Class<?> fluidCollisionModeClass = null;
+    public static Class<?> getFluidCollisionModeClass() {
+        return fluidCollisionModeClass == null ? fluidCollisionModeClass = getClass("org.bukkit.FluidCollisionMode") : fluidCollisionModeClass;
+    }
+
+    public static Object getFluidCollisionModeClass(String value) throws Exception {
+        return getFluidCollisionModeClass().getMethod("valueOf", String.class).invoke(null, value);
+    }
+
     private static Class<?> craftItemStackClass = null;
     public static Class<?> getCraftItemStackClass() {
         return craftItemStackClass == null ? craftItemStackClass = getCraftClass("inventory.CraftItemStack") : craftItemStackClass;
+    }
+
+    private static Class<?> craftWorldClass = null;
+    public static Class<?> getCraftWorldClass() {
+        return craftWorldClass == null ? craftWorldClass = getCraftClass("CraftWorld") : craftWorldClass;
+    }
+
+    private static Class<?> rayTraceResultClass = null;
+    public static Class<?> getRayTraceResultClass() {
+        return rayTraceResultClass == null ? rayTraceResultClass = getClass("org.bukkit.util.RayTraceResult") : rayTraceResultClass;
     }
 
     private static Class<?> mcWorldClass = null;
@@ -195,16 +214,20 @@ public class NMS {
         return object.getClass().getMethod("getHandle").invoke(object);
     }
 
+    public static Object getCraftWorld(World world) throws Exception {
+        return getCraftWorldClass().cast(world);
+    }
+
+    public static Object getMcWorld(World world) throws Exception {
+        return getHandle(world);
+    }
+
     public static Object getMcWorldServer(World world) throws Exception {
         return getHandle(world);
     }
 
     public static Object getMcServer() throws Exception {
         return getHandle(Bukkit.getServer());
-    }
-
-    public static Object getMcWorld(World world) throws Exception {
-        return getHandle(world);
     }
 
     public static Object getMcEntityPlayer(Player player) throws Exception {

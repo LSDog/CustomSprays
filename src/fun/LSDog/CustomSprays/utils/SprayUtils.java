@@ -2,7 +2,6 @@ package fun.LSDog.CustomSprays.utils;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -32,7 +31,7 @@ public class SprayUtils {
             CustomSprays.log("\n\n\n\n");
             CustomSprays.log("§c############################################");
             CustomSprays.log("§c==== 无法获取MySQL连接！ ====");
-            CustomSprays.log("§c请检查你的数据库!");
+            CustomSprays.log("§c==== We cant get your SQL connection! ====");
             CustomSprays.log("§c############################################");
             e.printStackTrace();
             CustomSprays.log("\n\n\n\n");
@@ -44,7 +43,7 @@ public class SprayUtils {
 
     public static boolean checkConnectionIsNull(Connection connection) {
         if (connection == null) {
-            CustomSprays.log("无法获取SQL数据库连接！请检查你的配置！");
+            CustomSprays.log("无法获取SQL数据库连接！请检查你的配置！| We cant get your SQL connection! Please check your config!");
             return true;
         }
         return false;
@@ -54,43 +53,59 @@ public class SprayUtils {
         return str.toLowerCase().startsWith("http");
     }
 
+
+
     private static Method rayTraceMethod = null;
     public static Map.Entry<Block, BlockFace> getTargetBlock(Player player) throws Exception {
-        Block targetBlock = player.getTargetBlock(null, CustomSprays.instant.getConfig().getInt("distance"));
-        if (targetBlock == null || !targetBlock.getType().isSolid()) return null;
+
+        double distance = CustomSprays.instant.getConfig().getDouble("distance");
         Location playerLoc = player.getLocation().clone();
 
-        Class<?> ClassVec3d = NMS.getMcVec3DClass();
-        if (rayTraceMethod == null)
-            rayTraceMethod = NMS.getMcWorldServerClass().getMethod("rayTrace", ClassVec3d, ClassVec3d, boolean.class);
+        Block targetBlock = player.getTargetBlock(null, (int) Math.ceil(distance));
+        BlockFace blockFace;
 
-        float f1 = playerLoc.getPitch();
-        float f2 = playerLoc.getYaw();
-        double d0 = playerLoc.getX();
-        double d1 = playerLoc.getY() + player.getEyeHeight();
-        double d2 = playerLoc.getZ();
-        Object vec3d = ClassVec3d.getConstructor(double.class,double.class,double.class).newInstance(d0, d1, d2);
+        if (CustomSprays.getSubVer() < 13) {
 
-        double one = Math.PI/180;
-        double f3 = Math.cos(-f2 * one - Math.PI);
-        double f4 = Math.sin(-f2 * one - Math.PI);
-        double f5 = -Math.cos(-f1 * one);
-        double f6 = Math.sin(-f1 * one);
-        double f7 = f4 * f5;
-        double f8 = f3 * f5;
-        double d3 = player.getGameMode() == GameMode.CREATIVE ? 5.0D : 4.5D;
-        Object vec3d1 = ClassVec3d.getMethod("add", double.class,double.class,double.class).invoke(vec3d, f7 * d3, f6 * d3, f8 * d3);
-        Object movingobjectposition =
-                rayTraceMethod.invoke(
-                        NMS.getMcWorldServer(playerLoc.getWorld()),
-                        vec3d, vec3d1, false
-                );
+            float pitch = playerLoc.getPitch();
+            float yaw = playerLoc.getYaw();
+            double x = playerLoc.getX();
+            double y = playerLoc.getY() + player.getEyeHeight();
+            double z = playerLoc.getZ();
 
-        if (movingobjectposition == null) return null;
+            double one = Math.PI/180;
+            double f0 = -Math.cos(-pitch * one);
+            double vy = Math.sin(-pitch * one);
+            double vx = Math.sin(-yaw * one - Math.PI) * f0;
+            double vz = Math.cos(-yaw * one - Math.PI) * f0;
 
-        BlockFace blockFace = enumDirectionToBlockFace(NMS.getDeclaredField(movingobjectposition, "direction"));
+            Class<?> ClassVec3d = NMS.getMcVec3DClass();
+            if (rayTraceMethod == null) rayTraceMethod = NMS.getMcWorldServerClass().getMethod("rayTrace", ClassVec3d, ClassVec3d, boolean.class);
+
+            Object vec3d = ClassVec3d.getConstructor(double.class,double.class,double.class).newInstance(x, y, z);
+            Object vec3d1 = ClassVec3d.getMethod("add", double.class,double.class,double.class).invoke(vec3d, vx * distance, vy * distance, vz * distance);
+            Object movingObjectPosition = rayTraceMethod.invoke(NMS.getMcWorldServer(playerLoc.getWorld()), vec3d, vec3d1, true);
+            if (movingObjectPosition == null) return null;
+
+            blockFace = enumDirectionToBlockFace(NMS.getDeclaredField(movingObjectPosition, "direction"));
+            if (blockFace == null) return null;
+
+        } else {
+
+            Object rayTraceResult = player.getClass()
+                    .getMethod("rayTraceBlocks", double.class, NMS.getFluidCollisionModeClass())
+                    .invoke(player, distance, NMS.getFluidCollisionModeClass("NEVER"));
+
+            targetBlock = (Block) rayTraceResult.getClass().getMethod("getHitBlock").invoke(rayTraceResult);
+            blockFace = (BlockFace) rayTraceResult.getClass().getMethod("getHitBlockFace").invoke(rayTraceResult);
+            if (targetBlock == null || !targetBlock.getType().isSolid()) return null;
+
+        }
+
+        CustomSprays.debug(new AbstractMap.SimpleEntry<>(targetBlock, blockFace).toString());
+
         return new AbstractMap.SimpleEntry<>(targetBlock, blockFace);
     }
+
 
     private static BlockFace enumDirectionToBlockFace(Object notch) throws Exception {
         if (notch == null) return BlockFace.SELF;
@@ -135,5 +150,6 @@ public class SprayUtils {
         }
         return 0;
     }
+
 
 }

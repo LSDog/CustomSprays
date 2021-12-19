@@ -39,15 +39,15 @@ custom_prefix: "§3§lCustomSprays >>§r "
 # Message prefix by plugin
 # 默认|Default: "§3§lCustomSprays >>§r "
 
-destroy: 40
-# 玩家喷漆自动消失时间 (秒)
-# Spray self destroy time (Second)
-# 默认|Default: 40
-
 distance: 4.5
 # 玩家喷漆到方块的最大距离 (格)
 # Biggest distance from player to block (Block)
 # 默认|Default: 4.5
+
+destroy: 40
+# 玩家喷漆自动消失时间 (秒)
+# Spray self destroy time (Second)
+# 默认|Default: 40
 
 spray_cooldown: 30
 # 玩家喷漆的时间间隔 (秒)
@@ -67,6 +67,10 @@ file_size_limit: 256
 F_spray: true
 # 启用 双击"F" 喷漆, 仅在1.9及以上有效
 # Enable double "F" to spray, only support version≥1.9
+
+spray_on_ground: true
+# 允许在方块上下面喷涂, 仅在1.13及以上有效
+# Allow spraying above or below the block, only support version≥1.13
 
 
 # 请注意, 此处不支持"&"作为颜色符号, 请使用"§"
