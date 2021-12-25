@@ -18,7 +18,7 @@ ___
 ## 用法
 ___
 ![QuickUse](QuickUse.gif "糊到爆炸的示意图")
-<div style="text-align: center;"><b>📡 快速双击 "F" 喷漆! </b>(交换主副手的快捷键)</div>
+<center><b>📡 快速双击 "F" 喷漆! </b>(交换主副手的快捷键)</center>
 
     1 | 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
       |
