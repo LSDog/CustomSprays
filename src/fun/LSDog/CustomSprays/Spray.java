@@ -75,7 +75,16 @@ public class Spray {
         // set item
         itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
         // set location
-        itemFrame.getClass().getMethod("setLocation", double.class, double.class, double.class, float.class, float.class).invoke(itemFrame, location.getX(), location.getY(), location.getZ(), SprayUtils.getYawFromPositiveBlockFace(blockFace), 0);
+        if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
+            itemFrame.getClass().getMethod("setLocation", double.class, double.class, double.class, float.class, float.class)
+                    .invoke(itemFrame, location.getX(), location.getY(), location.getZ(), 0, blockFace == BlockFace.UP ? -90 : 90);
+        } else {
+            itemFrame.getClass().getMethod("setLocation", double.class, double.class, double.class, float.class, float.class)
+                    .invoke(itemFrame, location.getX(), location.getY(), location.getZ(), SprayUtils.getYawFromPositiveBlockFace(blockFace), 0);
+        }
+        // set direction
+        itemFrame.getClass().getMethod("setDirection", NMS.getMcEnumDirectionClass())
+                .invoke(itemFrame, SprayUtils.blockFaceToEnumDirection(blockFace));
         // get spawn packet
         Object spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
                 .getConstructor(NMS.getMcEntityClass(), int.class)
