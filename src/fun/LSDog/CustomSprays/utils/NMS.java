@@ -9,6 +9,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
 
+/**
+ * 全是 Object 的跨版本NMS适配机器（
+ */
 public class NMS {
 
     public static String version;
@@ -207,6 +210,11 @@ public class NMS {
         return mcPersistentCollectionClass == null ? mcPersistentCollectionClass = getMcClass("PersistentCollection") : mcPersistentCollectionClass;
     }
 
+    private static Class<?> mcNetworkManager = null;
+    public static Class<?> getMcNetworkManager() {
+        return mcNetworkManager == null ? mcNetworkManager = getMcClass("NetworkManager") : mcNetworkManager;
+    }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -214,7 +222,7 @@ public class NMS {
         return object.getClass().getMethod("getHandle").invoke(object);
     }
 
-    public static Object getCraftWorld(World world) throws Exception {
+    public static Object getCraftWorld(World world) {
         return getCraftWorldClass().cast(world);
     }
 

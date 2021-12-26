@@ -1,9 +1,9 @@
 package fun.LSDog.CustomSprays.commands;
 
 import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
-import fun.LSDog.CustomSprays.utils.Data;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,7 +17,7 @@ public class CommandSpray implements CommandExecutor {
         Bukkit.getScheduler().runTask(CustomSprays.instant, () -> {
             if (!(sender instanceof Player)) return;
             Player player = ((Player) sender).getPlayer();
-            if (args.length != 0) { player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.TOO_MANY_ARGUMENTS"));return; }
+            if (args.length != 0) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.TOO_MANY_ARGUMENTS"));return; }
             spray(player);
         });
         return true;
@@ -25,17 +25,17 @@ public class CommandSpray implements CommandExecutor {
 
     public static void spray(Player player) {
         if (player.isPermissionSet("CustomSprays.canSpray") && !player.hasPermission("CustomSprays.canSpray")) {
-            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "NO_PERMISSION"));
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }
         if ((!player.isOp() || !player.hasPermission("CustomSprays.noCD")) && CoolDownManager.isSprayCooling(player)) {
-            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
             return;
         }
         CoolDownManager.addSprayCooldown(player);
-        if (Data.getImageString(player) == null) {
-            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.NO_IMAGE"));
-            player.sendMessage(CustomSprays.prefix + Data.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+        if (DataManager.data.getImageString(player) == null) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
             return;
         }
         try {

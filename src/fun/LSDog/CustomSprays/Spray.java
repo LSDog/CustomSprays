@@ -1,25 +1,22 @@
 package fun.LSDog.CustomSprays;
 
+import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.map.MapImageByteCanvas;
 import fun.LSDog.CustomSprays.map.MapViewId;
-import fun.LSDog.CustomSprays.utils.Data;
 import fun.LSDog.CustomSprays.utils.NMS;
-import fun.LSDog.CustomSprays.utils.SprayUtils;
+import fun.LSDog.CustomSprays.utils.RayTracer;
+import fun.LSDog.CustomSprays.utils.TargetBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 public class Spray {
 
@@ -35,15 +32,16 @@ public class Spray {
 
     public void create() {
         try {
-            Map.Entry<Block, BlockFace> voidBlock = SprayUtils.getTargetBlock(player);
-            if (voidBlock == null) return;
-            if (voidBlock.getValue() == BlockFace.UP || voidBlock.getValue() == BlockFace.DOWN) {
-                if (CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground")) return;
+            TargetBlock targetBlock = RayTracer.getTargetBlock(player);
+            if (targetBlock == null) return;
+            /* ↓不符合放置条件就取消 */
+            if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) {
+                return;
             }
             itemFrameId = spawnItemFrameWithMap (
-                    voidBlock.getKey().getRelative(voidBlock.getValue()).getLocation(),
-                    voidBlock.getValue(),
-                    Data.getImage(player),
+                    targetBlock.getRelativeBlock().getLocation(),
+                    targetBlock.getBlockFace(),
+                    DataManager.getImage(player),
                     Bukkit.getOnlinePlayers()
             );
             SprayManager.addSpray(player, this);
@@ -55,16 +53,18 @@ public class Spray {
 
     private int spawnItemFrameWithMap(Location location, BlockFace blockFace, Image image, Collection<? extends Player> players) throws Exception {
 
-        short mapViewId = MapViewId.getId(); /*这个不>=0就没效果(就算注册了id)...气死偶嘞！！！！*/
+        short mapViewId = MapViewId.getId(); /*这个不是正数就没效果(就算注册了id)...气死偶嘞！！！！*/
 
-        Object mcMap = NMS.getMcItemStack(new ItemStack(Material.MAP, 1, mapViewId));
+        Object mcMap = NMS.getMcItemStackClass()
+                .getConstructor(NMS.getMcItemClass(), int.class, int.class)
+                .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, mapViewId);
 
         Object itemFrame = NMS.getMcClass("EntityItemFrame")
                 .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
                 .newInstance(
                         NMS.getMcWorld(world),
                         NMS.getMcBlockPosition(location),
-                        SprayUtils.blockFaceToEnumDirection(blockFace)
+                        RayTracer.blockFaceToEnumDirection(blockFace)
                 );
         //set silent
         switch (CustomSprays.getSubVer()) {
@@ -74,21 +74,10 @@ public class Spray {
         }
         // set item
         itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
-        // set location
-        if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
-            itemFrame.getClass().getMethod("setLocation", double.class, double.class, double.class, float.class, float.class)
-                    .invoke(itemFrame, location.getX(), location.getY(), location.getZ(), 0, blockFace == BlockFace.UP ? -90 : 90);
-        } else {
-            itemFrame.getClass().getMethod("setLocation", double.class, double.class, double.class, float.class, float.class)
-                    .invoke(itemFrame, location.getX(), location.getY(), location.getZ(), SprayUtils.getYawFromPositiveBlockFace(blockFace), 0);
-        }
-        // set direction
-        itemFrame.getClass().getMethod("setDirection", NMS.getMcEnumDirectionClass())
-                .invoke(itemFrame, SprayUtils.blockFaceToEnumDirection(blockFace));
-        // get spawn packet
+        // get spawn packet    /* ItemFrame.class, ItemFrameID:71, Data:Facing(int) */
         Object spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
-                .getConstructor(NMS.getMcEntityClass(), int.class)
-                .newInstance(itemFrame, 71); // 71, 谁知道呢
+                .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
+                .newInstance(itemFrame, 71, RayTracer.blockFaceToIntDirection(blockFace));
         // get id
         itemFrameId = (int) itemFrame.getClass().getMethod("getId").invoke(itemFrame);
 
@@ -110,16 +99,13 @@ public class Spray {
             Object data;
 
             switch (CustomSprays.getSubVer()) {
-                case 9:
-                case 10:
+                case 9: case 10:
                     serializerName = "f";
                     slot = 6;
-                    data = com.google.common.base.Optional.of(mcMap);
+                    data = com.google.common.base.Optional.class.getMethod("of", Object.class).invoke(null, mcMap);
+                    // ↑ "com.google.common.base.Optional.of(mcMap)"
                     break;
-                case 11:
-                case 12:
-                case 13:
-                case 14:
+                case 11: case 12: case 13: case 14:
                     serializerName = "f";
                     slot = 6;
                     data = mcMap;
@@ -129,9 +115,7 @@ public class Spray {
                     slot = 7;
                     data = mcMap;
                     break;
-                case 16:
-                case 17:
-                default:
+                case 16: case 17: default:
                     serializerName = "g";
                     slot = 8;
                     data = mcMap;

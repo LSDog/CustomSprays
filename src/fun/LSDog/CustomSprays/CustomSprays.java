@@ -1,14 +1,16 @@
 package fun.LSDog.CustomSprays;
 
+import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
 import fun.LSDog.CustomSprays.commands.CommandSpray;
 import fun.LSDog.CustomSprays.events.DoubleFEvent;
-import fun.LSDog.CustomSprays.utils.Data;
-import fun.LSDog.CustomSprays.utils.SprayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
 
 public class CustomSprays extends JavaPlugin {
 
@@ -25,20 +27,42 @@ public class CustomSprays extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        if (!config.exists()) saveResource("config.yml", false);
-        if (!pluginData.exists()) saveResource("imageData.yml", false);
-        if (getConfig().getBoolean("use_MySQL")) Data.createTableIfNotExist(SprayUtils.getConnection());
+        if (!config.exists()) {
+            saveDefaultConfig();
+        } else {
+            /*每次更迭版本的时候别忘了改这里！！*/
+            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") != 1.2) {
+                log("\n\n\n\n\n\n\n=====================\n");
+                log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
+                log("| Unsupported config detected! please delete config.yml and re-config me!");
+                log("\n=====================\n\n\n\n\n\n\n");
+                Bukkit.shutdown();
+                return;
+            }
+        }
 
-        prefix = getConfig().getString("custom_prefix");
-        Data.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+        try {
+            getConfig().load(config);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        prefix = getConfig().getString("msg_prefix");
+        DataManager.initialize(getConfig().getString("storage"));
+        DataManager.debug = getConfig().getBoolean("debug");
+        DataManager.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());
 
+        // 检测条件并启用 双击F 喷漆
         if (getSubVer() > 8 && getConfig().getBoolean("F_spray")) {
             Bukkit.getPluginManager().registerEvents(new DoubleFEvent(), this);
-            log("§8F_spray enabled.");
+            log("§8[F_spray] enabled.");
         }
+
+        // In progress
+        // Bukkit.getPluginManager().registerEvents(new SwapListener(), this);
 
         // 信息统计
         // https://bstats.org/plugin/bukkit/CustomSprays/13633
@@ -77,7 +101,7 @@ public class CustomSprays extends JavaPlugin {
     }
 
     public static void debug(String string) {
-        Bukkit.getConsoleSender().sendMessage("[CustomSprays]§c[DEBUG]§r "+string);
+        if (DataManager.debug) Bukkit.getConsoleSender().sendMessage("[CustomSprays]§c[DEBUG]§r "+string);
     }
 
 }

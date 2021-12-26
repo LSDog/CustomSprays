@@ -1,5 +1,7 @@
 ![CustomSprays](banner.png)
 
+>>>> <b>💥 English page : [README-EN.md](README-EN.md) 💥</b>
+
 
 # <b>CustomSprays</b> | 花样喷漆🎉
 
@@ -11,21 +13,23 @@ ___
 > 
 > 允许玩家提供图片链接，在服务器中展示喷涂
 
-<b>⭐ 1.13及以上版本 适配中 ⭐</b>
+> <b>在此下载</b>: [Releases](https://gitee.com/pixelmc/CustomSprays/releases)
 
-> 发布版: [Releases](https://gitee.com/pixelmc/CustomSprays/releases)
+<b>⭐ 1.13及以上版本 适配中 ⭐</b>
 
 ## 用法
 ___
 ![QuickUse](QuickUse.gif "糊到爆炸的示意图")
 <center><b>📡 快速双击 "F" 喷漆! </b>(交换主副手的快捷键)</center>
 
+步骤:
+
     1 | 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
       |
       | (现在去复制图片链接)
       |
-    2 | 输入指令: /cspary upload <url>  -  上传图片
-    3 | 输入指令: /spary                -  对着墙喷漆
+    2 | 输入指令: /cspray upload <url>  -  上传图片
+    3 | 输入指令: /spray                -  对着墙喷漆
       |
     4 | 🎇 如果服务器版本 ≥ 1.9，【快速双击F键】也可以喷漆！🎇
 

@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 
+@SuppressWarnings("unused")
 public class ImageGetter implements Closeable {
 
     /**
@@ -44,11 +45,14 @@ public class ImageGetter implements Closeable {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept-Encoding", "identity");
             conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
+            conn.setUseCaches(false);
             conn.setConnectTimeout(10000);
             conn.connect();
             if (conn.getResponseCode() == 403) return 4;
             conn.getInputStream();
-            size = conn.getContentLength()/1024;
+            size = conn.getContentLength();
+            if (size == 0) return 4;
+            size /= 1024;
             if (size >= CustomSprays.instant.getConfig().getInt("file_size_limit")+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {
@@ -65,7 +69,9 @@ public class ImageGetter implements Closeable {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
             conn.setRequestMethod("GET");
+            conn.setUseCaches(false);
             conn.setConnectTimeout(10000);
+            conn.connect();
             in = conn.getInputStream();
             image = ImageIO.read(in);
         } catch (Exception e) {
@@ -88,11 +94,13 @@ public class ImageGetter implements Closeable {
     }
 
     private BufferedImage get128pxImage() {
-        BufferedImage bufferedImage = new BufferedImage(128,128,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bufferedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
         bufferedImage.createGraphics().drawImage(image, 0, 0, 128, 128, null);
         bufferedImage.getGraphics().dispose();
         return bufferedImage;
     }
+
+
 
     public void saveToFile(File file) {
         try {

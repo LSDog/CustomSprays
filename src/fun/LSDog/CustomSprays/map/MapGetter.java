@@ -10,6 +10,7 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
+import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,9 +39,9 @@ public class MapGetter {
         return map;
     }
 
-    public static MapView getMapView(BufferedImage image) {
+    public static MapView getMapView(BufferedImage image, @Nullable MapView mapView) {
 
-        MapView mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
+        if (mapView == null) mapView = Bukkit.createMap(Bukkit.getWorlds().get(0));
         mapView.getRenderers().forEach(mapView::removeRenderer);
         mapView.addRenderer(getImageMapRenderer(image));
 
