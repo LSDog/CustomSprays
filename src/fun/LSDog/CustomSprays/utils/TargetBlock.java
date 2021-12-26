@@ -23,7 +23,7 @@ public class TargetBlock {
     }
 
     public Block getRelativeBlock() {
-        return block.getRelative(blockFace);
+        return getBlock().getRelative(blockFace);
     }
 
     public boolean isUpOrDown() {

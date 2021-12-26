@@ -32,13 +32,16 @@ public class DataManager {
     public static void initialize(String method) {
         switch (StorageMethod.getValue(method.toUpperCase())) {
             case MYSQL:
+                CustomSprays.log("§8use [MYSQL]");
                 DataMySQL.createTableIfNotExist();
                 data = new DataMySQL();
+                break;
             default:
             case YML:
                 if (!CustomSprays.instant.pluginData.exists()) {
                     CustomSprays.instant.saveResource("imageData.yml", false);
                 }
+                CustomSprays.log("§8use [YML]");
                 data = new DataYml();
         }
     }

@@ -12,6 +12,10 @@ public class CoolDownManager {
     private static final Map<UUID, Long> sprayCooldown = new HashMap<>();
     private static final Map<UUID, Long> uploadCooldown = new HashMap<>();
 
+    private static long time() {
+        return System.currentTimeMillis();
+    }
+
     public static void addSprayCooldown(Player player) {
         sprayCooldown.put(player.getUniqueId(), time() + CustomSprays.instant.getConfig().getLong("spray_cooldown")*1000);
     }
@@ -45,10 +49,5 @@ public class CoolDownManager {
     public static long getUploadCool(Player player) {
         return (uploadCooldown.getOrDefault(player.getUniqueId(), time()) - time())/1000;
     }
-
-    private static long time() {
-        return System.currentTimeMillis();
-    }
-
 
 }

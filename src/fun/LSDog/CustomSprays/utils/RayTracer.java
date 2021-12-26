@@ -78,25 +78,27 @@ public class RayTracer {
 
     public static int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
-        switch (face) {
-            case DOWN: return 0;
-            case UP: return 1;
-            case NORTH: return 2;
-            case SOUTH: return 4;
-            case WEST: return 5;
-            case EAST:
-            default: return 3;
+        if (CustomSprays.getSubVer() < 1.13) {
+            switch (face) {
+                case DOWN: return 0;
+                case UP: return 1;
+                case NORTH: return 2;
+                case SOUTH: return 4;
+                case WEST: return 5;
+                case EAST:
+                default: return 3;
+            }
+        } else {
+            switch (face) {
+                case DOWN: return 0;
+                case UP: return 1;
+                case NORTH: return 2;
+                case SOUTH: return 3;
+                case WEST: return 4;
+                case EAST:
+                default: return 5;
+            }
         }
-            /*
-        switch (face) {
-            case DOWN: return 0;
-            case UP: return 1;
-            case NORTH: return 2;
-            case SOUTH: return 3;
-            case WEST: return 4;
-            case EAST:
-            default: return 5;
-        }*/
     }
 
     private static Map<String, Object> enumDirectionMap = null;
@@ -118,16 +120,5 @@ public class RayTracer {
             default: return BlockFace.SELF;
         }
     }
-
-    public static int getYawFromPositiveBlockFace(BlockFace face) {
-        switch (face) {
-            case SOUTH: return 0;
-            case WEST: return 90;
-            case NORTH: return 180;
-            case EAST: return 270;
-        }
-        return 0;
-    }
-
 
 }

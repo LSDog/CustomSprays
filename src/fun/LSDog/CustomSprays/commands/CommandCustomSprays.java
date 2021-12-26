@@ -2,8 +2,9 @@ package fun.LSDog.CustomSprays.commands;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
+import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
-import fun.LSDog.CustomSprays.map.MapGetter;
+import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.utils.ImageGetter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -15,7 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class CommandCustomSprays implements TabExecutor {
@@ -56,7 +57,7 @@ public class CommandCustomSprays implements TabExecutor {
                         if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!"); return; }
 
                         Player player = (Player) sender;
-                        if ((!player.isOp() || !player.hasPermission("CustomSprays.noCD")) && CoolDownManager.isUploadCooling(player)) {
+                        if (!player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player)) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
                             return;
                         }
@@ -116,15 +117,34 @@ public class CommandCustomSprays implements TabExecutor {
                             sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.NO_PLAYER")); return;
                         }
                         if (DataManager.data.getImageString(targetPlayer) == null) {
-                            targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
+                            targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " " + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
 
                         try {
-                            player.getInventory().addItem( MapGetter.getMap( MapGetter.getMapView(DataManager.getImage(targetPlayer), Bukkit.getMap((short) 0)) ));
-                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
+                            new Spray(player, DataManager.getImage(targetPlayer), Collections.singletonList(player)).create(40);
+                            sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    }
+                }.runTask(CustomSprays.instant);
+                break;
+
+            case "check":
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(CustomSprays.prefix + "player only!");
+                    return true;
+                }
+                Player player = (Player) sender;
+                if (!player.hasPermission("CustomSprays.check")) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+                    return true;
+                }
+
+                new BukkitRunnable() {
+                    public void run() {
+                        Spray spray = SprayManager.getSpray(player);
+                        if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                     }
                 }.runTask(CustomSprays.instant);
                 break;
@@ -140,19 +160,22 @@ public class CommandCustomSprays implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
-            if (sender.isOp())                                           return getTabs(args[0], "upload", "view", "reload");
-            else if (sender.hasPermission("CustomSprays.view"))   return getTabs(args[0], "upload", "view");
-            else                                                         return getTabs(args[0], "upload");
+            List<String> argList = new ArrayList<>();
+            argList.add("upload");
+            if (sender.hasPermission("CustomSprays.view")) argList.add("view");
+            if (sender.hasPermission("CustomSprays.check")) argList.add("check");
+            if (sender.isOp()) argList.add("reload");
+            return getTabs(args[0], argList);
         } else {
             List<String> list = new ArrayList<>();
             Bukkit.getOnlinePlayers().forEach(p -> list.add(p.getName()));
-            return getTabs(args[1], list.toArray(new String[0]));
+            return getTabs(args[1], list);
         }
     }
 
 
-    public static List<String> getTabs(String input, String... tabs) {
-        if (input == null || "".equals(input)) return Arrays.asList(tabs);
+    public static List<String> getTabs(String input, List<String> tabs) {
+        if (input == null || "".equals(input)) return tabs;
         ArrayList<String> list = new ArrayList<>();
         for (String s : tabs) {
             if (s.toLowerCase().startsWith(input.toLowerCase())) list.add(s);

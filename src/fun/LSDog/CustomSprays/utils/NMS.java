@@ -115,9 +115,9 @@ public class NMS {
         return craftWorldClass == null ? craftWorldClass = getCraftClass("CraftWorld") : craftWorldClass;
     }
 
-    private static Class<?> rayTraceResultClass = null;
-    public static Class<?> getRayTraceResultClass() {
-        return rayTraceResultClass == null ? rayTraceResultClass = getClass("org.bukkit.util.RayTraceResult") : rayTraceResultClass;
+    private static Class<?> craftMagicNumbersClass = null;
+    public static Class<?> getCraftMagicNumbersClass() {
+        return craftMagicNumbersClass == null ? craftMagicNumbersClass = getCraftClass("util.CraftMagicNumbers") : craftMagicNumbersClass;
     }
 
     private static Class<?> mcWorldClass = null;
@@ -163,6 +163,11 @@ public class NMS {
     private static Class<?> mcItemStackClass = null;
     public static Class<?> getMcItemStackClass() {
         return mcItemStackClass == null ? mcItemStackClass = getMcClass("ItemStack") : mcItemStackClass;
+    }
+
+    private static Class<?> mcIMaterial = null;
+    public static Class<?> getIMaterialClass() {
+        return mcIMaterial == null ? mcIMaterial = getMcClass("IMaterial") : mcIMaterial;
     }
 
     private static Class<?> mcItemClass = null;

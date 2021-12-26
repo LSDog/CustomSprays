@@ -28,8 +28,8 @@ public class CommandSpray implements CommandExecutor {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }
-        if ((!player.isOp() || !player.hasPermission("CustomSprays.noCD")) && CoolDownManager.isSprayCooling(player)) {
-            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
+        if (!player.isOp() && CoolDownManager.isSprayCooling(player)) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
             return;
         }
         CoolDownManager.addSprayCooldown(player);
@@ -39,7 +39,7 @@ public class CommandSpray implements CommandExecutor {
             return;
         }
         try {
-            new Spray(player).create();
+            new Spray(player, DataManager.getImage(player), Bukkit.getOnlinePlayers()).create(CustomSprays.instant.getConfig().getInt("destroy")*20L);
         } catch (Exception e) {
             e.printStackTrace();
         }

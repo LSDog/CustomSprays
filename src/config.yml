@@ -13,6 +13,10 @@
 #    default: op
 #    description: 允许查看其他玩家的图像 | Can get a map from any player (/customsprays view <player>)
 #
+#  CustomSprays.check:
+#    default: op
+#    description: 允许检测喷漆者 | Can check the sprayer of a spray (/customsprays check)
+#
 #  CustomSprays.noCD:
 #    default: op
 #    description: 没有上传和喷涂的冷却 | No cooling for spray and upload
@@ -101,10 +105,10 @@ Messages:
 
   UNKNOWN_COMMAND: "未知指令，使用 §3/cspray§r 查看帮助!"
   NO_PERMISSION: "§c无权限！"
+  IN_COOLING: "§c冷却中!"
 
   SPRAY:
     TOO_MANY_ARGUMENTS: "此为喷漆指令 查看帮助请使用 §b/cspray§r 哦！"
-    IN_COOLING: "§c冷却中!"
     NO_IMAGE: "笨蛋！ 你还没有上传图片呢！！！"
     NO_IMAGE_TIP: "使用 §b/cspray§r §3upload§l <url>§r 来上传图片！"
 
@@ -127,8 +131,8 @@ Messages:
 
   COMMAND_VIEW:
     NO_PLAYER: "查无此人啦..."
-    PLAYER_NO_IMAGE: " 还没有上传图片呢"
-    WARN: "§c请注意！服务器重启后§e§l不会保存被定义的地图§c, 请勿用此功能做地图画！！"
+    PLAYER_NO_IMAGE: "还没有上传图片呢"
+    WARN: "§7注意: 此喷漆只向你展示"
 
 
 # |Checking compatibility, take care of this (✿◕‿◕✿)

@@ -26,6 +26,7 @@ public class MapImageByteCanvas {
         return buf;
     }
 
+    @SuppressWarnings("deprecation")
     private void drawImage() {
         byte[] bytes = MapPalette.imageToBytes(image);
         for (int x2 = 0; x2 < image.getWidth(null); ++x2) {

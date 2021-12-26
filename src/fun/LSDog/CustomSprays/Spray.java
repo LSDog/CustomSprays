@@ -1,6 +1,5 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.map.MapImageByteCanvas;
 import fun.LSDog.CustomSprays.map.MapViewId;
@@ -9,6 +8,7 @@ import fun.LSDog.CustomSprays.utils.RayTracer;
 import fun.LSDog.CustomSprays.utils.TargetBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -20,17 +20,27 @@ import java.util.Collections;
 
 public class Spray {
 
-    private final Player player;
+    public final Player player;
     private final World world;
+    private final Image image;
+    private final Collection<? extends Player> players;
+
+    public Location location;
+    public BlockFace blockFace;
 
     private int itemFrameId;
 
-    public Spray(Player player) {
+    public Spray(Player player, Image image, Collection<? extends Player> showTo) {
         this.player = player;
         this.world = player.getWorld();
+        this.image = image;
+        this.players = showTo;
     }
 
-    public void create() {
+    /**
+     * @param removeTick Negative number will disable auto remove
+     */
+    public void create(long removeTick) {
         try {
             TargetBlock targetBlock = RayTracer.getTargetBlock(player);
             if (targetBlock == null) return;
@@ -38,14 +48,17 @@ public class Spray {
             if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) {
                 return;
             }
+            /* ↓喷漆有占用就取消 */
+            if (SprayManager.getSpray(targetBlock.getRelativeBlock().getLocation(), targetBlock.getBlockFace()) != null) return;
+
             itemFrameId = spawnItemFrameWithMap (
                     targetBlock.getRelativeBlock().getLocation(),
                     targetBlock.getBlockFace(),
-                    DataManager.getImage(player),
-                    Bukkit.getOnlinePlayers()
+                    image,
+                    players
             );
             SprayManager.addSpray(player, this);
-            autoRemove();
+            if (removeTick >= 0) autoRemove(removeTick);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -55,9 +68,19 @@ public class Spray {
 
         short mapViewId = MapViewId.getId(); /*这个不是正数就没效果(就算注册了id)...气死偶嘞！！！！*/
 
-        Object mcMap = NMS.getMcItemStackClass()
-                .getConstructor(NMS.getMcItemClass(), int.class, int.class)
-                .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, mapViewId);
+        Object mcMap;
+        if (CustomSprays.getSubVer() < 13) {
+            mcMap = NMS.getMcItemStackClass()
+                    .getConstructor(NMS.getMcItemClass(), int.class, int.class)
+                    .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, mapViewId);
+        } else {
+            mcMap = NMS.getMcItemStackClass()
+                    .getConstructor(NMS.getIMaterialClass())
+                    .newInstance(
+                            NMS.getCraftMagicNumbersClass().getMethod("getItem", Material.class, short.class).invoke(null, Material.MAP, mapViewId)
+                    );
+            mcMap.getClass().getMethod("setDamage", int.class).invoke(mcMap, itemFrameId);
+        }
 
         Object itemFrame = NMS.getMcClass("EntityItemFrame")
                 .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
@@ -154,11 +177,16 @@ public class Spray {
         }
         SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
 
+        location.setYaw(0);
+        location.setPitch(0);
+        this.location = location;
+        this.blockFace = blockFace;
+
         return itemFrameId;
     }
 
-    public void autoRemove() {
-        Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), CustomSprays.instant.getConfig().getInt("destroy")*20L);
+    public void autoRemove(long tick) {
+        Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), tick);
     }
 
     public void destroy() {
