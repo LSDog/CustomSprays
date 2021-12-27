@@ -120,6 +120,11 @@ public class NMS {
         return craftMagicNumbersClass == null ? craftMagicNumbersClass = getCraftClass("util.CraftMagicNumbers") : craftMagicNumbersClass;
     }
 
+    private static Class<?> craftMapViewClass = null;
+    public static Class<?> getCraftMapViewClass() {
+        return craftMapViewClass == null ? craftMapViewClass = getCraftClass("map.CraftMapView") : craftMapViewClass;
+    }
+
     private static Class<?> mcWorldClass = null;
     public static Class<?> getMcWorldClass() {
         return mcWorldClass == null ? mcWorldClass = getMcClass("World") : mcWorldClass;
@@ -165,9 +170,9 @@ public class NMS {
         return mcItemStackClass == null ? mcItemStackClass = getMcClass("ItemStack") : mcItemStackClass;
     }
 
-    private static Class<?> mcIMaterial = null;
-    public static Class<?> getIMaterialClass() {
-        return mcIMaterial == null ? mcIMaterial = getMcClass("IMaterial") : mcIMaterial;
+    private static Class<?> mcIMaterialClass = null;
+    public static Class<?> getMcIMaterialClass() {
+        return mcIMaterialClass == null ? mcIMaterialClass = getMcClass("IMaterial") : mcIMaterialClass;
     }
 
     private static Class<?> mcItemClass = null;
@@ -178,6 +183,11 @@ public class NMS {
     private static Class<?> mcItemsClass = null;
     public static Class<?> getMcItemsClass() {
         return mcItemsClass == null ? mcItemsClass = getMcClass("Items") : mcItemsClass;
+    }
+
+    private static Class<?> mcItemWorldMapClass = null;
+    public static Class<?> getMcItemWorldMapClass() {
+        return mcItemWorldMapClass == null ? mcItemWorldMapClass = getMcClass("ItemWorldMap") : mcItemWorldMapClass;
     }
 
     private static Class<?> mcDataWatcherClass = null;

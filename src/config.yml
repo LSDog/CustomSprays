@@ -97,6 +97,12 @@ spray_on_ground: true
 ############ STRING CONFIG #############
 ############ 字符有关的配置 ##############
 
+url_regex: "^https?://.*"
+# |url地址匹配的正则表达式
+# |The regex of url checking
+# 默认|Default: "^https?://.*"
+
+
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
 # |Mention that we're not support color code "&", please use "§"
 Messages:
@@ -124,7 +130,7 @@ Messages:
     CONNECT_FAILED: "url连接失败了！"
     CONNECT_HTTPS_FAILED: "如果你提供的是§e§l https§r 那么可以改成§e§l http§r 链接尝试！"
     FILE_TOO_BIG: "你提供的文件太大了！ 有足足{size}K！ §7(最大可以上传 §f§l{limit}k§r§7 的图片！)"
-    CANT_GET_SIZE: "我们无法获取文件的大小！请换一个以图片后缀§7(.png/.jpg/.jpeg)§r结尾的url试试吧......"
+    CANT_GET_SIZE: "我们无法获取文件的大小！ \n请换一个以图片后缀§7(.png/.jpg/.jpeg)§r结尾的url试试吧......"
     UPLOADING: "§7加载中... 请稍候......"
     FAILED_GET_IMAGE: "获取文件失败！ 可恶！！！"
     OK: "喷图案保存成功！"
@@ -137,4 +143,4 @@ Messages:
 
 # |Checking compatibility, take care of this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.2
+configVersion: 1.3

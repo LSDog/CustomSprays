@@ -6,6 +6,7 @@ import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.utils.ImageGetter;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class CommandCustomSprays implements TabExecutor {
 
@@ -44,6 +46,7 @@ public class CommandCustomSprays implements TabExecutor {
                 }
                 CustomSprays.instant.reloadConfig();
                 DataManager.initialize(CustomSprays.instant.getConfig().getString("storage"));
+                DataManager.urlRegex = CustomSprays.instant.getConfig().getString("url_regex");
                 CustomSprays.prefix = CustomSprays.instant.getConfig().getString("msg_prefix");
                 DataManager.debug = CustomSprays.instant.getConfig().getBoolean("debug");
                 DataManager.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
@@ -65,7 +68,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                         if (args.length == 1) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));return; }
                         String url = args[1];
-                        if (!url.toLowerCase().startsWith("http")) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));return; }
+                        if (!Pattern.compile(StringEscapeUtils.escapeJava(DataManager.urlRegex)).matcher(url.toLowerCase()).matches()) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));return; }
                         ImageGetter imageGetter = new ImageGetter(url);
                         byte result = imageGetter.checkImage();
                         if (result != 0) {

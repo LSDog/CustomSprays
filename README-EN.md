@@ -1,6 +1,6 @@
 ![CustomSprays](banner.png)
 
->>>> <b>💥 中文页面 : [README.md](README.md) 💥</b>
+## <b>💥 中文页面 : [README.md](README.md) 💥</b>
 
 
 # <b>CustomSprays</b> | Fancy Spraying🎉

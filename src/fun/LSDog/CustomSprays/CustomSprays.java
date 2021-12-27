@@ -31,7 +31,7 @@ public class CustomSprays extends JavaPlugin {
             saveDefaultConfig();
         } else {
             /*每次更迭版本的时候别忘了改这里！！*/
-            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") != 1.2) {
+            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.3) {
                 log("\n\n\n\n\n\n\n=====================\n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me!");
@@ -50,6 +50,7 @@ public class CustomSprays extends JavaPlugin {
         prefix = getConfig().getString("msg_prefix");
         DataManager.initialize(getConfig().getString("storage"));
         DataManager.debug = getConfig().getBoolean("debug");
+        DataManager.urlRegex = getConfig().getString("url_regex");
         DataManager.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 
         getCommand("customsprays").setExecutor(new CommandCustomSprays());

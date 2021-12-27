@@ -1,11 +1,11 @@
 ![CustomSprays](banner.png)
 
->>>> <b>💥 English page : [README-EN.md](README-EN.md) 💥</b>
+## <b>💥 English page : [README-EN.md](README-EN.md) 💥</b>
 
 
 # <b>CustomSprays</b> | 花样喷漆🎉
 
-- " 就像起源游戏(hl,cs..) 的喷漆一样! "
+- " 就像起源游戏(hl,cs) 的喷漆一样! "
 
 ## 📢介绍 & 下载
 ___

@@ -14,6 +14,7 @@ public class DataManager {
     public static IData data;
     public static boolean debug = true;
     public static boolean usePapi = false;
+    public static String urlRegex = "^https?://.*";
 
     public static String getMsg(Player player, String path) {
         String msg = CustomSprays.instant.getConfig().getString("Messages."+path);

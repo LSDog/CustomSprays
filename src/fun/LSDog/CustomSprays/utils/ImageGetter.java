@@ -1,8 +1,8 @@
 package fun.LSDog.CustomSprays.utils;
 
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64DecoderStream;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
 import fun.LSDog.CustomSprays.CustomSprays;
-import org.apache.commons.codec.binary.Base64InputStream;
-import org.apache.commons.codec.binary.Base64OutputStream;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
@@ -13,14 +13,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 
-@SuppressWarnings("unused")
 public class ImageGetter implements Closeable {
 
     /**
      * base64字符串转化成BufferedImage
      */
     public static BufferedImage getBufferedImage(String base64) throws IOException {
-        return ImageIO.read( new Base64InputStream(new ByteArrayInputStream(base64.getBytes(StandardCharsets.UTF_8))) );
+        return ImageIO.read( new BASE64DecoderStream(new ByteArrayInputStream(base64.getBytes(StandardCharsets.UTF_8))) );
     }
 
     private final String destUrl;
@@ -50,14 +49,13 @@ public class ImageGetter implements Closeable {
             conn.connect();
             if (conn.getResponseCode() == 403) return 4;
             conn.getInputStream();
-            size = conn.getContentLength();
+            size = conn.getContentLength()/1024;
             if (size == 0) return 4;
-            size /= 1024;
             if (size >= CustomSprays.instant.getConfig().getInt("file_size_limit")+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {
             return 2;
-        } catch (IOException e) {
+        } catch (IllegalArgumentException|IOException e) {
             return 1;
         }
         return 0;
@@ -81,15 +79,8 @@ public class ImageGetter implements Closeable {
 
     public String Get128pxImageBase64() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(out);
+        BASE64EncoderStream b64 = new BASE64EncoderStream(out);
         ImageIO.write(get128pxImage(), "png", b64);
-        return out.toString("UTF-8");
-    }
-
-    public String GetImageBase64() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(out);
-        ImageIO.write(image, "png", b64);
         return out.toString("UTF-8");
     }
 
@@ -101,14 +92,6 @@ public class ImageGetter implements Closeable {
     }
 
 
-
-    public void saveToFile(File file) {
-        try {
-            ImageIO.write(image, "png", file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void close() {

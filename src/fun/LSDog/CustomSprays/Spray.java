@@ -8,7 +8,6 @@ import fun.LSDog.CustomSprays.utils.RayTracer;
 import fun.LSDog.CustomSprays.utils.TargetBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -75,11 +74,15 @@ public class Spray {
                     .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, mapViewId);
         } else {
             mcMap = NMS.getMcItemStackClass()
-                    .getConstructor(NMS.getIMaterialClass())
-                    .newInstance(
-                            NMS.getCraftMagicNumbersClass().getMethod("getItem", Material.class, short.class).invoke(null, Material.MAP, mapViewId)
-                    );
+                    .getConstructor(NMS.getMcIMaterialClass())
+                    .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null));
             mcMap.getClass().getMethod("setDamage", int.class).invoke(mcMap, itemFrameId);
+
+//            mcMap = NMS.getMcItemStackClass()
+//                    .getConstructor(NMS.getIMaterialClass())
+//                    .newInstance(
+//                            NMS.getCraftMagicNumbersClass().getMethod("getItem", Material.class, short.class).invoke(null, Material.MAP, mapViewId)
+//                    );
         }
 
         Object itemFrame = NMS.getMcClass("EntityItemFrame")
@@ -97,10 +100,19 @@ public class Spray {
         }
         // set item
         itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
-        // get spawn packet    /* ItemFrame.class, ItemFrameID:71, Data:Facing(int) */
-        Object spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
-                .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
-                .newInstance(itemFrame, 71, RayTracer.blockFaceToIntDirection(blockFace));
+        // get spawn packet
+        Object spawnPacket;
+        if (CustomSprays.getSubVer() < 14) {
+            /* ItemFrame.class, ItemFrameID:71, Data:Facing(int) */
+            spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
+                    .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
+                    .newInstance(itemFrame, 71, RayTracer.blockFaceToIntDirection(blockFace));
+        } else {
+            /* ItemFrame.class, ItemFrameID:71 */
+            spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
+                    .getConstructor(NMS.getMcEntityClass(), int.class)
+                    .newInstance(itemFrame, 71);
+        }
         // get id
         itemFrameId = (int) itemFrame.getClass().getMethod("getId").invoke(itemFrame);
 
@@ -128,17 +140,17 @@ public class Spray {
                     data = com.google.common.base.Optional.class.getMethod("of", Object.class).invoke(null, mcMap);
                     // ↑ "com.google.common.base.Optional.of(mcMap)"
                     break;
-                case 11: case 12: case 13: case 14:
+                case 11: case 12: case 13:
                     serializerName = "f";
                     slot = 6;
                     data = mcMap;
                     break;
-                case 15:
+                case 14: case 15: case 16:
                     serializerName = "g";
                     slot = 7;
                     data = mcMap;
                     break;
-                case 16: case 17: default:
+                case 17: default:
                     serializerName = "g";
                     slot = 8;
                     data = mcMap;
@@ -164,10 +176,14 @@ public class Spray {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
                     .newInstance(mapViewId, (byte) 3, new ArrayList<>(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
-        } else {
+        } else if (CustomSprays.getSubVer() < 14) {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
-                    .newInstance(mapViewId, (byte) 3, false, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
+                    .newInstance(mapViewId, (byte) 3, true, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
+        } else {
+            mapPacket = NMS.getPacketClass("PacketPlayOutMap")
+                    .getConstructor(int.class, byte.class, boolean.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
+                    .newInstance(mapViewId, (byte) 3, true, true, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
         }
 
         for (Player p : players) {

@@ -52,6 +52,8 @@ public class RayTracer {
                     .getMethod("rayTraceBlocks", double.class, NMS.getFluidCollisionModeClass())
                     .invoke(player, distance, NMS.getFluidCollisionModeClass("NEVER"));
 
+            if (rayTraceResult == null) return null;
+
             targetBlock = (Block) rayTraceResult.getClass().getMethod("getHitBlock").invoke(rayTraceResult);
             blockFace = (BlockFace) rayTraceResult.getClass().getMethod("getHitBlockFace").invoke(rayTraceResult);
             if (targetBlock == null || !targetBlock.getType().isSolid()) return null;
