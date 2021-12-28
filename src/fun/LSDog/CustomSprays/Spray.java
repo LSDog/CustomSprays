@@ -13,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,26 +66,23 @@ public class Spray {
 
     private int spawnItemFrameWithMap(Location location, BlockFace blockFace, Image image, Collection<? extends Player> players) throws Exception {
 
-        short mapViewId = MapViewId.getId(); /*这个不是正数就没效果(就算注册了id)...气死偶嘞！！！！*/
+        int mapViewId = MapViewId.getId();
+        /* 版本<=1.12时 mapView id 必须是 positive short, 1.13及以上为 int*/
 
         Object mcMap;
         if (CustomSprays.getSubVer() < 13) {
             mcMap = NMS.getMcItemStackClass()
                     .getConstructor(NMS.getMcItemClass(), int.class, int.class)
-                    .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, mapViewId);
+                    .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, (short) mapViewId);
         } else {
             mcMap = NMS.getMcItemStackClass()
                     .getConstructor(NMS.getMcIMaterialClass())
                     .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null));
-            mcMap.getClass().getMethod("setDamage", int.class).invoke(mcMap, itemFrameId);
 
-//            mcMap = NMS.getMcItemStackClass()
-//                    .getConstructor(NMS.getIMaterialClass())
-//                    .newInstance(
-//                            NMS.getCraftMagicNumbersClass().getMethod("getItem", Material.class, short.class).invoke(null, Material.MAP, mapViewId)
-//                    );
+            Object nbtTagCompound = NMS.getMcNBTTagCompoundClass().getConstructor().newInstance();
+            nbtTagCompound.getClass().getMethod("setInt", String.class, int.class).invoke(nbtTagCompound, "map", mapViewId);
+            mcMap.getClass().getMethod("setTag", NMS.getMcNBTTagCompoundClass()).invoke(mcMap, nbtTagCompound);
         }
-
         Object itemFrame = NMS.getMcClass("EntityItemFrame")
                 .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
                 .newInstance(
@@ -92,6 +90,13 @@ public class Spray {
                         NMS.getMcBlockPosition(location),
                         RayTracer.blockFaceToEnumDirection(blockFace)
                 );
+        //set rotation if put on up/down
+        if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
+            Method setRotation = itemFrame.getClass()
+                    .getMethod("setRotation", int.class);
+            setRotation.setAccessible(true);
+            setRotation.invoke(itemFrame, getItemFrameRotate(player.getLocation(), blockFace));
+        }
         //set silent
         switch (CustomSprays.getSubVer()) {
             case 8: NMS.getMcEntityClass().getMethod("b", boolean.class).invoke(itemFrame, true); break;
@@ -179,12 +184,20 @@ public class Spray {
         } else if (CustomSprays.getSubVer() < 14) {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
-                    .newInstance(mapViewId, (byte) 3, true, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
+                    .newInstance(mapViewId, (byte) 3, false, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
         } else {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, boolean.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
-                    .newInstance(mapViewId, (byte) 3, true, true, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
+                    .newInstance(mapViewId, (byte) 3, false, false, Collections.emptyList(), new MapImageByteCanvas(image).getMapImageBuffer(), 0, 0, 128, 128);
         }
+
+        /*
+        // check image
+        NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
+                .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
+                .newInstance(0,36,mcMap));
+        */
+
 
         for (Player p : players) {
             NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
@@ -213,6 +226,14 @@ public class Spray {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private int getItemFrameRotate(Location location, BlockFace face) {
+        float yaw = location.getYaw() % 360;
+        if (135 < yaw && yaw <= 225) return 0;
+        else if (225 < yaw && yaw <= 315) return face==BlockFace.DOWN ? 3 : 1;
+        else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
+        else return 2;
     }
 
 }

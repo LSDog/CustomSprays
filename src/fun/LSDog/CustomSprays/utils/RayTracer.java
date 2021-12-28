@@ -123,4 +123,14 @@ public class RayTracer {
         }
     }
 
+    public static int getYawFromPositiveBlockFace(BlockFace face) {
+        switch (face) {
+            case SOUTH: return 0;
+            case WEST: return 90;
+            case NORTH: return 180;
+            case EAST: return 270;
+        }
+        return 0;
+    }
+
 }

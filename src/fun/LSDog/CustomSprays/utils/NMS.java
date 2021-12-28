@@ -3,9 +3,7 @@ package fun.LSDog.CustomSprays.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
 
@@ -43,17 +41,6 @@ public class NMS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    public static Object getField(Object object, String name) {
-        try {
-            Field field = object.getClass().getField(name);
-            field.setAccessible(true);
-            return field.get(object);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
     public static Object getField(Class<?> clazz, Object object, String name) {
         try {
             Field field = clazz.getField(name);
@@ -74,23 +61,9 @@ public class NMS {
             return null;
         }
     }
-    public static Object getDeclaredField(Class<?> clazz, Object object, String name) {
-        try {
-            Field field = clazz.getDeclaredField(name);
-            field.setAccessible(true);
-            return field.get(clazz.cast(object));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    public static Class<?> getCraftClass(String name) {
-        return getClass("org.bukkit.craftbukkit."+version+"."+name);
-    }
 
     public static Class<?> getMcClass(String name) {
         return getClass("net.minecraft.server."+version+"."+name);
@@ -105,26 +78,6 @@ public class NMS {
         return getFluidCollisionModeClass().getMethod("valueOf", String.class).invoke(null, value);
     }
 
-    private static Class<?> craftItemStackClass = null;
-    public static Class<?> getCraftItemStackClass() {
-        return craftItemStackClass == null ? craftItemStackClass = getCraftClass("inventory.CraftItemStack") : craftItemStackClass;
-    }
-
-    private static Class<?> craftWorldClass = null;
-    public static Class<?> getCraftWorldClass() {
-        return craftWorldClass == null ? craftWorldClass = getCraftClass("CraftWorld") : craftWorldClass;
-    }
-
-    private static Class<?> craftMagicNumbersClass = null;
-    public static Class<?> getCraftMagicNumbersClass() {
-        return craftMagicNumbersClass == null ? craftMagicNumbersClass = getCraftClass("util.CraftMagicNumbers") : craftMagicNumbersClass;
-    }
-
-    private static Class<?> craftMapViewClass = null;
-    public static Class<?> getCraftMapViewClass() {
-        return craftMapViewClass == null ? craftMapViewClass = getCraftClass("map.CraftMapView") : craftMapViewClass;
-    }
-
     private static Class<?> mcWorldClass = null;
     public static Class<?> getMcWorldClass() {
         return mcWorldClass == null ? mcWorldClass = getMcClass("World") : mcWorldClass;
@@ -135,19 +88,9 @@ public class NMS {
         return mcWorldServerClass == null ? mcWorldServerClass = getMcClass("WorldServer") : mcWorldServerClass;
     }
 
-    private static Class<?> mcWorldMapClass = null;
-    public static Class<?> getMcWorldMapClass() {
-        return mcWorldMapClass == null ? mcWorldMapClass = getMcClass("WorldMap") : mcWorldMapClass;
-    }
-
     private static Class<?> mcEntityClass = null;
     public static Class<?> getMcEntityClass() {
         return mcEntityClass == null ? mcEntityClass = getMcClass("Entity") : mcEntityClass;
-    }
-
-    private static Class<?> mcEntityLivingClass = null;
-    public static Class<?> getMcEntityLivingClass() {
-        return mcEntityLivingClass == null ? mcEntityLivingClass = getMcClass("EntityLiving") : mcEntityLivingClass;
     }
 
     private static Class<?> mcEntityPlayerClass = null;
@@ -185,11 +128,6 @@ public class NMS {
         return mcItemsClass == null ? mcItemsClass = getMcClass("Items") : mcItemsClass;
     }
 
-    private static Class<?> mcItemWorldMapClass = null;
-    public static Class<?> getMcItemWorldMapClass() {
-        return mcItemWorldMapClass == null ? mcItemWorldMapClass = getMcClass("ItemWorldMap") : mcItemWorldMapClass;
-    }
-
     private static Class<?> mcDataWatcherClass = null;
     public static Class<?> getMcDataWatcherClass() {
         return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("DataWatcher") : mcDataWatcherClass;
@@ -220,14 +158,9 @@ public class NMS {
         return mcEnumDirectionClass == null ? mcEnumDirectionClass = getMcClass("EnumDirection") : mcEnumDirectionClass;
     }
 
-    private static Class<?> mcPersistentCollectionClass = null;
-    public static Class<?> getMcPersistentCollectionClass() {
-        return mcPersistentCollectionClass == null ? mcPersistentCollectionClass = getMcClass("PersistentCollection") : mcPersistentCollectionClass;
-    }
-
-    private static Class<?> mcNetworkManager = null;
-    public static Class<?> getMcNetworkManager() {
-        return mcNetworkManager == null ? mcNetworkManager = getMcClass("NetworkManager") : mcNetworkManager;
+    private static Class<?> mcNBTTagCompound = null;
+    public static Class<?> getMcNBTTagCompoundClass() {
+        return mcNBTTagCompound == null ? mcNBTTagCompound = getMcClass("NBTTagCompound") : mcNBTTagCompound;
     }
 
 
@@ -235,10 +168,6 @@ public class NMS {
     
     public static Object getHandle(Object object) throws Exception {
         return object.getClass().getMethod("getHandle").invoke(object);
-    }
-
-    public static Object getCraftWorld(World world) {
-        return getCraftWorldClass().cast(world);
     }
 
     public static Object getMcWorld(World world) throws Exception {
@@ -249,28 +178,12 @@ public class NMS {
         return getHandle(world);
     }
 
-    public static Object getMcServer() throws Exception {
-        return getHandle(Bukkit.getServer());
-    }
-
     public static Object getMcEntityPlayer(Player player) throws Exception {
         return getHandle(player);
     }
 
-    public static Object getMcEntity(Entity entity) throws Exception {
-        return getHandle(entity);
-    }
-
-    public static Object getMcEntity(World world, int id) throws Exception {
-        return getMcWorldServerClass().getMethod("getEntity", int.class).invoke(getMcWorldServer(world), id);
-    }
-
     public static Object getMcPlayerConnection(Player player) throws Exception {
         return getMcEntityPlayerClass().getField("playerConnection").get(getMcEntityPlayer(player));
-    }
-
-    public static Object getMcItemStack(ItemStack itemStack) throws Exception {
-        return getCraftItemStackClass().getMethod("asNMSCopy", ItemStack.class).invoke(null, itemStack);
     }
 
     public static Object getMcBlockPosition(Location location) throws Exception {

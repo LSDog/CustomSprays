@@ -148,6 +148,7 @@ public class CommandCustomSprays implements TabExecutor {
                     public void run() {
                         Spray spray = SprayManager.getSpray(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
+                        else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
                 }.runTask(CustomSprays.instant);
                 break;

@@ -15,6 +15,10 @@ public class MapViewId {
         return (++id > MAX || id < MIN) ? (id = MIN) : id;
     }
 
+    public static short getNowId() {
+        return id;
+    }
+
     public static void setNumbers(int max, int min) {
         if (max > 32767 || max < -32768 || min > 32767 || min < -32768) return;
         MAX = (short) Math.max(max, min);

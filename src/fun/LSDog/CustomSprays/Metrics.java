@@ -22,7 +22,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-@SuppressWarnings("all")
 public class Metrics {
 
     private final Plugin plugin;
@@ -389,14 +388,12 @@ public class Metrics {
          *
          * @param key The key of the field.
          * @param value The value of the field.
-         * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, String value) {
+        public void appendField(String key, String value) {
             if (value == null) {
                 throw new IllegalArgumentException("JSON value must not be null");
             }
             appendFieldUnescaped(key, "\"" + escape(value) + "\"");
-            return this;
         }
 
         /**
@@ -404,11 +401,9 @@ public class Metrics {
          *
          * @param key The key of the field.
          * @param value The value of the field.
-         * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, int value) {
+        public void appendField(String key, int value) {
             appendFieldUnescaped(key, String.valueOf(value));
-            return this;
         }
 
         /**
@@ -431,16 +426,14 @@ public class Metrics {
          *
          * @param key The key of the field.
          * @param values The integer array.
-         * @return A reference to this object.
          */
-        public JsonObjectBuilder appendField(String key, JsonObject[] values) {
+        public void appendField(String key, JsonObject[] values) {
             if (values == null) {
                 throw new IllegalArgumentException("JSON values must not be null");
             }
             String escapedValues =
                     Arrays.stream(values).map(JsonObject::toString).collect(Collectors.joining(","));
             appendFieldUnescaped(key, "[" + escapedValues + "]");
-            return this;
         }
 
         /**
