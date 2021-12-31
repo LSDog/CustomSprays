@@ -40,6 +40,7 @@ public class SprayManager {
     }
 
     public static Spray getSpray(Location location, BlockFace blockFace) {
+        if (location == null || blockFace == null) return null;
 
         for (Spray spray : locationSprayMap.getOrDefault(location, Collections.emptyList())) {
             if (blockFace == spray.blockFace) return spray;

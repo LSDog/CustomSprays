@@ -33,13 +33,13 @@ public class CommandSpray implements CommandExecutor {
             return;
         }
         CoolDownManager.addSprayCooldown(player);
-        if (DataManager.data.getImageString(player) == null) {
+        if (DataManager.getImageBytes(player) == null) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
             return;
         }
         try {
-            new Spray(player, DataManager.getImage(player), Bukkit.getOnlinePlayers()).create(CustomSprays.instant.getConfig().getInt("destroy")*20L);
+            new Spray(player, DataManager.getImageBytes(player), Bukkit.getOnlinePlayers()).create(CustomSprays.instant.getConfig().getInt("destroy")*20L);
         } catch (Exception e) {
             e.printStackTrace();
         }

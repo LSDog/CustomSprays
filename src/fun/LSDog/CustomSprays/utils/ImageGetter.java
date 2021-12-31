@@ -1,26 +1,20 @@
 package fun.LSDog.CustomSprays.utils;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64DecoderStream;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
 import fun.LSDog.CustomSprays.CustomSprays;
+import org.bukkit.map.MapPalette;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 
 public class ImageGetter implements Closeable {
-
-    /**
-     * base64字符串转化成BufferedImage
-     */
-    public static BufferedImage getBufferedImage(String base64) throws IOException {
-        return ImageIO.read( new BASE64DecoderStream(new ByteArrayInputStream(base64.getBytes(StandardCharsets.UTF_8))) );
-    }
 
     private final String destUrl;
 
@@ -77,18 +71,22 @@ public class ImageGetter implements Closeable {
         }
     }
 
-    public String Get128pxImageBase64() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        BASE64EncoderStream b64 = new BASE64EncoderStream(out);
-        ImageIO.write(get128pxImage(), "png", b64);
-        return out.toString("UTF-8");
-    }
-
     private BufferedImage get128pxImage() {
         BufferedImage bufferedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
         bufferedImage.createGraphics().drawImage(image, 0, 0, 128, 128, null);
         bufferedImage.getGraphics().dispose();
         return bufferedImage;
+    }
+
+    @SuppressWarnings("deprecation")
+    public byte[] getMapBytes() throws IOException {
+        int[] pixels = new int[128*128];
+        get128pxImage().getRGB(0, 0, 128, 128, pixels, 0, 128);
+        byte[] result = new byte[128*128];
+        for(int i = 0; i < pixels.length; ++i) {
+            result[i] = MapPalette.matchColor(new Color(pixels[i], true));
+        }
+        return result;
     }
 
 

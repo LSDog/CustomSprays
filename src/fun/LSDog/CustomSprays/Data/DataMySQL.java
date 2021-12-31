@@ -11,23 +11,25 @@ public class DataMySQL implements IData {
 
     @Override
     @SuppressWarnings("all")
-    public void saveImageString(Player player, String imageString) {
+    public int saveImageBytes(Player player, byte[] imgBytes) {
+        byte[] data = DataManager.compressBytes(imgBytes);
         try (Connection con = getConnection(); PreparedStatement stat = con.prepareStatement("REPLACE INTO sprays(UUID,name,image) VALUES(?,?,?);")) {
             stat.setString(1, player.getUniqueId().toString());
             stat.setString(2, player.getName());
-            stat.setString(3, imageString);
+            stat.setBytes(3, data);
             stat.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return data.length;
     }
 
     @Override
     @SuppressWarnings("all")
-    public String getImageString(Player player) {
+    public byte[] getImageBytes(Player player) {
         try (Connection con = getConnection(); Statement stat = con.createStatement()) {
             ResultSet resultSet = stat.executeQuery("SELECT image FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
-            if (resultSet.next()) return resultSet.getString("image");
+            if (resultSet.next()) return DataManager.decompressBytes(resultSet.getBytes("image"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -36,22 +38,14 @@ public class DataMySQL implements IData {
 
     @SuppressWarnings("all")
     public static void createTableIfNotExist() {
-        Connection connection = getConnection();
-        if (checkConnectionIsNull(connection)) return;
-        try(Statement stat = connection.createStatement()) {
+        try(Connection connection = getConnection(); Statement stat = connection.createStatement()) {
             stat.executeUpdate("CREATE TABLE IF NOT EXISTS sprays(" +
                     "UUID varchar(64) not null , " +
                     "name varchar(64) not null , " +
-                    "image mediumtext not null , " +
+                    "image BLOB not null , " +
                     "primary key (UUID))");
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
     
@@ -76,14 +70,6 @@ public class DataMySQL implements IData {
             return null;
         }
         return connection;
-    }
-
-    private static boolean checkConnectionIsNull(Connection connection) {
-        if (connection == null) {
-            CustomSprays.log("无法获取SQL数据库连接！请检查你的配置！| We cant get your SQL connection! Please check your config!");
-            return true;
-        }
-        return false;
     }
 
 }

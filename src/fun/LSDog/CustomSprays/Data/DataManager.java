@@ -1,17 +1,19 @@
 package fun.LSDog.CustomSprays.Data;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.utils.ImageGetter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 public class DataManager {
 
-    public static IData data;
+    private static IData data;
     public static boolean debug = true;
     public static boolean usePapi = false;
     public static String urlRegex = "^https?://.*";
@@ -28,6 +30,14 @@ public class DataManager {
             getMsg((Player) sender, path);
         }
         return CustomSprays.instant.getConfig().getString("Messages."+path);
+    }
+
+    public static byte[] getImageBytes(Player player) {
+        return data.getImageBytes(player);
+    }
+
+    public static int saveImageBytes(Player player, byte[] imgBytes) {
+        return data.saveImageBytes(player, imgBytes);
     }
 
     public static void initialize(String method) {
@@ -60,10 +70,44 @@ public class DataManager {
         }
     }
 
-    public static BufferedImage getImage(Player player) throws IOException {
-        String string = data.getImageString(player);
-        if (string == null) return null;
-        return ImageGetter.getBufferedImage(string);
+
+
+    public static byte[] compressBytes(byte[] bytes) {
+        byte[] result = new byte[0];
+        Deflater deflater = new Deflater();
+        deflater.reset();
+        deflater.setInput(bytes);
+        deflater.finish();
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[1024];
+            while (!deflater.finished()) {
+                int i = deflater.deflate(buf);
+                out.write(buf, 0, i);
+            }
+            result = out.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static byte[] decompressBytes(byte[] bytes) {
+        byte[] result = new byte[0];
+        Inflater inflater = new Inflater();
+        inflater.reset();
+        inflater.setInput(bytes);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[1024];
+            while (!inflater.finished()) {
+                int i = inflater.inflate(buf);
+                out.write(buf, 0, i);
+            }
+            result = out.toByteArray();
+        } catch (IOException | DataFormatException e) {
+            e.printStackTrace();
+        }
+        inflater.end();
+        return result;
     }
 
 }

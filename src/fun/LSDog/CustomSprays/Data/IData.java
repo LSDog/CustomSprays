@@ -4,8 +4,8 @@ import org.bukkit.entity.Player;
 
 public interface IData {
 
-    void saveImageString(Player player, String imageString);
+    int saveImageBytes(Player player, byte[] imgBytes);
 
-    String getImageString(Player player);
+    byte[] getImageBytes(Player player);
 
 }

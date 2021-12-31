@@ -6,6 +6,7 @@ import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.utils.ImageGetter;
+import fun.LSDog.CustomSprays.utils.NMS;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -13,26 +14,26 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.map.MapView;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class CommandCustomSprays implements TabExecutor {
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         FileConfiguration config = CustomSprays.instant.getConfig();
         if (args.length == 0) {
             sender.sendMessage(CustomSprays.prefix +
                     "\n    §b/cspray§r §3upload§l <url> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.UPLOAD") +
-                    (sender.isOp() ?
-                            "\n    §b/cspray§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") +
-                            "\n    §b/cspray§r §3reload§l §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.RELOAD")
-                    : "") +
+                    (sender.hasPermission("CustomSprays.view") ? "\n    §b/cspray§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") : "") +
+                    (sender.hasPermission("CustomSprays.check") ? "\n    §b/cspray§r §3check §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.CHECK") : "") +
+                    (sender.isOp() ? "\n    §b/cspray§r §3reload§l §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.RELOAD") : "") +
                     "\n\n\n  " +  DataManager.getMsg(sender, "COMMAND_HELP.TIP"));
             return true;
         }
@@ -82,17 +83,15 @@ public class CommandCustomSprays implements TabExecutor {
                         imageGetter.getBufferedImage();
                         /* Debug: 保存下载的图片 */
                         // imageGetter.saveToFile(new File(CustomSprays.instant.getDataFolder() + "\\" + "imageTemp.png"));
-                        String imageStr = null;
+                        byte[] imgBytes;
                         try {
-                            imageStr = imageGetter.Get128pxImageBase64();
-                        } catch (IllegalArgumentException e) {
+                            imgBytes = imageGetter.getMapBytes();
+                        } catch (IllegalArgumentException | IOException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
                             return;
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
-                        CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+imageGetter.size+" K§r) " + url);
-                        DataManager.data.saveImageString(player, imageStr);
+                        int size = DataManager.saveImageBytes(player, imgBytes);
+                        CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+imageGetter.size+"§7->§e§l"+size/1024+" K§r) " + url);
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageGetter.close();
                     }
@@ -119,16 +118,25 @@ public class CommandCustomSprays implements TabExecutor {
                         if (targetPlayer == null) {
                             sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.NO_PLAYER")); return;
                         }
-                        if (DataManager.data.getImageString(targetPlayer) == null) {
+                        if (DataManager.getImageBytes(targetPlayer) == null) {
                             targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " " + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
-
+                        // check image by showing item
+                        short id = 0;
                         try {
-                            new Spray(player, DataManager.getImage(targetPlayer), Collections.singletonList(player)).create(40);
-                            sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
-                        } catch (IOException e) {
+                            NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
+                                    .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
+                                    .newInstance(0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
+                            NMS.sendPacket(player, Spray.getMapPacket(id, DataManager.getImageBytes(player)));
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> {
+                            MapView mapView = Bukkit.getMap(id);
+                            if (mapView != null) player.sendMap(mapView);
+                            player.updateInventory();
+                        }, 30);
+                        sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
                     }
                 }.runTask(CustomSprays.instant);
                 break;

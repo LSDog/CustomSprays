@@ -1,6 +1,6 @@
 ![CustomSprays](banner.png)
 
-## <b>💥 中文页面 : [README.md](README.md) 💥</b>
+## <b>💥 中文页面!! : [README.md](README.md) 💥</b>
 
 
 # <b>CustomSprays</b> | Fancy Spraying🎉
@@ -13,14 +13,16 @@ ___
 > 
 > Allowing players upload image by url, and show them in the server !
 
-> <b>Download here</b>: [Releases](https://gitee.com/pixelmc/CustomSprays/releases)
+## <b>Download</b>: [Releases](https://gitee.com/pixelmc/CustomSprays/releases)
 
-<b>⭐ 1.13 and higher version is coming soon ⭐</b>
+<b>⭐ 1.17 and higher version is coming soon ⭐</b>
+
+<b>⭐ English message config is also in config.yml (commented out by #) ⭐</b>
 
 ## Usage
 ___
 ![QuickUse](QuickUse.gif "糊到爆炸的示意图")
-<center><b>📡 Double click "F" to spray! </b>(the key exchanges items on you both hand)</center>
+<b>📡 Double click "F" to spray! </b>(the key exchanges items on you both hand)
 
 
     1 | Put "CustomSprays.jar" in "plugins" folder，restart the server.
@@ -32,13 +34,14 @@ ___
       |
     4 | 🎇 If server version ≥ 1.9，【Quick double click "F"】can also do the spray！🎇
 
+> More commands send "/cspray"
 > More configuration see "config.yml"
 
 ## 🎮Version Support
 ___
-> ⭕ <b>Support after *TEST* </b> : 1.8 | 1.9 | 1.10 | 1.11 | 1.12
+> ⭕ <b>Support after *TEST* </b> : 1.8 ~ 1.12 | 1.13 ~ 1.16
 
-> ❌ <b>Working......</b> : ≥1.13
+> ❌ <b>Working......</b> : ≥1.17
 
 
 
@@ -60,17 +63,15 @@ ___
 ## ⚡Notices (actually BUGS)
 ___
 
-> Known problems：When the map count is >32467 <sub>(max 32767 in a world)</sub>, spraying will make some original map replaced by spray image.
+> Known problems <b>*[In version 1.8~1.12]*</b>: When the map count is >32467 <sub>(max 32767 in a world)</sub>, spraying will make some original map replaced by spray image.
 >
 >> <b>Reason:</b> Plugin use MapView id [32467~32767] to target the spray ...So map with that id will be replace.
->
-> *(GOD HOW TO FIX THISSSSSSSssSsssssssssssssss)*
 
 
 
 ## ✍TODO
 ___
-- 1.13 is in progress！！
+- 1.17 is in progress！！
 
 
 

@@ -7,8 +7,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RayTracer {
 
@@ -76,61 +74,6 @@ public class RayTracer {
             case "EAST": return BlockFace.EAST;
             default: return BlockFace.SELF;
         }
-    }
-
-    public static int blockFaceToIntDirection(BlockFace face) {
-        if (face == null) return 0;
-        if (CustomSprays.getSubVer() < 1.13) {
-            switch (face) {
-                case DOWN: return 0;
-                case UP: return 1;
-                case NORTH: return 2;
-                case SOUTH: return 4;
-                case WEST: return 5;
-                case EAST:
-                default: return 3;
-            }
-        } else {
-            switch (face) {
-                case DOWN: return 0;
-                case UP: return 1;
-                case NORTH: return 2;
-                case SOUTH: return 3;
-                case WEST: return 4;
-                case EAST:
-                default: return 5;
-            }
-        }
-    }
-
-    private static Map<String, Object> enumDirectionMap = null;
-    public static Object blockFaceToEnumDirection(BlockFace blockFace) throws Exception {
-        if (enumDirectionMap == null) {
-            enumDirectionMap = new HashMap<>();
-            Object[] enums = Class.forName("net.minecraft.server."+CustomSprays.getMcVer()+".EnumDirection").getEnumConstants();
-            for (Object o : enums) {
-                enumDirectionMap.put((String) o.getClass().getMethod("getName").invoke(o), o);
-            }
-        }
-        switch (blockFace) {
-            case DOWN: return enumDirectionMap.get("down");
-            case UP: return enumDirectionMap.get("up");
-            case NORTH: return enumDirectionMap.get("north");
-            case SOUTH: return enumDirectionMap.get("south");
-            case WEST: return enumDirectionMap.get("west");
-            case EAST: return enumDirectionMap.get("east");
-            default: return BlockFace.SELF;
-        }
-    }
-
-    public static int getYawFromPositiveBlockFace(BlockFace face) {
-        switch (face) {
-            case SOUTH: return 0;
-            case WEST: return 90;
-            case NORTH: return 180;
-            case EAST: return 270;
-        }
-        return 0;
     }
 
 }

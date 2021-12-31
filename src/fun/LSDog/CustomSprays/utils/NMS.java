@@ -1,5 +1,6 @@
 package fun.LSDog.CustomSprays.utils;
 
+import fun.LSDog.CustomSprays.CustomSprays;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -27,14 +28,16 @@ public class NMS {
         return null;
     }
 
-    public static Class<?> getPacketClass() throws ClassNotFoundException {
-        return Class.forName("net.minecraft.server."+version+".Packet");
+    public static Class<?> getPacketClass() {
+        if (CustomSprays.getSubVer() < 17) return getLegacyMcClass("Packet");
+        else return getMcClass("network.protocol.Packet");
     }
-    public static Class<?> getPacketClass(String paketName) throws ClassNotFoundException {
-        return Class.forName("net.minecraft.server."+version+"."+paketName);
+    public static Class<?> getPacketClass(String paketName) {
+        if (CustomSprays.getSubVer() < 17) return getLegacyMcClass(paketName);
+        else return getMcClass("network.protocol.game."+paketName);
     }
 
-    public static void sendPacket(Player player, Object packet) throws Exception {
+    public static void sendPacket(Player player, Object packet) throws ReflectiveOperationException {
         if (packet != null) getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
     }
 
@@ -65,8 +68,13 @@ public class NMS {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public static Class<?> getMcClass(String name) {
+    // "Legacy" means version < 1.17
+    public static Class<?> getLegacyMcClass(String name) {
         return getClass("net.minecraft.server."+version+"."+name);
+    }
+
+    public static Class<?> getMcClass(String name) {
+        return getClass("net.minecraft."+name);
     }
 
     private static Class<?> fluidCollisionModeClass = null;
@@ -74,119 +82,143 @@ public class NMS {
         return fluidCollisionModeClass == null ? fluidCollisionModeClass = getClass("org.bukkit.FluidCollisionMode") : fluidCollisionModeClass;
     }
 
-    public static Object getFluidCollisionModeClass(String value) throws Exception {
+    public static Object getFluidCollisionModeClass(String value) throws ReflectiveOperationException {
         return getFluidCollisionModeClass().getMethod("valueOf", String.class).invoke(null, value);
     }
 
     private static Class<?> mcWorldClass = null;
     public static Class<?> getMcWorldClass() {
-        return mcWorldClass == null ? mcWorldClass = getMcClass("World") : mcWorldClass;
+        if (CustomSprays.getSubVer() < 17) return mcWorldClass == null ? mcWorldClass = getLegacyMcClass("World") : mcWorldClass;
+        else return mcWorldClass == null ? mcWorldClass = getMcClass("world.level.World") : mcWorldClass;
     }
 
     private static Class<?> mcWorldServerClass = null;
     public static Class<?> getMcWorldServerClass() {
-        return mcWorldServerClass == null ? mcWorldServerClass = getMcClass("WorldServer") : mcWorldServerClass;
+        if (CustomSprays.getSubVer() < 17) return mcWorldServerClass == null ? mcWorldServerClass = getLegacyMcClass("WorldServer") : mcWorldServerClass;
+        else return mcWorldServerClass == null ? mcWorldServerClass = getMcClass("server.level.WorldServer") : mcWorldServerClass;
     }
 
     private static Class<?> mcEntityClass = null;
     public static Class<?> getMcEntityClass() {
-        return mcEntityClass == null ? mcEntityClass = getMcClass("Entity") : mcEntityClass;
+        if (CustomSprays.getSubVer() < 17) return mcEntityClass == null ? mcEntityClass = getLegacyMcClass("Entity") : mcEntityClass;
+        else return mcEntityClass == null ? mcEntityClass = getMcClass("world.entity.Entity") : mcEntityClass;
     }
 
     private static Class<?> mcEntityPlayerClass = null;
     public static Class<?> getMcEntityPlayerClass() {
-        return mcEntityPlayerClass == null ? mcEntityPlayerClass = getMcClass("EntityPlayer") : mcEntityPlayerClass;
+        if (CustomSprays.getSubVer() < 17) return mcEntityPlayerClass == null ? mcEntityPlayerClass = getLegacyMcClass("EntityPlayer") : mcEntityPlayerClass;
+        else return mcEntityPlayerClass == null ? mcEntityPlayerClass = getMcClass("server.level.EntityPlayer") : mcEntityPlayerClass;
+    }
+
+    private static Class<?> mcEntityItemFrameClass = null;
+    public static Class<?> getMcEntityItemFrameClass() {
+        if (CustomSprays.getSubVer() < 17) return mcEntityItemFrameClass == null ? mcEntityItemFrameClass = getLegacyMcClass("EntityItemFrame") : mcEntityItemFrameClass;
+        else return mcEntityItemFrameClass == null ? mcEntityItemFrameClass = getMcClass("world.entity.decoration.EntityItemFrame") : mcEntityItemFrameClass;
     }
 
     private static Class<?> mcPlayerConnectionClass = null;
     public static Class<?> getMcPlayerConnectionClass() {
-        return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("PlayerConnection") : mcPlayerConnectionClass;
+        if (CustomSprays.getSubVer() < 17) return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getLegacyMcClass("PlayerConnection") : mcPlayerConnectionClass;
+        else return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("server.network.PlayerConnection") : mcPlayerConnectionClass;
     }
 
     private static Class<?> mcVec3DClass = null;
     public static Class<?> getMcVec3DClass() {
-        return mcVec3DClass == null ? mcVec3DClass = getMcClass("Vec3D") : mcVec3DClass;
+        if (CustomSprays.getSubVer() < 17) return mcVec3DClass == null ? mcVec3DClass = getLegacyMcClass("Vec3D") : mcVec3DClass;
+        else return mcVec3DClass == null ? mcVec3DClass = getMcClass("world.phys.Vec3D") : mcVec3DClass;
     }
 
     private static Class<?> mcItemStackClass = null;
     public static Class<?> getMcItemStackClass() {
-        return mcItemStackClass == null ? mcItemStackClass = getMcClass("ItemStack") : mcItemStackClass;
+        if (CustomSprays.getSubVer() < 17) return mcItemStackClass == null ? mcItemStackClass = getLegacyMcClass("ItemStack") : mcItemStackClass;
+        else return mcItemStackClass == null ? mcItemStackClass = getMcClass("world.item.ItemStack") : mcItemStackClass;
     }
 
     private static Class<?> mcIMaterialClass = null;
     public static Class<?> getMcIMaterialClass() {
-        return mcIMaterialClass == null ? mcIMaterialClass = getMcClass("IMaterial") : mcIMaterialClass;
+        if (CustomSprays.getSubVer() < 17) return mcIMaterialClass == null ? mcIMaterialClass = getLegacyMcClass("IMaterial") : mcIMaterialClass;
+        else return mcIMaterialClass == null ? mcIMaterialClass = getMcClass("world.level.IMaterial") : mcIMaterialClass;
     }
 
     private static Class<?> mcItemClass = null;
     public static Class<?> getMcItemClass() {
-        return mcItemClass == null ? mcItemClass = getMcClass("Item") : mcItemClass;
+        if (CustomSprays.getSubVer() < 17) return mcItemClass == null ? mcItemClass = getLegacyMcClass("Item") : mcItemClass;
+        else return mcItemClass == null ? mcItemClass = getMcClass("world.item.Item") : mcItemClass;
     }
 
     private static Class<?> mcItemsClass = null;
     public static Class<?> getMcItemsClass() {
-        return mcItemsClass == null ? mcItemsClass = getMcClass("Items") : mcItemsClass;
+        if (CustomSprays.getSubVer() < 17) return mcItemsClass == null ? mcItemsClass = getLegacyMcClass("Items") : mcItemsClass;
+        else return mcItemsClass == null ? mcItemsClass = getMcClass("world.item.Items") : mcItemsClass;
     }
 
     private static Class<?> mcDataWatcherClass = null;
     public static Class<?> getMcDataWatcherClass() {
-        return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("DataWatcher") : mcDataWatcherClass;
+        if (CustomSprays.getSubVer() < 17) return mcDataWatcherClass == null ? mcDataWatcherClass = getLegacyMcClass("DataWatcher") : mcDataWatcherClass;
+        else return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("network.syncher.DataWatcher") : mcDataWatcherClass;
     }
 
     private static Class<?> mcDataWatcherObjectClass = null;
     public static Class<?> getMcDataWatcherObjectClass() {
-        return mcDataWatcherObjectClass == null ? mcDataWatcherObjectClass = getMcClass("DataWatcherObject") : mcDataWatcherObjectClass;
+        if (CustomSprays.getSubVer() < 17) return mcDataWatcherObjectClass == null ? mcDataWatcherObjectClass = getLegacyMcClass("DataWatcherObject") : mcDataWatcherObjectClass;
+        else return mcDataWatcherObjectClass == null ? mcDataWatcherObjectClass = getMcClass("network.syncher.DataWatcherObject") : mcDataWatcherObjectClass;
     }
 
     private static Class<?> mcDataWatcherSerializerClass = null;
     public static Class<?> getMcDataWatcherSerializerClass() {
-        return mcDataWatcherSerializerClass == null ? mcDataWatcherSerializerClass = getMcClass("DataWatcherSerializer") : mcDataWatcherSerializerClass;
+        if (CustomSprays.getSubVer() < 17) return mcDataWatcherSerializerClass == null ? mcDataWatcherSerializerClass = getLegacyMcClass("DataWatcherSerializer") : mcDataWatcherSerializerClass;
+        else return mcDataWatcherSerializerClass == null ? mcDataWatcherSerializerClass = getMcClass("network.syncher.DataWatcherSerializer") : mcDataWatcherSerializerClass;
     }
 
     private static Class<?> mcDataWatcherRegistryClass = null;
     public static Class<?> getMcDataWatcherRegistryClass() {
-        return mcDataWatcherRegistryClass == null ? mcDataWatcherRegistryClass = getMcClass("DataWatcherRegistry") : mcDataWatcherRegistryClass;
+        if (CustomSprays.getSubVer() < 17) return mcDataWatcherRegistryClass == null ? mcDataWatcherRegistryClass = getLegacyMcClass("DataWatcherRegistry") : mcDataWatcherRegistryClass;
+        else return mcDataWatcherRegistryClass == null ? mcDataWatcherRegistryClass = getMcClass("network.syncher.DataWatcherRegistry") : mcDataWatcherRegistryClass;
     }
 
     private static Class<?> mcBlockPositionClass = null;
     public static Class<?> getMcBlockPositionClass() {
-        return mcBlockPositionClass == null ? mcBlockPositionClass = getMcClass("BlockPosition") : mcBlockPositionClass;
+        if (CustomSprays.getSubVer() < 17) return mcBlockPositionClass == null ? mcBlockPositionClass = getLegacyMcClass("BlockPosition") : mcBlockPositionClass;
+        else return mcBlockPositionClass == null ? mcBlockPositionClass = getMcClass("core.BlockPosition") : mcBlockPositionClass;
     }
 
     private static Class<?> mcEnumDirectionClass = null;
     public static Class<?> getMcEnumDirectionClass() {
-        return mcEnumDirectionClass == null ? mcEnumDirectionClass = getMcClass("EnumDirection") : mcEnumDirectionClass;
+        if (CustomSprays.getSubVer() < 17) return mcEnumDirectionClass == null ? mcEnumDirectionClass = getLegacyMcClass("EnumDirection") : mcEnumDirectionClass;
+        else return mcEnumDirectionClass == null ? mcEnumDirectionClass = getMcClass("core.EnumDirection") : mcEnumDirectionClass;
     }
 
     private static Class<?> mcNBTTagCompound = null;
     public static Class<?> getMcNBTTagCompoundClass() {
-        return mcNBTTagCompound == null ? mcNBTTagCompound = getMcClass("NBTTagCompound") : mcNBTTagCompound;
+        if (CustomSprays.getSubVer() < 17) return mcNBTTagCompound == null ? mcNBTTagCompound = getLegacyMcClass("NBTTagCompound") : mcNBTTagCompound;
+        else return mcNBTTagCompound == null ? mcNBTTagCompound = getMcClass("nbt.NBTTagCompound") : mcNBTTagCompound;
     }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    public static Object getHandle(Object object) throws Exception {
+    public static Object getHandle(Object object) throws ReflectiveOperationException {
         return object.getClass().getMethod("getHandle").invoke(object);
     }
 
-    public static Object getMcWorld(World world) throws Exception {
+    public static Object getMcWorld(World world) throws ReflectiveOperationException {
         return getHandle(world);
     }
 
-    public static Object getMcWorldServer(World world) throws Exception {
+    public static Object getMcWorldServer(World world) throws ReflectiveOperationException {
         return getHandle(world);
     }
 
-    public static Object getMcEntityPlayer(Player player) throws Exception {
+    public static Object getMcEntityPlayer(Player player) throws ReflectiveOperationException {
         return getHandle(player);
     }
 
-    public static Object getMcPlayerConnection(Player player) throws Exception {
-        return getMcEntityPlayerClass().getField("playerConnection").get(getMcEntityPlayer(player));
+    public static Object getMcPlayerConnection(Player player) throws ReflectiveOperationException {
+        if (CustomSprays.getSubVer() < 17) return getMcEntityPlayerClass().getField("playerConnection").get(getMcEntityPlayer(player));
+        else return getMcEntityPlayerClass().getField("b").get(getMcEntityPlayer(player));
     }
 
-    public static Object getMcBlockPosition(Location location) throws Exception {
+    public static Object getMcBlockPosition(Location location) throws ReflectiveOperationException {
         return getMcBlockPositionClass().getConstructor(int.class,int.class,int.class).newInstance(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
