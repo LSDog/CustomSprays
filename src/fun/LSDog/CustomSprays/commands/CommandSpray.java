@@ -10,6 +10,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public class CommandSpray implements CommandExecutor {
 
     @Override
@@ -26,6 +28,11 @@ public class CommandSpray implements CommandExecutor {
     public static void spray(Player player) {
         if (player.isPermissionSet("CustomSprays.canSpray") && !player.hasPermission("CustomSprays.canSpray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+            return;
+        }
+        List<String> worldList = CustomSprays.instant.getConfig().getStringList("disabled_world");
+        if (worldList != null && worldList.contains(player.getWorld().getName())) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
             return;
         }
         if (!player.isOp() && CoolDownManager.isSprayCooling(player)) {

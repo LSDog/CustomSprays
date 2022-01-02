@@ -1,6 +1,6 @@
 # # # # # # # # # # # # # # # # # # # # # # # #
 #         CustomSprays by LSDog
-#
+#  THE ONE WANNA BE COOL, COOLER, COOLEST!!!
 # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #  权限 | Permissions:
@@ -83,6 +83,11 @@ file_size_limit: 256
 # |Max size of the image from link (kb), the image will saved in 128*128px to save space
 # 默认|Default: 256
 
+download_limit: 4
+# |同时下载的数量限制
+# |Max download count at the same time
+# 默认|Default: 4
+
 
 
 ############ BOOLEAN CONFIG #############
@@ -94,8 +99,8 @@ F_spray: true
 # 默认|Default: true
 
 spray_on_ground: true
-# |允许在方块上下面喷涂, 仅在1.13及以上有效
-# |Allow spraying above or below the block, only support version≥1.13
+# |允许在方块上下面喷涂, 仅在1.13+有效
+# |Allow spraying above or below the block, only support version1.13+
 # 默认|Default: true
 
 
@@ -107,6 +112,10 @@ url_regex: "^https?://.*"
 # |url地址匹配的正则表达式    如果不匹配则会发送信息 {配置: Messages.NOT_URL}
 # |The regex of url checking    Send message if not matches {Config: Messages.NOT_URL}
 # 默认|Default: "^https?://.*"
+
+disabled_world: ["EXAMPLE_WORLD", "EXAMPLE_WORLD_2"]
+# |禁用的世界，列表中的世界无法喷漆
+# |Disabled world, worlds in the list is not able to spray
 
 
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
@@ -123,6 +132,7 @@ Messages:
     TOO_MANY_ARGUMENTS: "此为喷漆指令 查看帮助请使用 §b/cspray§r 哦！"
     NO_IMAGE: "笨蛋！ 你还没有上传图片呢！！！"
     NO_IMAGE_TIP: "使用 §b/cspray§r §3upload§l <url>§r 来上传图片！"
+    DISABLED_WORLD: "§7这里... 不可以的哟...❤ (此世界被禁用)"
 
   COMMAND_HELP:
     UPLOAD: "上传图片链接 (尺寸§c建议为128*128px§r)"
@@ -132,6 +142,7 @@ Messages:
     TIP: "§7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\"\n  §7§l使用 §e§l/spray§7 或在 §e§l1.9及以上版本双击F §7来§b§l喷漆！ "
 
   COMMAND_UPLOAD:
+    IN_BUSY: "服务器正忙，请稍后再传......"
     NO_URL: "你忘了写图片的地址了！ 笨蛋！！"
     NOT_URL: "你给的URL完全无效啊！ 笨蛋！！！！"
     CONNECT_FAILED: "url连接失败了！"
@@ -162,8 +173,9 @@ Messages:
 #
 #  SPRAY:
 #    TOO_MANY_ARGUMENTS: "This is the painting command. Please use the §b/cspray§r !"
-#    NO_IMAGE: "Sorry!You haven't uploaded the picture yet."
+#    NO_IMAGE: "Sorry! You haven't uploaded the picture yet."
 #    NO_IMAGE_TIP: "Please use §b/cspray§r §3upload§l <url>§r to upload your picture!"
+#    DISABLED_WORLD: "§7Sorry! This world has been disabled!"
 #
 #  COMMAND_HELP:
 #    UPLOAD: "Upload picture link (Size:§cBetter be 128*128px§r)"
@@ -173,14 +185,15 @@ Messages:
 #    TIP: "§7TIP: §7§l\"Image Hosting Web Site and Modify Pictures Online are very useful~\"\n  §7§lUse §e§l/spray§7 or Double click 'F' in version §e§l1.91.9 §7 §b§land above to paint !"
 #
 #  COMMAND_UPLOAD:
-#    NO_URL: "Sorry!You forgot to write the address of the picture!"
-#    NOT_URL: "Sorry!The URL is invalid!"
-#    CONNECT_FAILED: "Sorry!An error occurred while linking the picture!"
+#    IN_BUSY: "Server in busy, please upload later!"
+#    NO_URL: "Sorry! You forgot to write the address of the picture!"
+#    NOT_URL: "Sorry! The URL is invalid!"
+#    CONNECT_FAILED: "Sorry! An error occurred while linking the picture!"
 #    CONNECT_HTTPS_FAILED: "If your are using the URL start with §e§l https§r ,please try §e§l http§r again!"
 #    FILE_TOO_BIG: "The size of the picture you provided is too big! It is {size}K! §7(Up to §f§l{limit}k§r§7 pictures can be uploaded!)"
 #    CANT_GET_SIZE: "We couldn't get the size of the picture!\n          Please change the URL ending in §7(.png/.jpg/.jpeg)§r......"
 #    UPLOADING: "§7Loading... Please wait for a while..."
-#    FAILED_GET_IMAGE: "Sorry!An error occurred while getting the picture!"
+#    FAILED_GET_IMAGE: "Sorry! An error occurred while getting the picture!"
 #    OK: "Success!The painting had been saved! "
 #
 #  COMMAND_VIEW:
@@ -189,6 +202,8 @@ Messages:
 #    WARN: "§7Warning: The patting can only seen by you!"
 
 
+
+
 # |Checking compatibility, take care of this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.3
+configVersion: 1.4

@@ -16,6 +16,8 @@ import java.net.URL;
 
 public class ImageGetter implements Closeable {
 
+    private static int downloadCount = 0;
+
     private final String destUrl;
 
     private InputStream in;
@@ -23,8 +25,15 @@ public class ImageGetter implements Closeable {
 
     public int size;
 
-    public ImageGetter(String destUrl) {
+    public ImageGetter(String destUrl) throws TooManyDownloadException {
+        if (downloadCount >= CustomSprays.instant.getConfig().getInt("download_limit")) {
+            throw new TooManyDownloadException();
+        }
+        downloadCount++;
         this.destUrl = destUrl;
+    }
+
+    public static class TooManyDownloadException extends Exception {
     }
 
     /**

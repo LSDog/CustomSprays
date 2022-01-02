@@ -46,6 +46,7 @@ public class Spray {
             if (targetBlock == null) return;
 
             /* ↓不符合放置条件就取消 */
+            if (!targetBlock.getBlock().getType().isSolid()) return;
             if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) return;
 
             this.location = targetBlock.getRelativeBlock().getLocation();

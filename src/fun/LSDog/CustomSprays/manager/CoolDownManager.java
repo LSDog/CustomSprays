@@ -37,6 +37,10 @@ public class CoolDownManager {
         uploadCooldown.put(player.getUniqueId(), time() + CustomSprays.instant.getConfig().getLong("upload_cooldown")*1000);
     }
 
+    public static void addUploadCooldown(Player player, int second) {
+        uploadCooldown.put(player.getUniqueId(), time() + second*1000L);
+    }
+
     public static boolean isUploadCooling(Player player) {
         if (uploadCooldown.containsKey(player.getUniqueId())) {
             return time() < uploadCooldown.get(player.getUniqueId());

@@ -70,19 +70,25 @@ public class CommandCustomSprays implements TabExecutor {
                         if (args.length == 1) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));return; }
                         String url = args[1];
                         if (!Pattern.compile(StringEscapeUtils.escapeJava(DataManager.urlRegex)).matcher(url.toLowerCase()).matches()) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));return; }
-                        ImageGetter imageGetter = new ImageGetter(url);
+                        ImageGetter imageGetter;
+                        try {
+                            imageGetter = new ImageGetter(url);
+                        } catch (ImageGetter.TooManyDownloadException e) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.IN_BUSY"));
+                            return;
+                        }
                         byte result = imageGetter.checkImage();
                         if (result != 0) {
                             if (result == 1) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED"));
                             if (result == 2) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED")+"\n"+CustomSprays.prefix+ DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_HTTPS_FAILED"));
                             if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getInt("file_size_limit")+""));
                             if (result == 4) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
+                            /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
+                            CoolDownManager.addUploadCooldown(player, -45);
                             return;
                         }
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
                         imageGetter.getBufferedImage();
-                        /* Debug: 保存下载的图片 */
-                        // imageGetter.saveToFile(new File(CustomSprays.instant.getDataFolder() + "\\" + "imageTemp.png"));
                         byte[] imgBytes;
                         try {
                             imgBytes = imageGetter.getMapBytes();
