@@ -5,6 +5,8 @@
 
 # <b>CustomSprays</b> | Fancy Spraying🎉
 
+>![logo](logo64.png)
+
 - " Just like source games'(hl,cs) spraying! "
 
 ## 📢Introduce & Download

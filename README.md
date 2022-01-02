@@ -5,6 +5,8 @@
 
 # <b>CustomSprays</b> | 花样喷漆🎉
 
+>![logo](logo64.png)
+
 - " 就像起源游戏(hl,cs) 的喷漆一样! "
 
 ## 📢介绍 & 下载
