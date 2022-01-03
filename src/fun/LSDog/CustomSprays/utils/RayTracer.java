@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 public class RayTracer {
 
     private static Method rayTraceMethod = null;
-    public static TargetBlock getTargetBlock(Player player) throws Exception {
+    public static TargetBlock getTargetBlock(Player player) throws ReflectiveOperationException {
 
         double distance = CustomSprays.instant.getConfig().getDouble("distance");
         Location playerLoc = player.getLocation().clone();
@@ -62,7 +62,7 @@ public class RayTracer {
     }
 
 
-    private static BlockFace enumDirectionToBlockFace(Object notch) throws Exception {
+    private static BlockFace enumDirectionToBlockFace(Object notch) throws ReflectiveOperationException {
         if (notch == null) return BlockFace.SELF;
         String name = (String) Class.forName("net.minecraft.server."+CustomSprays.getMcVer()+".EnumDirection").getMethod("name").invoke(notch);
         switch (name) {

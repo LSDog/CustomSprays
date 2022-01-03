@@ -130,17 +130,26 @@ public class CommandCustomSprays implements TabExecutor {
                         // check image by showing item
                         short id = 0;
                         try {
-                            NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
-                                    .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
-                                    .newInstance(0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
+                            if (CustomSprays.getSubVer() < 17) {
+                                NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
+                                        .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
+                                        .newInstance(0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
+                            } else {
+                                NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
+                                        .getConstructor(int.class, int.class, int.class, NMS.getMcItemStackClass())
+                                        .newInstance(0,0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
+                            }
                             NMS.sendPacket(player, Spray.getMapPacket(id, DataManager.getImageBytes(player)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> {
-                            MapView mapView = Bukkit.getMap(id);
-                            if (mapView != null) player.sendMap(mapView);
                             player.updateInventory();
+                            MapView mapView = Bukkit.getMap(id);
+                            if (mapView == null) {
+                                mapView = Bukkit.createMap(player.getWorld());
+                            }
+                            player.sendMap(mapView);
                         }, 30);
                         sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
                     }

@@ -12,10 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Spray {
 
@@ -60,12 +57,12 @@ public class Spray {
 
             if (removeTick >= 0) autoRemove(removeTick);
 
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
     }
 
-    private int spawnItemFrameWithMap() throws Exception {
+    private int spawnItemFrameWithMap() throws ReflectiveOperationException {
 
         int mapViewId = MapViewId.getId();
         Object mcMap = getMcMap(mapViewId);
@@ -77,21 +74,32 @@ public class Spray {
                         NMS.getMcBlockPosition(location),
                         blockFaceToEnumDirection(blockFace)
                 );
-        //set rotation if put on up/down
-        if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
-            Method setRotation = itemFrame.getClass()
-                    .getMethod("setRotation", int.class);
-            setRotation.setAccessible(true);
-            setRotation.invoke(itemFrame, getItemFrameRotate(player.getLocation(), blockFace));
+        // set invisible
+        switch (CustomSprays.getSubVer()) {
+            case 18:
+                itemFrame.getClass().getMethod("j", boolean.class).invoke(itemFrame, true); break;
+            case 16: case 17: default:
+                itemFrame.getClass().getMethod("setInvisible", boolean.class).invoke(itemFrame, true);
         }
         //set silent
         switch (CustomSprays.getSubVer()) {
             case 8: NMS.getMcEntityClass().getMethod("b", boolean.class).invoke(itemFrame, true); break;
             case 9: NMS.getMcEntityClass().getMethod("c", boolean.class).invoke(itemFrame, true); break;
-            default: itemFrame.getClass().getMethod("setSilent", boolean.class).invoke(itemFrame, true);
+            case 18: NMS.getMcEntityClass().getMethod("d", boolean.class).invoke(itemFrame, true); break;
+            default: NMS.getMcEntityClass().getMethod("setSilent", boolean.class).invoke(itemFrame, true);
         }
         // set item
-        itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
+        if (CustomSprays.getSubVer() < 18) {
+            itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
+        } else {
+            itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass(), boolean.class, boolean.class).invoke(itemFrame, mcMap, false, false);
+        }
+        // set rotation
+        if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
+            Method setRotation = itemFrame.getClass().getDeclaredMethod(CustomSprays.getSubVer()<18?"setRotation":"a", int.class, boolean.class);
+            setRotation.setAccessible(true);
+            setRotation.invoke(itemFrame, getItemFrameRotate(player.getLocation(), blockFace), false);
+        }
 
         // get spawn packet
         Object spawnPacket;
@@ -101,69 +109,18 @@ public class Spray {
                     .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
                     .newInstance(itemFrame, 71, blockFaceToIntDirection(blockFace));
         } else {
-            /* ItemFrame.class, ItemFrameID:71 */
+            /* ItemFrame.class, Data:Facing(int) */
             spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
                     .getConstructor(NMS.getMcEntityClass(), int.class)
-                    .newInstance(itemFrame, 71);
+                    .newInstance(itemFrame, blockFaceToIntDirection(blockFace));
         }
         // get id
-        itemFrameId = (int) itemFrame.getClass().getMethod("getId").invoke(itemFrame);
+        itemFrameId = (int) itemFrame.getClass().getMethod(CustomSprays.getSubVer()<18?"getId":"ae").invoke(itemFrame);
 
-
-
-        // get dataWatcher
-        Object dataWatcher = itemFrame.getClass().getMethod("getDataWatcher").invoke(itemFrame);
-        // set dataWatcher
-        if (CustomSprays.getSubVer() == 8) {
-
-            dataWatcher = NMS.getMcDataWatcherClass().getConstructor(NMS.getMcEntityClass()).newInstance(itemFrame);
-            NMS.getMcDataWatcherClass()
-                    .getMethod("a", int.class, Object.class)
-                    .invoke(dataWatcher, 8, mcMap);
-            NMS.getMcDataWatcherClass().getMethod("update", int.class).invoke(dataWatcher, 8);
-
-        } else {
-
-            String serializerName;
-            int slot;
-            Object data;
-
-            switch (CustomSprays.getSubVer()) {
-                case 9: case 10:
-                    serializerName = "f";
-                    slot = 6;
-                    data = com.google.common.base.Optional.class.getMethod("of", Object.class).invoke(null, mcMap);
-                    // ↑ "com.google.common.base.Optional.of(mcMap)"
-                    break;
-                case 11: case 12: case 13:
-                    serializerName = "f";
-                    slot = 6;
-                    data = mcMap;
-                    break;
-                case 14: case 15: case 16:
-                    serializerName = "g";
-                    slot = 7;
-                    data = mcMap;
-                    break;
-                case 17: default:
-                    serializerName = "g";
-                    slot = 8;
-                    data = mcMap;
-            }
-            // -> dataWatcher.set(DataWatcherRegistry.$serializerName.a($slot), $data);
-            dataWatcher.getClass()
-                    .getMethod("set", NMS.getMcDataWatcherObjectClass(), Object.class)
-                    .invoke(
-                            dataWatcher,
-                            NMS.getMcDataWatcherSerializerClass().getMethod("a", int.class)
-                                    .invoke(NMS.getField(NMS.getMcDataWatcherRegistryClass(),null, serializerName), slot)
-                            , data
-                    );
-
-        }
+        Object dataWatcher = itemFrame.getClass().getMethod(CustomSprays.getSubVer()<18?"getDataWatcher":"ai").invoke(itemFrame);
 
         Object dataPacket = NMS.getPacketClass("PacketPlayOutEntityMetadata")
-                .getConstructor(int.class, dataWatcher.getClass(), boolean.class)
+                .getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class)
                 .newInstance(itemFrameId, dataWatcher, false);
 
         for (Player p : players) {
@@ -173,6 +130,7 @@ public class Spray {
         }
         SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
 
+        // set yaw and pitch for comparing
         location.setYaw(0);
         location.setPitch(0);
 
@@ -211,8 +169,13 @@ public class Spray {
                     .newInstance(NMS.getMcItemsClass().getField(itemFieldName).get(null));
 
             Object nbtTagCompound = NMS.getMcNBTTagCompoundClass().getConstructor().newInstance();
-            nbtTagCompound.getClass().getMethod("setInt", String.class, int.class).invoke(nbtTagCompound, "map", mapViewId);
-            mcMap.getClass().getMethod("setTag", NMS.getMcNBTTagCompoundClass()).invoke(mcMap, nbtTagCompound);
+            if (CustomSprays.getSubVer() < 18) {
+                nbtTagCompound.getClass().getMethod("setInt", String.class, int.class).invoke(nbtTagCompound, "map", mapViewId);
+                mcMap.getClass().getMethod("setTag", NMS.getMcNBTTagCompoundClass()).invoke(mcMap, nbtTagCompound);
+            } else {
+                nbtTagCompound.getClass().getMethod("a", String.class, int.class).invoke(nbtTagCompound, "map", mapViewId);
+                mcMap.getClass().getDeclaredMethod("c", NMS.getMcNBTTagCompoundClass()).invoke(mcMap, nbtTagCompound);
+            }
         }
         return mcMap;
     }
@@ -244,12 +207,12 @@ public class Spray {
     }
 
     private static Map<String, Object> enumDirectionMap = null;
-    private static Object blockFaceToEnumDirection(BlockFace blockFace) throws Exception {
+    private static Object blockFaceToEnumDirection(BlockFace blockFace) throws ReflectiveOperationException {
         if (enumDirectionMap == null) {
             enumDirectionMap = new HashMap<>();
             Object[] enums = NMS.getMcEnumDirectionClass().getEnumConstants();
             for (Object o : enums) {
-                enumDirectionMap.put((String) o.getClass().getMethod("getName").invoke(o), o);
+                enumDirectionMap.put((String) o.getClass().getMethod("toString").invoke(o), o);
             }
         }
         switch (blockFace) {
@@ -286,22 +249,20 @@ public class Spray {
         }
     }
 
-    private static int getYawFromPositiveBlockFace(BlockFace face) {
-        switch (face) {
-            case SOUTH: return 0;
-            case WEST: return 90;
-            case NORTH: return 180;
-            case EAST: return 270;
-        }
-        return 0;
-    }
-
     private int getItemFrameRotate(Location location, BlockFace face) {
-        float yaw = location.getYaw() % 360;
-        if (135 < yaw && yaw <= 225) return 0;
-        else if (225 < yaw && yaw <= 315) return face==BlockFace.DOWN ? 3 : 1;
-        else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
-        else return 2;
+        if (CustomSprays.getSubVer() < 17) {
+            float yaw = location.getYaw() % 360;
+            if (135 < yaw && yaw <= 225) return 0;
+            else if (225 < yaw && yaw <= 315) return face==BlockFace.DOWN ? 3 : 1;
+            else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
+            else return 2;
+        } else {
+            float yaw = location.getYaw() % 360;
+            if (135 < yaw || yaw <= -135) return 0;
+            else if (-135 < yaw && yaw <= -45) return face==BlockFace.DOWN ? 3 : 1;
+            else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
+            else return 2;
+        }
     }
 
 }

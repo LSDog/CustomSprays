@@ -38,7 +38,8 @@ public class NMS {
     }
 
     public static void sendPacket(Player player, Object packet) throws ReflectiveOperationException {
-        if (packet != null) getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
+        if (CustomSprays.getSubVer() < 18) getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
+        else getMcPlayerConnectionClass().getMethod("a", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
     }
 
 
@@ -108,6 +109,12 @@ public class NMS {
     public static Class<?> getMcEntityPlayerClass() {
         if (CustomSprays.getSubVer() < 17) return mcEntityPlayerClass == null ? mcEntityPlayerClass = getLegacyMcClass("EntityPlayer") : mcEntityPlayerClass;
         else return mcEntityPlayerClass == null ? mcEntityPlayerClass = getMcClass("server.level.EntityPlayer") : mcEntityPlayerClass;
+    }
+
+    private static Class<?> mcEntityHangingClass = null;
+    public static Class<?> getMcEntityHangingClass() {
+        if (CustomSprays.getSubVer() < 17) return mcEntityHangingClass == null ? mcEntityHangingClass = getLegacyMcClass("EntityHanging") : mcEntityHangingClass;
+        else return mcEntityHangingClass == null ? mcEntityHangingClass = getMcClass("world.entity.decoration.EntityHanging") : mcEntityHangingClass;
     }
 
     private static Class<?> mcEntityItemFrameClass = null;
