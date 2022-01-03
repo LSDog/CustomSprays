@@ -14,10 +14,12 @@ ___
 > CustomSprays ~ Fancy Spraying
 > 
 > Allowing players upload image by url, and show them in the server !
+>
+> MCBBS >> https://www.mcbbs.net/thread-1289391-1-1.html
 
 ## <b>Download</b>: [Releases](https://gitee.com/pixelmc/CustomSprays/releases)
 
-<b>⭐ 1.17 and higher version is coming soon ⭐</b>
+<b>⭐ 1.8 ~ 1.18 fully supported! ⭐</b>
 
 <b>⭐ English message config is also in config.yml (commented out by #) ⭐</b>
 
@@ -41,9 +43,7 @@ ___
 
 ## 🎮Version Support
 ___
-> ⭕ <b>Support after *TEST* </b> : 1.8 ~ 1.12 | 1.13 ~ 1.16
-
-> ❌ <b>Working......</b> : ≥1.17
+> ⭕ <b>Support after *TEST* </b> : 1.8 ~ 1.18
 
 
 
@@ -73,7 +73,7 @@ ___
 
 ## ✍TODO
 ___
-- 1.17 is in progress！！
+- NULL lol
 
 
 
