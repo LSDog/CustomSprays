@@ -102,6 +102,7 @@ public class ImageGetter implements Closeable {
 
     @Override
     public void close() {
+        if (downloadCount > 0) downloadCount--;
         // 关闭 InputStream
         if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
     }

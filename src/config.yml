@@ -36,13 +36,6 @@ MySQL:
   user: 'root'
   password: 'password'
 
-SQLite:
-  # |注意: 插件将会创建的表名为 "sprays"
-  # |Mention: Plugin will create the table that names "sprays"
-  address: ""
-
-
-
 debug: true
 # |Debug (会输出所有玩家上传的图片链接和文件大小)
 # |Debug (Out put image link and file size)
@@ -94,7 +87,7 @@ download_limit: 4
 ############ 填"是否" 的配置 ##############
 
 F_spray: true
-# |启用 双击"F" 喷漆, 仅在1.9及以上有效
+# |启用 双击"F" 喷漆, 仅在1.9+有效
 # |Enable double "F" to spray, only support version≥1.9
 # 默认|Default: true
 
@@ -113,9 +106,9 @@ url_regex: "^https?://.*"
 # |The regex of url checking    Send message if not matches {Config: Messages.NOT_URL}
 # 默认|Default: "^https?://.*"
 
-disabled_world: ["EXAMPLE_WORLD", "EXAMPLE_WORLD_2"]
-# |禁用的世界，列表中的世界无法喷漆
-# |Disabled world, worlds in the list is not able to spray
+disabled_world: ["示例_世界名", "EXAMPLE_WORLD_2"]
+# |禁用的世界名称列表，列表中的世界无法喷漆
+# |Disabled world names, worlds in the list is not able to spray
 
 
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"

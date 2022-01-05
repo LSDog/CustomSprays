@@ -45,16 +45,6 @@ public class NMS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static Object getField(Class<?> clazz, Object object, String name) {
-        try {
-            Field field = clazz.getField(name);
-            field.setAccessible(true);
-            return field.get(clazz.cast(object));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
     public static Object getDeclaredField(Object object, String name) {
         try {
             Field field = object.getClass().getDeclaredField(name);
@@ -111,12 +101,6 @@ public class NMS {
         else return mcEntityPlayerClass == null ? mcEntityPlayerClass = getMcClass("server.level.EntityPlayer") : mcEntityPlayerClass;
     }
 
-    private static Class<?> mcEntityHangingClass = null;
-    public static Class<?> getMcEntityHangingClass() {
-        if (CustomSprays.getSubVer() < 17) return mcEntityHangingClass == null ? mcEntityHangingClass = getLegacyMcClass("EntityHanging") : mcEntityHangingClass;
-        else return mcEntityHangingClass == null ? mcEntityHangingClass = getMcClass("world.entity.decoration.EntityHanging") : mcEntityHangingClass;
-    }
-
     private static Class<?> mcEntityItemFrameClass = null;
     public static Class<?> getMcEntityItemFrameClass() {
         if (CustomSprays.getSubVer() < 17) return mcEntityItemFrameClass == null ? mcEntityItemFrameClass = getLegacyMcClass("EntityItemFrame") : mcEntityItemFrameClass;
@@ -163,24 +147,6 @@ public class NMS {
     public static Class<?> getMcDataWatcherClass() {
         if (CustomSprays.getSubVer() < 17) return mcDataWatcherClass == null ? mcDataWatcherClass = getLegacyMcClass("DataWatcher") : mcDataWatcherClass;
         else return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("network.syncher.DataWatcher") : mcDataWatcherClass;
-    }
-
-    private static Class<?> mcDataWatcherObjectClass = null;
-    public static Class<?> getMcDataWatcherObjectClass() {
-        if (CustomSprays.getSubVer() < 17) return mcDataWatcherObjectClass == null ? mcDataWatcherObjectClass = getLegacyMcClass("DataWatcherObject") : mcDataWatcherObjectClass;
-        else return mcDataWatcherObjectClass == null ? mcDataWatcherObjectClass = getMcClass("network.syncher.DataWatcherObject") : mcDataWatcherObjectClass;
-    }
-
-    private static Class<?> mcDataWatcherSerializerClass = null;
-    public static Class<?> getMcDataWatcherSerializerClass() {
-        if (CustomSprays.getSubVer() < 17) return mcDataWatcherSerializerClass == null ? mcDataWatcherSerializerClass = getLegacyMcClass("DataWatcherSerializer") : mcDataWatcherSerializerClass;
-        else return mcDataWatcherSerializerClass == null ? mcDataWatcherSerializerClass = getMcClass("network.syncher.DataWatcherSerializer") : mcDataWatcherSerializerClass;
-    }
-
-    private static Class<?> mcDataWatcherRegistryClass = null;
-    public static Class<?> getMcDataWatcherRegistryClass() {
-        if (CustomSprays.getSubVer() < 17) return mcDataWatcherRegistryClass == null ? mcDataWatcherRegistryClass = getLegacyMcClass("DataWatcherRegistry") : mcDataWatcherRegistryClass;
-        else return mcDataWatcherRegistryClass == null ? mcDataWatcherRegistryClass = getMcClass("network.syncher.DataWatcherRegistry") : mcDataWatcherRegistryClass;
     }
 
     private static Class<?> mcBlockPositionClass = null;

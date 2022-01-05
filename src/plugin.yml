@@ -1,5 +1,5 @@
 name: CustomSprays
-version: 1.4.1
+version: 1.4.2
 main: fun.LSDog.CustomSprays.CustomSprays
 authors: [LSDog]
 softdepend: [PlaceholderAPI]
@@ -8,9 +8,9 @@ api-version: 1.13
 commands:
   customsprays:
     aliases: [cspray]
-    description: 插件主命令
+    description: 插件主命令 | Main command
   spray:
-    description: 喷喷漆
+    description: 喷喷漆 | Do spray
 
 permissions:
   CustomSprays.spray:
