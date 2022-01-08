@@ -27,7 +27,7 @@ public class DataManager {
 
     public static String getMsg(CommandSender sender, String path) {
         if (sender instanceof Player) {
-            getMsg((Player) sender, path);
+            return getMsg((Player) sender, path);
         }
         return CustomSprays.instant.getConfig().getString("Messages."+path);
     }

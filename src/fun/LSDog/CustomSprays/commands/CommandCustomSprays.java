@@ -85,6 +85,7 @@ public class CommandCustomSprays implements TabExecutor {
                             if (result == 4) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
                             /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
                             CoolDownManager.addUploadCooldown(player, -45);
+                            imageGetter.close();
                             return;
                         }
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
@@ -94,6 +95,7 @@ public class CommandCustomSprays implements TabExecutor {
                             imgBytes = imageGetter.getMapBytes();
                         } catch (IllegalArgumentException | IOException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
+                            imageGetter.close();
                             return;
                         }
                         int size = DataManager.saveImageBytes(player, imgBytes);
