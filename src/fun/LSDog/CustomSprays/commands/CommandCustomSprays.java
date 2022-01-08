@@ -84,8 +84,8 @@ public class CommandCustomSprays implements TabExecutor {
                             if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getInt("file_size_limit")+""));
                             if (result == 4) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
                             /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
-                            CoolDownManager.addUploadCooldown(player, -45);
                             imageGetter.close();
+                            CoolDownManager.addUploadCooldown(player, 8);
                             return;
                         }
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
@@ -103,7 +103,7 @@ public class CommandCustomSprays implements TabExecutor {
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageGetter.close();
                     }
-                }.runTask(CustomSprays.instant);
+                }.runTaskAsynchronously(CustomSprays.instant);
                 break;
 
 
@@ -175,7 +175,7 @@ public class CommandCustomSprays implements TabExecutor {
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
-                }.runTask(CustomSprays.instant);
+                }.runTaskAsynchronously(CustomSprays.instant);
                 break;
 
             default:

@@ -6,11 +6,12 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CoolDownManager {
 
-    private static final Map<UUID, Long> sprayCooldown = new HashMap<>();
-    private static final Map<UUID, Long> uploadCooldown = new HashMap<>();
+    private static final Map<UUID, Long> sprayCooldown = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> uploadCooldown = new ConcurrentHashMap<>();
 
     private static long time() {
         return System.currentTimeMillis();
@@ -43,7 +44,7 @@ public class CoolDownManager {
 
     public static boolean isUploadCooling(Player player) {
         if (uploadCooldown.containsKey(player.getUniqueId())) {
-            return time() < uploadCooldown.get(player.getUniqueId());
+            return time() <= uploadCooldown.get(player.getUniqueId());
         } else {
             uploadCooldown.put(player.getUniqueId(), time());
             return false;
