@@ -12,14 +12,17 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Spray {
 
     public final Player player;
-    private final World world;
-    private final byte[] pixels;
-    private final Collection<? extends Player> players;
+    protected final World world;
+    protected final byte[] pixels;
+    protected final Collection<? extends Player> players;
 
     public Location location;
     public BlockFace blockFace;
@@ -36,84 +39,41 @@ public class Spray {
     /**
      * @param removeTick Negative number will disable auto remove
      */
-    public void create(long removeTick) {
+    public boolean create(long removeTick) {
         try {
 
             TargetBlock targetBlock = RayTracer.getTargetBlock(player);
-            if (targetBlock == null) return;
+            if (targetBlock == null) return false;
 
             /* ↓不符合放置条件就取消 */
-            if (!targetBlock.getBlock().getType().isSolid()) return;
-            if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) return;
+            if (!targetBlock.getBlock().getType().isSolid()) return false;
+            if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) return false;
 
             this.location = targetBlock.getRelativeBlock().getLocation();
             this.blockFace = targetBlock.getBlockFace();
 
             /* ↓喷漆有占用就取消 */
-            if (SprayManager.getSpray(location, blockFace) != null) return;
+            if (SprayManager.getSpray(location, blockFace) != null) return false;
 
-            itemFrameId = spawnItemFrameWithMap();
-            SprayManager.addSpray(player, this);
+            spawn(players);
+            SprayManager.addSpray(this);
 
             if (removeTick >= 0) autoRemove(removeTick);
 
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
-    private int spawnItemFrameWithMap() throws ReflectiveOperationException {
+    public void spawn(Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
 
         int mapViewId = MapViewId.getId();
         Object mcMap = getMcMap(mapViewId);
         Object mapPacket = getMapPacket(mapViewId, pixels);
-        Object itemFrame = NMS.getMcEntityItemFrameClass()
-                .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
-                .newInstance(
-                        NMS.getMcWorld(world),
-                        NMS.getMcBlockPosition(location),
-                        blockFaceToEnumDirection(blockFace)
-                );
-        // set invisible
-        switch (CustomSprays.getSubVer()) {
-            case 18:
-                itemFrame.getClass().getMethod("j", boolean.class).invoke(itemFrame, true); break;
-            case 16: case 17: default:
-                itemFrame.getClass().getMethod("setInvisible", boolean.class).invoke(itemFrame, true);
-        }
-        //set silent
-        switch (CustomSprays.getSubVer()) {
-            case 8: NMS.getMcEntityClass().getMethod("b", boolean.class).invoke(itemFrame, true); break;
-            case 9: NMS.getMcEntityClass().getMethod("c", boolean.class).invoke(itemFrame, true); break;
-            case 18: NMS.getMcEntityClass().getMethod("d", boolean.class).invoke(itemFrame, true); break;
-            default: NMS.getMcEntityClass().getMethod("setSilent", boolean.class).invoke(itemFrame, true);
-        }
-        // set item
-        if (CustomSprays.getSubVer() < 18) {
-            itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
-        } else {
-            itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass(), boolean.class, boolean.class).invoke(itemFrame, mcMap, false, false);
-        }
-        // set rotation
-        if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
-            Method setRotation = itemFrame.getClass().getDeclaredMethod(CustomSprays.getSubVer()<18?"setRotation":"a", int.class, boolean.class);
-            setRotation.setAccessible(true);
-            setRotation.invoke(itemFrame, getItemFrameRotate(player.getLocation(), blockFace), false);
-        }
-
-        // get spawn packet
-        Object spawnPacket;
-        if (CustomSprays.getSubVer() < 14) {
-            /* ItemFrame.class, ItemFrameID:71, Data:Facing(int) */
-            spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
-                    .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
-                    .newInstance(itemFrame, 71, blockFaceToIntDirection(blockFace));
-        } else {
-            /* ItemFrame.class, Data:Facing(int) */
-            spawnPacket = NMS.getPacketClass("PacketPlayOutSpawnEntity")
-                    .getConstructor(NMS.getMcEntityClass(), int.class)
-                    .newInstance(itemFrame, blockFaceToIntDirection(blockFace));
-        }
+        Object itemFrame = getItemFrame(mcMap, location);
+        Object spawnPacket = getSpawnPacket(itemFrame);
         // get id
         itemFrameId = (int) itemFrame.getClass().getMethod(CustomSprays.getSubVer()<18?"getId":"ae").invoke(itemFrame);
 
@@ -123,18 +83,13 @@ public class Spray {
                 .getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class)
                 .newInstance(itemFrameId, dataWatcher, false);
 
-        for (Player p : players) {
+        for (Player p : playersShowTo) {
             NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
             NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
             NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
         }
         SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
 
-        // set yaw and pitch for comparing
-        location.setYaw(0);
-        location.setPitch(0);
-
-        return itemFrameId;
     }
 
     public void autoRemove(long tick) {
@@ -206,8 +161,60 @@ public class Spray {
         return mapPacket;
     }
 
+    protected Object getItemFrame(Object mcMap, Location location) throws ReflectiveOperationException {
+        Object itemFrame =
+                NMS.getMcEntityItemFrameClass()
+                .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
+                .newInstance(
+                        NMS.getMcWorld(world),
+                        NMS.getMcBlockPosition(location),
+                        blockFaceToEnumDirection(blockFace)
+                );
+        // set invisible
+        switch (CustomSprays.getSubVer()) {
+            case 18:
+                itemFrame.getClass().getMethod("j", boolean.class).invoke(itemFrame, true); break;
+            case 16: case 17: default:
+                itemFrame.getClass().getMethod("setInvisible", boolean.class).invoke(itemFrame, true);
+        }
+        //set silent
+        switch (CustomSprays.getSubVer()) {
+            case 8: NMS.getMcEntityClass().getMethod("b", boolean.class).invoke(itemFrame, true); break;
+            case 9: NMS.getMcEntityClass().getMethod("c", boolean.class).invoke(itemFrame, true); break;
+            case 18: NMS.getMcEntityClass().getMethod("d", boolean.class).invoke(itemFrame, true); break;
+            default: NMS.getMcEntityClass().getMethod("setSilent", boolean.class).invoke(itemFrame, true);
+        }
+        // set item
+        if (CustomSprays.getSubVer() < 18) {
+            itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
+        } else {
+            itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass(), boolean.class, boolean.class).invoke(itemFrame, mcMap, false, false);
+        }
+        // set rotation
+        if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
+            Method setRotation = itemFrame.getClass().getDeclaredMethod(CustomSprays.getSubVer()<18?"setRotation":"a", int.class, boolean.class);
+            setRotation.setAccessible(true);
+            setRotation.invoke(itemFrame, getItemFrameRotate(player.getLocation(), blockFace), false);
+        }
+        return itemFrame;
+    }
+
+    protected Object getSpawnPacket(Object itemFrame) throws ReflectiveOperationException {
+        if (CustomSprays.getSubVer() < 14) {
+            /* ItemFrame.class, ItemFrameID:71, Data:Facing(int) */
+            return NMS.getPacketClass("PacketPlayOutSpawnEntity")
+                    .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
+                    .newInstance(itemFrame, 71, blockFaceToIntDirection(blockFace));
+        } else {
+            /* ItemFrame.class, Data:Facing(int) */
+            return NMS.getPacketClass("PacketPlayOutSpawnEntity")
+                    .getConstructor(NMS.getMcEntityClass(), int.class)
+                    .newInstance(itemFrame, blockFaceToIntDirection(blockFace));
+        }
+    }
+
     private static Map<String, Object> enumDirectionMap = null;
-    private static Object blockFaceToEnumDirection(BlockFace blockFace) throws ReflectiveOperationException {
+    protected static Object blockFaceToEnumDirection(BlockFace blockFace) throws ReflectiveOperationException {
         if (enumDirectionMap == null) {
             enumDirectionMap = new HashMap<>();
             Object[] enums = NMS.getMcEnumDirectionClass().getEnumConstants();
@@ -226,7 +233,7 @@ public class Spray {
         }
     }
 
-    private static int blockFaceToIntDirection(BlockFace face) {
+    protected static int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
         if (CustomSprays.getSubVer() < 13) {
             switch (face) {
@@ -249,7 +256,7 @@ public class Spray {
         }
     }
 
-    private int getItemFrameRotate(Location location, BlockFace face) {
+    protected int getItemFrameRotate(Location location, BlockFace face) {
         if (CustomSprays.getSubVer() < 17) {
             float yaw = location.getYaw() % 360;
             if (135 < yaw && yaw <= 225) return 0;

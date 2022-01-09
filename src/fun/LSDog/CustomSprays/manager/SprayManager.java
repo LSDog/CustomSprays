@@ -12,15 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SprayManager {
 
-    public static Map<UUID, List<Spray>> playerSprayMap = new HashMap<>();
+    public static Map<UUID, List<Spray>> playerSprayMap = new ConcurrentHashMap<>();
 
     public static Map<Location, List<Spray>> locationSprayMap = new ConcurrentHashMap<>();
 
-    public static void addSpray(Player player, Spray spray) {
+    public static void addSpray(Spray spray) {
 
-        List<Spray> list = playerSprayMap.getOrDefault(player.getUniqueId(), new ArrayList<>());
+        List<Spray> list = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
         list.add(spray);
-        playerSprayMap.put(player.getUniqueId(), list);
+        playerSprayMap.put(spray.player.getUniqueId(), list);
 
         List<Spray> locList = locationSprayMap.getOrDefault(spray.location, new ArrayList<>());
         locList.add(spray);

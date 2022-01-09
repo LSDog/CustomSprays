@@ -1,10 +1,15 @@
 package fun.LSDog.CustomSprays.Data;
 
 import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.utils.ImageGetter;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.map.MapPalette;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
@@ -32,8 +37,30 @@ public class DataManager {
         return CustomSprays.instant.getConfig().getString("Messages."+path);
     }
 
-    public static byte[] getImageBytes(Player player) {
-        return data.getImageBytes(player);
+    public static byte[] get384pxImageBytes(Player player) {
+        byte[] bytes = data.getImageBytes(player);
+        if (bytes != null && bytes.length == 147456) return bytes;
+        return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static byte[] get128pxImageBytes(Player player) {
+
+        byte[] bytes = data.getImageBytes(player);
+        if (bytes == null || bytes.length != 147456) return null;
+
+        BufferedImage bufferedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+        bufferedImage.createGraphics().drawImage(ImageGetter.getImageFromPixels(384,384, bytes), 0, 0, 128, 128, null);
+        bufferedImage.getGraphics().dispose();
+
+        int[] pixels = new int[128*128];
+        bufferedImage.getRGB(0, 0, 128, 128, pixels, 0, 128);
+        byte[] result = new byte[128*128];
+        for(int i = 0; i < pixels.length; ++i) {
+            result[i] = MapPalette.matchColor(new Color(pixels[i], true));
+        }
+
+        return result;
     }
 
     public static int saveImageBytes(Player player, byte[] imgBytes) {
@@ -55,6 +82,9 @@ public class DataManager {
                 CustomSprays.log("§8use [YML]");
                 data = new DataYml();
         }
+        debug = CustomSprays.instant.getConfig().getBoolean("debug");
+        urlRegex = CustomSprays.instant.getConfig().getString("url_regex");
+        usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
     }
 
     public enum StorageMethod {

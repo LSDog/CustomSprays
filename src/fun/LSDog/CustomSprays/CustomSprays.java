@@ -3,15 +3,17 @@ package fun.LSDog.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
 import fun.LSDog.CustomSprays.commands.CommandSpray;
-import fun.LSDog.CustomSprays.events.DoubleFEvent;
+import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class CustomSprays extends JavaPlugin {
 
@@ -47,19 +49,15 @@ public class CustomSprays extends JavaPlugin {
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
-
-        prefix = getConfig().getString("msg_prefix");
         DataManager.initialize(getConfig().getString("storage"));
-        DataManager.debug = getConfig().getBoolean("debug");
-        DataManager.urlRegex = getConfig().getString("url_regex");
-        DataManager.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+        prefix = getConfig().getString("msg_prefix");
 
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());
 
         // 检测条件并启用 双击F 喷漆
         if (getSubVer() >= 9 && getConfig().getBoolean("F_spray")) {
-            Bukkit.getPluginManager().registerEvents(new DoubleFEvent(), this);
+            Bukkit.getPluginManager().registerEvents(new Events(), this);
             log("§8[F_spray] enabled.");
         }
 
@@ -87,6 +85,47 @@ public class CustomSprays extends JavaPlugin {
         } catch (Exception ignored) {
         }
         log("CustomSprays disabled.");
+    }
+
+    public synchronized static void spray(Player player, boolean isBigSpray) {
+        if (player.isPermissionSet("CustomSprays.canSpray") && !player.hasPermission("CustomSprays.canSpray")) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+            return;
+        }
+        List<String> worldList = CustomSprays.instant.getConfig().getStringList("disabled_world");
+        if (worldList != null && worldList.contains(player.getWorld().getName())) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
+            return;
+        }
+        if (!player.isOp() && CoolDownManager.isSprayCooling(player)) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
+            return;
+        }
+        try {
+            if (isBigSpray) {
+                byte[] bytes = DataManager.get384pxImageBytes(player);
+                if (bytes == null) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+                    return;
+                }
+                if (new BigSpray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.addSprayCooldown(player,1.5);
+                }
+            } else {
+                byte[] bytes = DataManager.get128pxImageBytes(player);
+                if (bytes == null) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+                    return;
+                }
+                if (new Spray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.addSprayCooldown(player,1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

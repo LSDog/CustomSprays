@@ -9,6 +9,7 @@ import fun.LSDog.CustomSprays.utils.ImageGetter;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -45,12 +46,10 @@ public class CommandCustomSprays implements TabExecutor {
                     sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(sender, "NO_PERMISSION"));
                     return true;
                 }
+                SprayManager.destroyAllSpray();
                 CustomSprays.instant.reloadConfig();
                 DataManager.initialize(CustomSprays.instant.getConfig().getString("storage"));
-                DataManager.urlRegex = CustomSprays.instant.getConfig().getString("url_regex");
                 CustomSprays.prefix = CustomSprays.instant.getConfig().getString("msg_prefix");
-                DataManager.debug = CustomSprays.instant.getConfig().getBoolean("debug");
-                DataManager.usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
                 sender.sendMessage(CustomSprays.prefix + "OK!");
                 break;
 
@@ -65,7 +64,7 @@ public class CommandCustomSprays implements TabExecutor {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
                             return;
                         }
-                        CoolDownManager.addUploadCooldown(player);
+                        CoolDownManager.addUploadCooldown(player, 1);
 
                         if (args.length == 1) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));return; }
                         String url = args[1];
@@ -81,18 +80,18 @@ public class CommandCustomSprays implements TabExecutor {
                         if (result != 0) {
                             if (result == 1) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED"));
                             if (result == 2) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED")+"\n"+CustomSprays.prefix+ DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_HTTPS_FAILED"));
-                            if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getInt("file_size_limit")+""));
+                            if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getDouble("file_size_limit")+""));
                             if (result == 4) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
                             /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
                             imageGetter.close();
-                            CoolDownManager.addUploadCooldown(player, 8);
+                            CoolDownManager.addUploadCooldown(player, 0.2);
                             return;
                         }
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
                         imageGetter.getBufferedImage();
                         byte[] imgBytes;
                         try {
-                            imgBytes = imageGetter.getMapBytes();
+                            imgBytes = imageGetter.get384pxMapBytes();
                         } catch (IllegalArgumentException | IOException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
                             imageGetter.close();
@@ -121,12 +120,23 @@ public class CommandCustomSprays implements TabExecutor {
                         }
 
                         Player targetPlayer;
-                        if (args.length <= 1) targetPlayer = player;
-                        else targetPlayer = Bukkit.getPlayerExact(args[1]);
+                        if (args.length <= 1) {
+                            targetPlayer = player;
+                        } else {
+                            targetPlayer = Bukkit.getPlayerExact(args[1]);
+                        }
+                        if (targetPlayer == null) {
+                            for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
+                                if (offlinePlayer.getName().equalsIgnoreCase(args[1])) {
+                                    targetPlayer = (Player) offlinePlayer;
+                                    break;
+                                }
+                            }
+                        }
                         if (targetPlayer == null) {
                             sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.NO_PLAYER")); return;
                         }
-                        if (DataManager.getImageBytes(targetPlayer) == null) {
+                        if (DataManager.get128pxImageBytes(targetPlayer) == null) {
                             targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " " + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
                         // check image by showing item
@@ -141,7 +151,7 @@ public class CommandCustomSprays implements TabExecutor {
                                         .getConstructor(int.class, int.class, int.class, NMS.getMcItemStackClass())
                                         .newInstance(0,0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
                             }
-                            NMS.sendPacket(player, Spray.getMapPacket(id, DataManager.getImageBytes(player)));
+                            NMS.sendPacket(player, Spray.getMapPacket(id, DataManager.get128pxImageBytes(player)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

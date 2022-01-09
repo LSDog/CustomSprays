@@ -3,7 +3,6 @@ package fun.LSDog.CustomSprays.manager;
 import fun.LSDog.CustomSprays.CustomSprays;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,8 +16,8 @@ public class CoolDownManager {
         return System.currentTimeMillis();
     }
 
-    public static void addSprayCooldown(Player player) {
-        sprayCooldown.put(player.getUniqueId(), time() + CustomSprays.instant.getConfig().getLong("spray_cooldown")*1000);
+    public static void addSprayCooldown(Player player, double multiple) {
+        sprayCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instant.getConfig().getDouble("spray_cooldown") *multiple*1000));
     }
 
     public static boolean isSprayCooling(Player player) {
@@ -34,12 +33,8 @@ public class CoolDownManager {
         return (sprayCooldown.getOrDefault(player.getUniqueId(), time()) - time())/1000;
     }
 
-    public static void addUploadCooldown(Player player) {
-        uploadCooldown.put(player.getUniqueId(), time() + CustomSprays.instant.getConfig().getLong("upload_cooldown")*1000);
-    }
-
-    public static void addUploadCooldown(Player player, int second) {
-        uploadCooldown.put(player.getUniqueId(), time() + second*1000L);
+    public static void addUploadCooldown(Player player, double multiple) {
+        uploadCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instant.getConfig().getDouble("upload_cooldown") *multiple*1000));
     }
 
     public static boolean isUploadCooling(Player player) {

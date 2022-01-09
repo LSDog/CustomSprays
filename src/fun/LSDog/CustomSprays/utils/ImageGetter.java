@@ -54,7 +54,7 @@ public class ImageGetter implements Closeable {
             conn.getInputStream();
             size = conn.getContentLength()/1024;
             if (size == 0) return 4;
-            if (size >= CustomSprays.instant.getConfig().getInt("file_size_limit")+1) return 3;
+            if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit")+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {
             return 2;
@@ -80,30 +80,48 @@ public class ImageGetter implements Closeable {
         }
     }
 
-    private BufferedImage get128pxImage() {
-        BufferedImage bufferedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        bufferedImage.createGraphics().drawImage(image, 0, 0, 128, 128, null);
-        bufferedImage.getGraphics().dispose();
-        return bufferedImage;
-    }
-
     @SuppressWarnings("deprecation")
-    public byte[] getMapBytes() throws IOException {
-        int[] pixels = new int[128*128];
-        get128pxImage().getRGB(0, 0, 128, 128, pixels, 0, 128);
-        byte[] result = new byte[128*128];
+    public byte[] get384pxMapBytes() throws IOException {
+        int[] pixels = new int[384*384];
+        get384pxImage().getRGB(0, 0, 384, 384, pixels, 0, 384);
+        byte[] result = new byte[384*384];
         for(int i = 0; i < pixels.length; ++i) {
             result[i] = MapPalette.matchColor(new Color(pixels[i], true));
         }
         return result;
     }
 
-
+    private BufferedImage get384pxImage() {
+        BufferedImage bufferedImage = new BufferedImage(384, 384, BufferedImage.TYPE_INT_ARGB);
+        bufferedImage.createGraphics().drawImage(image, 0, 0, 384, 384, null);
+        bufferedImage.getGraphics().dispose();
+        return bufferedImage;
+    }
 
     @Override
     public void close() {
         if (downloadCount > 0) downloadCount--;
         // 关闭 InputStream
         if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
+    }
+
+
+
+
+    @SuppressWarnings("deprecation")
+    public static Image getImageFromPixels(int w, int h, byte[] pixels) {
+
+        int[] ints = new int[w*h];
+        for (int i = 0; i < ints.length; i++) {
+            try {
+                ints[i] = MapPalette.getColor(pixels[i]).getRGB();
+            } catch (IndexOutOfBoundsException e) {
+                ints[i] = MapPalette.getColor(MapPalette.matchColor(new Color(pixels[i], true))).getRGB();
+            }
+        }
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        image.setRGB(0, 0, w, h, ints, 0, 384);
+
+        return image;
     }
 }
