@@ -16,6 +16,9 @@ permissions:
   CustomSprays.spray:
     default: true
     description: 允许喷漆 | Allow spray
+  CustomSprays.bigspray:
+    default: true
+    description: 允许3*3大喷漆 | Allow 3*3 big spray
   CustomSprays.view:
     default: op
     description: 允许查看其他玩家的图像 | Can get a map from any player (/customsprays view <player>)

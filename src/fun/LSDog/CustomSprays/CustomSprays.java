@@ -88,7 +88,11 @@ public class CustomSprays extends JavaPlugin {
     }
 
     public synchronized static void spray(Player player, boolean isBigSpray) {
-        if (player.isPermissionSet("CustomSprays.canSpray") && !player.hasPermission("CustomSprays.canSpray")) {
+        if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+            return;
+        }
+        if (isBigSpray && player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }

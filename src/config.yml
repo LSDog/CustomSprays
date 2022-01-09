@@ -9,6 +9,10 @@
 #    default: true
 #    description: 允许喷漆 | Allow spray
 #
+#  CustomSprays.bigspray:
+#   default: true
+#   description: 允许3*3大喷漆 | Allow 3*3 big spray
+#
 #  CustomSprays.view:
 #    default: op
 #    description: 允许查看其他玩家的图像 | Can get a map from any player (/customsprays view <player>)
@@ -106,7 +110,7 @@ url_regex: "^https?://.*"
 # |The regex of url checking    Send message if not matches {Config: Messages.NOT_URL}
 # 默认|Default: "^https?://.*"
 
-disabled_world: ["示例_世界名", "EXAMPLE_WORLD_2"]
+disabled_world: ["示例_世界名", "EXAMPLE_WORLD_NAME"]
 # |禁用的世界名称列表，列表中的世界无法喷漆
 # |Disabled world names, worlds in the list is not able to spray
 
@@ -149,7 +153,7 @@ Messages:
   COMMAND_VIEW:
     NO_PLAYER: "查无此人啦..."
     PLAYER_NO_IMAGE: "还没有上传图片呢"
-    WARN: "§7注意: 此喷漆只向你展示"
+    WARN: "§7注意: 这是个假物品"
 
 
 #####################
@@ -192,7 +196,7 @@ Messages:
 #  COMMAND_VIEW:
 #    NO_PLAYER: "No player found..."
 #    PLAYER_NO_IMAGE: "You haven't uploaded the picture yet."
-#    WARN: "§7Warning: The patting can only seen by you!"
+#    WARN: "§7Warning: This is a fake item!"
 
 
 
