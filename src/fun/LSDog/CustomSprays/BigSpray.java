@@ -27,6 +27,8 @@ public class BigSpray extends Spray {
     @Override
     public void spawn(Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
 
+        if (!vaild) return;
+
         setLocations();
 
         BlockFace opposite = blockFace.getOppositeFace();
@@ -73,6 +75,7 @@ public class BigSpray extends Spray {
 
     @Override
     public void destroy() {
+        vaild = false;
         try {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (!p.isOnline()) continue;

@@ -26,6 +26,7 @@ public class Spray {
     public BlockFace blockFace;
 
     private int itemFrameId;
+    protected boolean vaild = true;
 
     public Spray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         this.player = player;
@@ -71,6 +72,8 @@ public class Spray {
      */
     public void spawn(@Nullable Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
 
+        if (!vaild) return;
+
         int mapViewId = MapViewId.getId();
 
         Object mcMap = getMcMap(mapViewId);
@@ -104,6 +107,7 @@ public class Spray {
     }
 
     public void destroy() {
+        vaild = false;
         try {
             for (Player p : players) {
                 if (!p.isOnline()) continue;

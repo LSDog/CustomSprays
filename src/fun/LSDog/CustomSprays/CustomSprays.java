@@ -109,7 +109,7 @@ public class CustomSprays extends JavaPlugin {
         }
         try {
             // 如果 [不是大喷漆 |或者| (是大喷漆却)没有大喷漆权限]
-            if (!isBigSpray || (player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray")) ) {
+            if (!isBigSpray || (player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray"))) {
                 // 小喷漆
                 byte[] bytes = DataManager.get128pxImageBytes(player);
                 if (bytes == null) {
