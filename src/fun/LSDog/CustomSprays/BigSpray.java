@@ -15,9 +15,9 @@ import java.util.Collection;
  */
 public class BigSpray extends Spray {
 
-    private final byte[][] pixelPieces = new byte[9][16384];
-    private final int[] itemFrameIds = new int[9];
-    private Location[] locs;
+    private final byte[][] pixelPieces = new byte[9][16384]; // 九宫格 (0:0 ~ 8:16383)
+    private final int[] itemFrameIds = new int[9]; // 九宫格展示框ID (0 ~ 8)
+    private Location[] locs; // 九宫格位置 (0 ~ 8)
 
     public BigSpray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         super(player, pixels, showTo);
@@ -31,6 +31,13 @@ public class BigSpray extends Spray {
 
         BlockFace opposite = blockFace.getOppositeFace();
 
+        Collection<? extends Player> $playersShowTo = players;
+
+        if (playersShowTo != null) {
+            $playersShowTo = playersShowTo;
+            players.addAll($playersShowTo); // 重新生成的也要加到可见玩家里
+        }
+
         for (int i = 0; i < 9; i++) {
             // jump over if theres no solid block behind
             if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) continue;
@@ -41,16 +48,14 @@ public class BigSpray extends Spray {
             Object mapPacket = getMapPacket(mapViewId, pixelPieces[i]);
             Object itemFrame = getItemFrame(mcMap, locs[i]);
             Object spawnPacket = getSpawnPacket(itemFrame);
-            // get id
             itemFrameIds[i] = (int) itemFrame.getClass().getMethod(CustomSprays.getSubVer() < 18 ? "getId" : "ae").invoke(itemFrame);
-
             Object dataWatcher = itemFrame.getClass().getMethod(CustomSprays.getSubVer() < 18 ? "getDataWatcher" : "ai").invoke(itemFrame);
-
             Object dataPacket = NMS.getPacketClass("PacketPlayOutEntityMetadata")
                     .getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class)
                     .newInstance(itemFrameIds[i], dataWatcher, false);
 
-            for (Player p : playersShowTo) {
+
+            for (Player p : $playersShowTo) {
                 NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
                 NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
                 NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
@@ -63,13 +68,14 @@ public class BigSpray extends Spray {
 
     @Override
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), tick);
     }
 
     @Override
     public void destroy() {
         try {
             for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!p.isOnline()) continue;
                 for (int id : itemFrameIds) {
                     NMS.sendPacket(p, NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class).newInstance( new Object[]{new int[]{id}} ));
                 }
@@ -79,14 +85,21 @@ public class BigSpray extends Spray {
         }
     }
 
+    /**
+     * 拆九宫格
+     */
     private void breakPixels() {
         for (int i = 0; i < 384*384; i++) {
-            int x = (i/128)%3;
-            int y = i/(128*128*3);
+            int x = (i/128)%3;        // x:0~2 "列"
+            int y = i/(128*128*3);    // y:0~2 "行"
             pixelPieces[x+y*3][(i%384-x*128)+(i/384-y*128)*128] = pixels[i];
+            //pixelPieces[第几张][的第几个像素点] = pixels[i];
         }
     }
 
+    /**
+     * 找九宫格各自的位置
+     */
     private void setLocations() {
         switch (blockFace) {
             case SOUTH:

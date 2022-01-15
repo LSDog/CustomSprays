@@ -25,6 +25,7 @@ public class SprayManager {
         List<Spray> locList = locationSprayMap.getOrDefault(spray.location, new ArrayList<>());
         locList.add(spray);
         locationSprayMap.put(spray.location, locList);
+
     }
 
     public static Spray getSpray(Player player) {
@@ -36,35 +37,50 @@ public class SprayManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
     public static Spray getSpray(Location location, BlockFace blockFace) {
+
         if (location == null || blockFace == null) return null;
 
         for (Spray spray : locationSprayMap.getOrDefault(location, Collections.emptyList())) {
             if (blockFace == spray.blockFace) return spray;
         }
+
         return null;
     }
 
+    /**
+     * 清除某玩家的喷漆和记录用map
+     * @param player 喷漆者
+     * @param spray 喷漆
+     */
     public static void removeSpray(Player player, Spray spray) {
 
         spray.destroy();
 
-        List<Spray> list = playerSprayMap.getOrDefault(player.getUniqueId(), new ArrayList<>());
-        list.remove(spray);
-        playerSprayMap.put(player.getUniqueId(), list);
+        List<Spray> playerList = playerSprayMap.getOrDefault(player.getUniqueId(), new ArrayList<>());
+        if (!playerList.isEmpty()) playerList.remove(spray);
+        playerSprayMap.put(player.getUniqueId(), playerList);
 
         List<Spray> locList = locationSprayMap.getOrDefault(spray.location, new ArrayList<>());
-        locList.remove(spray);
+        if (!playerList.isEmpty()) locList.remove(spray);
         locationSprayMap.put(spray.location, locList);
     }
 
+    /**
+     * 清除所有喷漆和记录用map
+     */
     public static void destroyAllSpray() {
 
         playerSprayMap.values().forEach(sprays -> sprays.forEach(Spray::destroy));
-        locationSprayMap.values().forEach(sprays -> sprays.forEach(Spray::destroy));
+        // locationSprayMap.values().forEach(sprays -> sprays.forEach(Spray::destroy));
+        // 我们姑且不去担心两个map不一样的情况，俺尽力了
+
+        playerSprayMap.clear();
+        locationSprayMap.clear();
     }
 
 }

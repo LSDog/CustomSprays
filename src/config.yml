@@ -76,13 +76,13 @@ upload_cooldown: 60
 # 默认|Default: 60
 
 file_size_limit: 256
-# |玩家提供的链接图片大小限制 (kb), 图片会被保存到 128*128px 大小以节省空间
-# |Max size of the image from link (kb), the image will saved in 128*128px to save space
+# |玩家提供的链接图片大小限制 (kb), 图片会被保存到 384*384px 大小以节省空间
+# |Max size of the image from link (kb), the image will saved in 384*384px to save space
 # 默认|Default: 256
 
 download_limit: 4
 # |同时下载的数量限制
-# |Max download count at the same time
+# |Max downloads at the same time
 # 默认|Default: 4
 
 
@@ -100,6 +100,8 @@ spray_on_ground: true
 # |Allow spraying above or below the block, only support version1.13+
 # 默认|Default: true
 
+# 如果你想禁用"大喷漆", 请设置权限 "CustomSprays.bigspray" 为 false
+# If you want disable "bigspray", please set permission "CustomSprays.bigspray" to false
 
 
 ############ STRING CONFIG #############
@@ -112,7 +114,7 @@ url_regex: "^https?://.*"
 
 disabled_world: ["示例_世界名", "EXAMPLE_WORLD_NAME"]
 # |禁用的世界名称列表，列表中的世界无法喷漆
-# |Disabled world names, worlds in the list is not able to spray
+# |Disabled world names, where are not able to spray
 
 
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
@@ -120,6 +122,7 @@ disabled_world: ["示例_世界名", "EXAMPLE_WORLD_NAME"]
 Messages:
   # |所有信息支持 PlaceholderAPI
   # |All messages support PlaceholderAPI
+  # |English version please scroll down
 
   UNKNOWN_COMMAND: "未知指令，使用 §3/cspray§r 查看帮助!"
   NO_PERMISSION: "§c无权限！"
@@ -136,7 +139,7 @@ Messages:
     VIEW: "查看玩家的自定义喷漆"
     CHECK: "检查喷漆者"
     RELOAD: "重载插件"
-    TIP: "§7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\"\n  §7§l使用 §e§l/spray§7 或在 §e§l1.9及以上版本双击F §7来§b§l喷漆！ "
+    TIP: "§7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\"\n  §7§l使用 §e§l/spray (big)§7 或在 §e§l1.9+版本(蹲下)双击F §7来§b§l喷漆！ "
 
   COMMAND_UPLOAD:
     IN_BUSY: "服务器正忙，请稍后再传......"
@@ -179,7 +182,7 @@ Messages:
 #    VIEW: "View player's custom paint."
 #    CHECK: "Check the painter."
 #    RELOAD: "Reload the plugin."
-#    TIP: "§7TIP: §7§l\"Image Hosting Web Site and Modify Pictures Online are very useful~\"\n  §7§lUse §e§l/spray§7 or Double click 'F' in version §e§l1.91.9 §7 §b§land above to paint !"
+#    TIP: "§7TIP: §7§l\"Image Hosting Web Site and Modify Pictures Online are very useful~\"\n  §7§lUse §e§l/spray (big)§7 or Double click (in snaking) 'F' in §e§l1.9+§b§l to paint !"
 #
 #  COMMAND_UPLOAD:
 #    IN_BUSY: "Server in busy, please upload later!"

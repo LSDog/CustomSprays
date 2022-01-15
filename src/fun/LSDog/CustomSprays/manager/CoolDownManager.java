@@ -33,6 +33,8 @@ public class CoolDownManager {
         return (sprayCooldown.getOrDefault(player.getUniqueId(), time()) - time())/1000;
     }
 
+
+
     public static void addUploadCooldown(Player player, double multiple) {
         uploadCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instant.getConfig().getDouble("upload_cooldown") *multiple*1000));
     }

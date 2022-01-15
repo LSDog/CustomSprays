@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 public class CustomSprays extends JavaPlugin {
@@ -63,8 +64,7 @@ public class CustomSprays extends JavaPlugin {
 
         // 1.13 及以上 支持int
         if (getSubVer() >= 13) {
-            // MapViewId.setNumbers(2147483347,2147483645);
-            MapViewId.setNumbers(-2147483645,-2147483347);
+            MapViewId.setNumbers(-2047483645,-2047483047);
         }
 
         // In progress
@@ -87,12 +87,14 @@ public class CustomSprays extends JavaPlugin {
         log("CustomSprays disabled.");
     }
 
-    public synchronized static void spray(Player player, boolean isBigSpray) {
+    /**
+     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)
+     * @param player 喷漆玩家
+     * @param isBigSpray 是否为大型喷漆
+     * @param playersShowTo 显示给的玩家
+     */
+    public synchronized static void spray(Player player, boolean isBigSpray, Collection<? extends Player> playersShowTo) {
         if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
-            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
-            return;
-        }
-        if (isBigSpray && player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }
@@ -101,30 +103,33 @@ public class CustomSprays extends JavaPlugin {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
             return;
         }
-        if (!player.isOp() && CoolDownManager.isSprayCooling(player)) {
+        if (!player.hasPermission("CustomSprays.noCD") && CoolDownManager.isSprayCooling(player)) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
             return;
         }
         try {
-            if (isBigSpray) {
-                byte[] bytes = DataManager.get384pxImageBytes(player);
-                if (bytes == null) {
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
-                    return;
-                }
-                if (new BigSpray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
-                    CoolDownManager.addSprayCooldown(player,1.5);
-                }
-            } else {
+            // 如果 [不是大喷漆 |或者| (是大喷漆却)没有大喷漆权限]
+            if (!isBigSpray || (player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray")) ) {
+                // 小喷漆
                 byte[] bytes = DataManager.get128pxImageBytes(player);
                 if (bytes == null) {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return;
                 }
-                if (new Spray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                if (new Spray(player, bytes, playersShowTo).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
                     CoolDownManager.addSprayCooldown(player,1);
+                }
+            } else {
+                // 大喷漆
+                byte[] bytes = DataManager.get384pxImageBytes(player);
+                if (bytes == null) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+                    return;
+                }
+                if (new BigSpray(player, bytes, playersShowTo).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.addSprayCooldown(player,1.5);
                 }
             }
         } catch (Exception e) {

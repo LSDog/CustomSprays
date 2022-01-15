@@ -4,7 +4,8 @@ import fun.LSDog.CustomSprays.CustomSprays;
 
 /**
  * 获取一个 用作标识的 MapviewID <br>
- * 保持在 32467 ~ 32765 (300张"缓存")
+ * 保持在 32467 ~ 32765 (300张"缓存") <br>
+ * 1.13+ 是 -2047483645 到 -2047483047
  */
 public class MapViewId {
 

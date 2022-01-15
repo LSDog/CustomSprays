@@ -4,14 +4,12 @@ import fun.LSDog.CustomSprays.manager.SprayManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 实现双击F喷漆
@@ -23,7 +21,7 @@ public class Events implements Listener {
     private static final int CD = 350;
     // double click in 350 ms
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void onToggleF(PlayerSwapHandItemsEvent e) {
         Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> {
             Player player = e.getPlayer();
@@ -31,24 +29,25 @@ public class Events implements Listener {
                 timeMap.put(player.getUniqueId(), System.currentTimeMillis() + CD);
             } else {
                 timeMap.remove(player.getUniqueId());
-                if (player.isSneaking()) {
-                    Bukkit.getScheduler().runTask(CustomSprays.instant, () -> CustomSprays.spray(player, true));
-                } else {
-                    Bukkit.getScheduler().runTask(CustomSprays.instant, () -> CustomSprays.spray(player, false));
+                Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+                if (!player.isSneaking()) { // 小喷漆
+                    Bukkit.getScheduler().runTask(CustomSprays.instant, () -> CustomSprays.spray(player, false, players));
+                } else { // 大喷漆
+                    Bukkit.getScheduler().runTask(CustomSprays.instant, () -> CustomSprays.spray(player, true, players));
                 }
             }
         });
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
             try {
                 spray.spawn(Collections.singletonList(e.getPlayer()));
             } catch (ReflectiveOperationException reflectiveOperationException) {
                 reflectiveOperationException.printStackTrace();
             }
-        })));
+        })), 20L);
     }
 
 }

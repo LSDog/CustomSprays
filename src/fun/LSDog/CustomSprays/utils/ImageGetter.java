@@ -71,7 +71,7 @@ public class ImageGetter implements Closeable {
             conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
-            conn.setConnectTimeout(5000);
+            conn.setConnectTimeout(10000);
             conn.connect();
             in = conn.getInputStream();
             image = ImageIO.read(in);

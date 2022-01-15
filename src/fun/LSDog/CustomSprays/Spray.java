@@ -1,5 +1,6 @@
 package fun.LSDog.CustomSprays;
 
+import com.sun.istack.internal.Nullable;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
@@ -12,17 +13,14 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Spray {
 
     public final Player player;
     protected final World world;
     protected final byte[] pixels;
-    protected final Collection<? extends Player> players;
+    protected final Set<Player> players;
 
     public Location location;
     public BlockFace blockFace;
@@ -33,11 +31,11 @@ public class Spray {
         this.player = player;
         this.world = player.getWorld();
         this.pixels = pixels;
-        this.players = showTo;
+        this.players = new HashSet<>(showTo);
     }
 
     /**
-     * @param removeTick Negative number will disable auto remove
+     * @param removeTick 自动移除时长, 负数将不会自动移除
      */
     public boolean create(long removeTick) {
         try {
@@ -67,23 +65,32 @@ public class Spray {
         return true;
     }
 
-    public void spawn(Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
+    /**
+     * 生成展示框与地图
+     * @param playersShowTo 展示给的玩家, null为默认初始值
+     */
+    public void spawn(@Nullable Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
 
         int mapViewId = MapViewId.getId();
+
         Object mcMap = getMcMap(mapViewId);
         Object mapPacket = getMapPacket(mapViewId, pixels);
         Object itemFrame = getItemFrame(mcMap, location);
         Object spawnPacket = getSpawnPacket(itemFrame);
-        // get id
         itemFrameId = (int) itemFrame.getClass().getMethod(CustomSprays.getSubVer()<18?"getId":"ae").invoke(itemFrame);
-
         Object dataWatcher = itemFrame.getClass().getMethod(CustomSprays.getSubVer()<18?"getDataWatcher":"ai").invoke(itemFrame);
-
         Object dataPacket = NMS.getPacketClass("PacketPlayOutEntityMetadata")
                 .getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class)
                 .newInstance(itemFrameId, dataWatcher, false);
 
-        for (Player p : playersShowTo) {
+        Collection<? extends Player> $playersShowTo = players;
+
+        if (playersShowTo != null) {
+            $playersShowTo = playersShowTo;
+            players.addAll($playersShowTo); // 重新生成的也要加到可见玩家里
+        }
+
+        for (Player p : $playersShowTo) {
             NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
             NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
             NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
@@ -93,12 +100,13 @@ public class Spray {
     }
 
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), tick);
     }
 
     public void destroy() {
         try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
+            for (Player p : players) {
+                if (!p.isOnline()) continue;
                 NMS.sendPacket(p, NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class).newInstance( new Object[]{new int[]{itemFrameId}} ));
             }
         } catch (Exception e) {
