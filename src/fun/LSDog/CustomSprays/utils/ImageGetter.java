@@ -1,6 +1,6 @@
 package fun.LSDog.CustomSprays.utils;
 
-import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.Data.DataManager;
 import org.bukkit.map.MapPalette;
 
 import javax.imageio.ImageIO;
@@ -26,7 +26,7 @@ public class ImageGetter implements Closeable {
     public int size;
 
     public ImageGetter(String destUrl) throws TooManyDownloadException {
-        if (downloadCount >= CustomSprays.instant.getConfig().getInt("download_limit")) {
+        if (downloadCount >= DataManager.downloadLimit) {
             throw new TooManyDownloadException();
         }
         downloadCount++;
@@ -54,7 +54,7 @@ public class ImageGetter implements Closeable {
             conn.getInputStream();
             size = conn.getContentLength()/1024;
             if (size == 0) return 4;
-            if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit")+1) return 3;
+            if (size >= DataManager.downloadLimit+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {
             return 2;
@@ -105,23 +105,4 @@ public class ImageGetter implements Closeable {
         if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
     }
 
-
-
-
-    @SuppressWarnings("deprecation")
-    public static Image getImageFromPixels(int w, int h, byte[] pixels) {
-
-        int[] ints = new int[w*h];
-        for (int i = 0; i < ints.length; i++) {
-            try {
-                ints[i] = MapPalette.getColor(pixels[i]).getRGB();
-            } catch (IndexOutOfBoundsException e) {
-                ints[i] = MapPalette.getColor(MapPalette.matchColor(new Color(pixels[i], true))).getRGB();
-            }
-        }
-        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        image.setRGB(0, 0, w, h, ints, 0, 384);
-
-        return image;
-    }
 }

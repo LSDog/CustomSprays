@@ -95,6 +95,12 @@ public class NMS {
         else return mcEntityClass == null ? mcEntityClass = getMcClass("world.entity.Entity") : mcEntityClass;
     }
 
+    private static Class<?> mcEntityLivingClass = null;
+    public static Class<?> getMcEntityLivingClass() {
+        if (CustomSprays.getSubVer() < 17) return mcEntityLivingClass == null ? mcEntityLivingClass = getLegacyMcClass("EntityLiving") : mcEntityLivingClass;
+        else return mcEntityLivingClass == null ? mcEntityLivingClass = getMcClass("world.entity.EntityLiving") : mcEntityLivingClass;
+    }
+
     private static Class<?> mcEntityPlayerClass = null;
     public static Class<?> getMcEntityPlayerClass() {
         if (CustomSprays.getSubVer() < 17) return mcEntityPlayerClass == null ? mcEntityPlayerClass = getLegacyMcClass("EntityPlayer") : mcEntityPlayerClass;

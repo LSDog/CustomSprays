@@ -12,11 +12,16 @@ public class CoolDownManager {
     private static final Map<UUID, Long> sprayCooldown = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> uploadCooldown = new ConcurrentHashMap<>();
 
+    public static void reset() {
+        sprayCooldown.clear();
+        uploadCooldown.clear();
+    }
+
     private static long time() {
         return System.currentTimeMillis();
     }
 
-    public static void addSprayCooldown(Player player, double multiple) {
+    public static void setSprayCooldown(Player player, double multiple) {
         sprayCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instant.getConfig().getDouble("spray_cooldown") *multiple*1000));
     }
 
@@ -35,7 +40,7 @@ public class CoolDownManager {
 
 
 
-    public static void addUploadCooldown(Player player, double multiple) {
+    public static void setUploadCooldown(Player player, double multiple) {
         uploadCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instant.getConfig().getDouble("upload_cooldown") *multiple*1000));
     }
 

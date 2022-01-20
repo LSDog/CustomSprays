@@ -1,5 +1,7 @@
 package fun.LSDog.CustomSprays;
 
+import fun.LSDog.CustomSprays.Data.DataManager;
+import fun.LSDog.CustomSprays.Data.DataMySQL;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,19 +23,21 @@ public class Events implements Listener {
     private static final int CD = 350;
     // double click in 350 ms
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler (priority = EventPriority.MONITOR)
     public void onToggleF(PlayerSwapHandItemsEvent e) {
         Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> {
+            Collection<? extends Player> players = Bukkit.getOnlinePlayers();
             Player player = e.getPlayer();
-            if (!timeMap.containsKey(player.getUniqueId()) || System.currentTimeMillis() > timeMap.get(player.getUniqueId())) {
-                timeMap.put(player.getUniqueId(), System.currentTimeMillis() + CD);
+            UUID uuid = player.getUniqueId();
+            Long t = timeMap.get(uuid);
+            if ( t==null || System.currentTimeMillis() > t) {
+                timeMap.put(uuid, System.currentTimeMillis() + CD);
             } else {
-                timeMap.remove(player.getUniqueId());
-                Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+                timeMap.remove(uuid);
                 if (!player.isSneaking()) { // 小喷漆
-                    Bukkit.getScheduler().runTask(CustomSprays.instant, () -> CustomSprays.spray(player, false, players));
+                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> CustomSprays.spray(player, false));
                 } else { // 大喷漆
-                    Bukkit.getScheduler().runTask(CustomSprays.instant, () -> CustomSprays.spray(player, true, players));
+                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> CustomSprays.spray(player, true));
                 }
             }
         });
@@ -41,9 +45,15 @@ public class Events implements Listener {
 
     @EventHandler (priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
+        // 初始化账户
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> {
+            if (e.getPlayer().isOnline() && DataManager.data instanceof DataMySQL) {
+                DataMySQL.addAccountIfNotExist(e.getPlayer());
+            }
+        }, 10L);
         Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
             try {
-                spray.spawn(Collections.singletonList(e.getPlayer()));
+                spray.spawn(Collections.singletonList(e.getPlayer()), false);
             } catch (ReflectiveOperationException reflectiveOperationException) {
                 reflectiveOperationException.printStackTrace();
             }

@@ -25,9 +25,9 @@ public class BigSpray extends Spray {
     }
 
     @Override
-    public void spawn(Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
+    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound) throws ReflectiveOperationException {
 
-        if (!vaild) return;
+        if (!valid) return;
 
         setLocations();
 
@@ -41,8 +41,9 @@ public class BigSpray extends Spray {
         }
 
         for (int i = 0; i < 9; i++) {
-            // jump over if theres no solid block behind
+            // jump over if theres no solid block behind, or the current block is not transparent
             if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) continue;
+            if (!locs[i].getBlock().getType().isTransparent()) continue;
 
             int mapViewId = MapViewId.getId();
 
@@ -64,7 +65,7 @@ public class BigSpray extends Spray {
             }
 
         }
-        SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
+        if (playSound) SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
 
     }
 
@@ -75,7 +76,7 @@ public class BigSpray extends Spray {
 
     @Override
     public void destroy() {
-        vaild = false;
+        valid = false;
         try {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (!p.isOnline()) continue;
@@ -130,7 +131,7 @@ public class BigSpray extends Spray {
                         l(0,-1,-1),l(0,-1,0),l(0,-1,1),
                 }; return;
         }
-        int rotation = getItemFrameRotate(player.getLocation(), blockFace);
+        int rotation = getItemFrameRotate(playerLocation, blockFace);
         if (blockFace == BlockFace.UP) {
             switch (rotation) {
                 case 0:

@@ -13,8 +13,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 
 public class CustomSprays extends JavaPlugin {
 
@@ -26,7 +24,7 @@ public class CustomSprays extends JavaPlugin {
     private static int subVer = 0;
 
     public File config = new File(getDataFolder() + File.separator + "config.yml");
-    public File pluginData = new File(getDataFolder() + File.separator + "imageData.yml");
+    public File playerDataFolder = new File(getDataFolder() + File.separator + "playerData");
 
     @Override
     public void onEnable() {
@@ -35,7 +33,7 @@ public class CustomSprays extends JavaPlugin {
             saveDefaultConfig();
         } else {
             /*每次更迭版本的时候别忘了改这里！！*/
-            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.4) {
+            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.41) {
                 System.out.println("\n\n\n\n\n\n\n=====================\n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me!");
@@ -51,7 +49,6 @@ public class CustomSprays extends JavaPlugin {
             e.printStackTrace();
         }
         DataManager.initialize(getConfig().getString("storage"));
-        prefix = getConfig().getString("msg_prefix");
 
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());
@@ -88,18 +85,16 @@ public class CustomSprays extends JavaPlugin {
     }
 
     /**
-     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)
+     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家
      * @param player 喷漆玩家
      * @param isBigSpray 是否为大型喷漆
-     * @param playersShowTo 显示给的玩家
      */
-    public synchronized static void spray(Player player, boolean isBigSpray, Collection<? extends Player> playersShowTo) {
+    public static void spray(Player player, boolean isBigSpray) {
         if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }
-        List<String> worldList = CustomSprays.instant.getConfig().getStringList("disabled_world");
-        if (worldList != null && worldList.contains(player.getWorld().getName())) {
+        if (DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
             return;
         }
@@ -117,8 +112,8 @@ public class CustomSprays extends JavaPlugin {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return;
                 }
-                if (new Spray(player, bytes, playersShowTo).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
-                    CoolDownManager.addSprayCooldown(player,1);
+                if (new Spray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.setSprayCooldown(player,1);
                 }
             } else {
                 // 大喷漆
@@ -128,8 +123,8 @@ public class CustomSprays extends JavaPlugin {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return;
                 }
-                if (new BigSpray(player, bytes, playersShowTo).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
-                    CoolDownManager.addSprayCooldown(player,1.5);
+                if (new BigSpray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.setSprayCooldown(player, CustomSprays.instant.getConfig().getDouble("bigspray_cooldown_multiple"));
                 }
             }
         } catch (Exception e) {

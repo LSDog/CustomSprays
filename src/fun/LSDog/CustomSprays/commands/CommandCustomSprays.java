@@ -19,19 +19,21 @@ import org.bukkit.map.MapView;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class CommandCustomSprays implements TabExecutor {
+
+    private static final Set<UUID> uploadingSet = new HashSet<>();
 
     @Override
     @SuppressWarnings("deprecation")
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         FileConfiguration config = CustomSprays.instant.getConfig();
         if (args.length == 0) {
-            sender.sendMessage(CustomSprays.prefix +
+            sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.instant.getDescription().getVersion() + "§r" +
                     "\n    §b/cspray§r §3upload§l <url> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.UPLOAD") +
+                    (sender.hasPermission("CustomSprays.copy") ? "\n    §b/cspray§r §3copy§l <player> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.COPY") : "") +
                     (sender.hasPermission("CustomSprays.view") ? "\n    §b/cspray§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") : "") +
                     (sender.hasPermission("CustomSprays.check") ? "\n    §b/cspray§r §3check §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.CHECK") : "") +
                     (sender.isOp() ? "\n    §b/cspray§r §3reload§l §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.RELOAD") : "") +
@@ -49,7 +51,7 @@ public class CommandCustomSprays implements TabExecutor {
                 SprayManager.destroyAllSpray();
                 CustomSprays.instant.reloadConfig();
                 DataManager.initialize(CustomSprays.instant.getConfig().getString("storage"));
-                CustomSprays.prefix = CustomSprays.instant.getConfig().getString("msg_prefix");
+                CoolDownManager.reset();
                 sender.sendMessage(CustomSprays.prefix + "OK!");
                 break;
 
@@ -60,21 +62,31 @@ public class CommandCustomSprays implements TabExecutor {
                         if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!"); return; }
 
                         Player player = (Player) sender;
-                        if (!player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player)) {
+                        if (uploadingSet.contains(player.getUniqueId())) return;
+                        if ( !player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player) ) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
-                            return;
+                            uploadingSet.remove(player.getUniqueId()); return;
                         }
-                        CoolDownManager.addUploadCooldown(player, 1);
 
-                        if (args.length == 1) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));return; }
+                        uploadingSet.add(player.getUniqueId());
+                        /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
+                        CoolDownManager.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("upload_failed_cooldown_multiple"));
+
+                        if (args.length == 1) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));
+                            uploadingSet.remove(player.getUniqueId()); return;
+                        }
                         String url = args[1];
-                        if (!Pattern.compile(StringEscapeUtils.escapeJava(DataManager.urlRegex)).matcher(url.toLowerCase()).matches()) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));return; }
+                        if (!Pattern.compile(StringEscapeUtils.escapeJava(DataManager.urlRegex)).matcher(url.toLowerCase()).matches()) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));
+                            uploadingSet.remove(player.getUniqueId()); return;
+                        }
                         ImageGetter imageGetter;
                         try {
                             imageGetter = new ImageGetter(url);
                         } catch (ImageGetter.TooManyDownloadException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.IN_BUSY"));
-                            return;
+                            uploadingSet.remove(player.getUniqueId()); return;
                         }
                         byte result = imageGetter.checkImage();
                         if (result != 0) {
@@ -82,10 +94,8 @@ public class CommandCustomSprays implements TabExecutor {
                             if (result == 2) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED")+"\n"+CustomSprays.prefix+ DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_HTTPS_FAILED"));
                             if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getDouble("file_size_limit")+""));
                             if (result == 4) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
-                            /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
                             imageGetter.close();
-                            CoolDownManager.addUploadCooldown(player, 0.2);
-                            return;
+                            uploadingSet.remove(player.getUniqueId()); return;
                         }
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
                         imageGetter.getBufferedImage();
@@ -95,16 +105,72 @@ public class CommandCustomSprays implements TabExecutor {
                         } catch (IllegalArgumentException | IOException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
                             imageGetter.close();
-                            return;
+                            uploadingSet.remove(player.getUniqueId()); return;
                         }
                         int size = DataManager.saveImageBytes(player, imgBytes);
+                        /* 上传成功了就用原冷却时间，所谓人性化是也~~ */
+                        CoolDownManager.setUploadCooldown(player, 1);
                         CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+imageGetter.size+"§7->§e§l"+size/1024+" K§r) " + url);
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageGetter.close();
+                        uploadingSet.remove(player.getUniqueId());
                     }
                 }.runTaskAsynchronously(CustomSprays.instant);
                 break;
 
+
+            case "copy":
+                new BukkitRunnable() {
+                    public void run() {
+                        if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!"); return; }
+
+                        Player player = (Player) sender;
+                        if (args.length < 2) {
+                            sender.sendMessage(CustomSprays.prefix + "\n" + DataManager.getMsg(sender, "COMMAND_COPY.HELP"));
+                        } else {
+                            String action = args[1];
+                            if (action.equalsIgnoreCase("o")) {
+                                DataManager.data.setCopyAllowed(player, true);
+                                player.sendMessage(CustomSprays.prefix + " o §2✔");
+                            } else if (action.equalsIgnoreCase("x")) {
+                                DataManager.data.setCopyAllowed(player, false);
+                                player.sendMessage(CustomSprays.prefix + " x §c✘");
+                            } else {
+                                if (!player.hasPermission("CustomSprays.copy")) {
+                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+                                    return;
+                                }
+                                Player target = Bukkit.getPlayerExact(action);
+                                if (target == null) {
+                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_COPY.NO_PLAYER"));
+                                    return;
+                                }
+                                if (player.getName().equals(target.getName())) {
+                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_COPY.COPY_SELF"));
+                                    return;
+                                }
+                                boolean allow = DataManager.data.getCopyAllowed(target);
+                                if (!player.isOp() && !allow) {
+                                    player.sendMessage(CustomSprays.prefix + target.getName() + DataManager.getMsg(player, "COMMAND_COPY.NOT_ALLOW"));
+                                    return;
+                                }
+                                if ( !player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player) ) {
+                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
+                                    uploadingSet.remove(player.getUniqueId()); return;
+                                }
+                                byte[] data = DataManager.data.getImageBytes(target);
+                                if (data == null) {
+                                    player.sendMessage(CustomSprays.prefix + target.getName() + DataManager.getMsg(player, "COMMAND_COPY.PLAYER_NO_IMAGE"));
+                                    return;
+                                }
+                                DataManager.saveImageBytes(player, data);
+                                CoolDownManager.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("copy_cooldown_multiple"));
+                                sender.sendMessage(CustomSprays.prefix + "OK!" + (player.isOp()&&!allow?" §7§l(OP-bypass)":"") );
+                            }
+                        }
+                    }
+                }.runTaskAsynchronously(CustomSprays.instant);
+                break;
 
             case "view":
                 if (!(sender instanceof Player)) {
@@ -194,13 +260,12 @@ public class CommandCustomSprays implements TabExecutor {
         return true;
     }
 
-
-
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
             List<String> argList = new ArrayList<>();
             argList.add("upload");
+            if (sender.hasPermission("CustomSprays.copy")) argList.add("copy");
             if (sender.hasPermission("CustomSprays.view")) argList.add("view");
             if (sender.hasPermission("CustomSprays.check")) argList.add("check");
             if (sender.isOp()) argList.add("reload");

@@ -1,5 +1,5 @@
 name: CustomSprays
-version: 1.4.4
+version: 1.5
 main: fun.LSDog.CustomSprays.CustomSprays
 authors: [LSDog]
 softdepend: [PlaceholderAPI]
@@ -19,6 +19,9 @@ permissions:
   CustomSprays.bigspray:
     default: true
     description: 允许3*3大喷漆 | Allow 3*3 big spray
+  CustomSprays.copy:
+    default: true
+    description: 允许复制他人图像 | Allow copy other's spray
   CustomSprays.view:
     default: op
     description: 允许查看其他玩家的图像 | Can get a map from any player (/customsprays view <player>)

@@ -1,7 +1,6 @@
 package fun.LSDog.CustomSprays.Data;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.utils.ImageGetter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -11,17 +10,26 @@ import org.bukkit.map.MapPalette;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.List;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public class DataManager {
 
-    private static IData data;
+    public static IData data;
     public static boolean debug = true;
     public static boolean usePapi = false;
+    public static double downloadLimit = 4;
     public static String urlRegex = "^https?://.*";
+    public static List<String> disableWorlds = null;
+    private static byte[] defaultImage = null;
+    private static final File defaultImageFile = new File(CustomSprays.instant.getDataFolder() + File.separator + "default.yml");
 
     public static String getMsg(Player player, String path) {
         String msg = CustomSprays.instant.getConfig().getString("Messages."+path);
@@ -40,27 +48,49 @@ public class DataManager {
     public static byte[] get384pxImageBytes(Player player) {
         byte[] bytes = data.getImageBytes(player);
         if (bytes != null && bytes.length == 147456) return bytes;
-        return null;
+        if (defaultImage != null) {
+            return defaultImage;
+        } else {
+            return null;
+        }
     }
 
     @SuppressWarnings("deprecation")
     public static byte[] get128pxImageBytes(Player player) {
 
-        byte[] bytes = data.getImageBytes(player);
-        if (bytes == null || bytes.length != 147456) return null;
-
-        BufferedImage bufferedImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        bufferedImage.createGraphics().drawImage(ImageGetter.getImageFromPixels(384,384, bytes), 0, 0, 128, 128, null);
-        bufferedImage.getGraphics().dispose();
-
-        int[] pixels = new int[128*128];
-        bufferedImage.getRGB(0, 0, 128, 128, pixels, 0, 128);
-        byte[] result = new byte[128*128];
-        for(int i = 0; i < pixels.length; ++i) {
-            result[i] = MapPalette.matchColor(new Color(pixels[i], true));
+        byte[] bytes384 = data.getImageBytes(player);
+        if (bytes384 == null || bytes384.length != 147456) {
+            if (defaultImage != null) {
+                bytes384 = defaultImage;
+            } else {
+                return null;
+            }
         }
 
-        return result;
+        BufferedImage image384 = new BufferedImage(384, 384, BufferedImage.TYPE_INT_ARGB);
+        int[] ints384 = new int[384*384];
+        for (int i = 0; i < 384*384; i++) {
+            try {
+                ints384[i] = bytes384[i]==0 ? 0 : MapPalette.getColor(bytes384[i]).getRGB();
+            } catch (IndexOutOfBoundsException e) {
+                /* cross-version fix */
+                ints384[i] = bytes384[i]==0 ? 0 : MapPalette.getColor(MapPalette.matchColor(new Color(bytes384[i], true))).getRGB();
+            }
+        }
+        image384.setRGB(0,0,384,384,ints384,0,384);
+
+        BufferedImage image128 = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+        image128.createGraphics().drawImage(image384, 0, 0, 128, 128, null);
+        image128.getGraphics().dispose();
+        int[] ints128 = new int[128*128];
+        image128.getRGB(0, 0, 128, 128, ints128, 0, 128);
+
+        byte[] bytes128 = new byte[128*128];
+        for(int i = 0; i < 128*128; i++) {
+            bytes128[i] = MapPalette.matchColor(new Color(ints128[i], true));
+        }
+
+        return bytes128;
     }
 
     public static int saveImageBytes(Player player, byte[] imgBytes) {
@@ -68,6 +98,12 @@ public class DataManager {
     }
 
     public static void initialize(String method) {
+        debug = CustomSprays.instant.getConfig().getBoolean("debug");
+        downloadLimit = CustomSprays.instant.getConfig().getInt("download_limit");
+        urlRegex = CustomSprays.instant.getConfig().getString("url_regex");
+        usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+        disableWorlds = CustomSprays.instant.getConfig().getStringList("disabled_world");
+        CustomSprays.prefix = CustomSprays.instant.getConfig().getString("msg_prefix");
         switch (StorageMethod.getValue(method.toUpperCase())) {
             case MYSQL:
                 CustomSprays.log("§8use [MYSQL]");
@@ -76,16 +112,36 @@ public class DataManager {
                 break;
             default:
             case YML:
-                if (!CustomSprays.instant.pluginData.exists()) {
-                    CustomSprays.instant.saveResource("imageData.yml", false);
-                }
                 CustomSprays.log("§8use [YML]");
-                data = new DataYml();
+                try {
+                    data = new DataYml();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
-        debug = CustomSprays.instant.getConfig().getBoolean("debug");
-        urlRegex = CustomSprays.instant.getConfig().getString("url_regex");
-        usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+        if (defaultImageFile.exists()) {
+            try {
+                defaultImage = DataManager.decompressBytes(Base64.getDecoder().decode(
+                        Files.readAllLines(
+                                Paths.get(CustomSprays.instant.getDataFolder() + File.separator + "default.yml")
+                        ).get(0)
+                ));
+                CustomSprays.log("§7Default image loaded!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else defaultImage = null;
+        CustomSprays.log("Data loaded!");
     }
+
+    /*
+    thinking......
+# |游戏内上传图片后复制 <imageData.yml的  {你的uuid}.image项的内容> 到双引号""中，/cspray reload 即可设置默认图像
+#   若玩家没有上传图像则喷这个, (默认)设置为 [DEFAULT_IMAGE: ""] 时不启用
+# |Upload image and go copy <imageData.yml-> {your uuid}.image> in to "", and use /cspray reload to set the default image
+#   Spray this image if player has no image, (default) set to [DEFAULT_IMAGE: ""] will not enable this
+# 默认|Default: ""
+     */
 
     public enum StorageMethod {
         YML, MYSQL;
@@ -103,6 +159,7 @@ public class DataManager {
 
 
     public static byte[] compressBytes(byte[] bytes) {
+        if (bytes == null) return null;
         byte[] result = new byte[0];
         Deflater deflater = new Deflater();
         deflater.reset();
@@ -122,6 +179,7 @@ public class DataManager {
     }
 
     public static byte[] decompressBytes(byte[] bytes) {
+        if (bytes == null) return null;
         byte[] result = new byte[0];
         Inflater inflater = new Inflater();
         inflater.reset();

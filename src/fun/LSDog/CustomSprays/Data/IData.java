@@ -8,4 +8,8 @@ public interface IData {
 
     byte[] getImageBytes(Player player);
 
+    void setCopyAllowed(Player player, boolean flag);
+
+    boolean getCopyAllowed(Player player);
+
 }

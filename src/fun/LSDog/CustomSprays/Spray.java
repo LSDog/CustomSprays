@@ -24,9 +24,11 @@ public class Spray {
 
     public Location location;
     public BlockFace blockFace;
+    protected Location playerLocation;
+    protected int intDirection;
 
     private int itemFrameId;
-    protected boolean vaild = true;
+    protected boolean valid = true;
 
     public Spray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         this.player = player;
@@ -50,11 +52,13 @@ public class Spray {
 
             this.location = targetBlock.getRelativeBlock().getLocation();
             this.blockFace = targetBlock.getBlockFace();
+            this.playerLocation = player.getLocation();
+            this.intDirection = blockFaceToIntDirection(blockFace);
 
             /* ↓喷漆有占用就取消 */
             if (SprayManager.getSpray(location, blockFace) != null) return false;
 
-            spawn(players);
+            spawn(players, true);
             SprayManager.addSpray(this);
 
             if (removeTick >= 0) autoRemove(removeTick);
@@ -70,9 +74,9 @@ public class Spray {
      * 生成展示框与地图
      * @param playersShowTo 展示给的玩家, null为默认初始值
      */
-    public void spawn(@Nullable Collection<? extends Player> playersShowTo) throws ReflectiveOperationException {
+    public void spawn(@Nullable Collection<? extends Player> playersShowTo, boolean playSound) throws ReflectiveOperationException {
 
-        if (!vaild) return;
+        if (!valid) return;
 
         int mapViewId = MapViewId.getId();
 
@@ -98,7 +102,7 @@ public class Spray {
             NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
             NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
         }
-        SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
+        if (playSound) SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
 
     }
 
@@ -107,7 +111,7 @@ public class Spray {
     }
 
     public void destroy() {
-        vaild = false;
+        valid = false;
         try {
             for (Player p : players) {
                 if (!p.isOnline()) continue;
@@ -119,15 +123,20 @@ public class Spray {
     }
 
     public static Object getMcMap(int mapViewId) throws ReflectiveOperationException {
+        int subVer = CustomSprays.getSubVer();
         /* 版本<=1.12时 mapView id 必须是 positive short, 1.13及以上为 int*/
         Object mcMap;
-        if (CustomSprays.getSubVer() < 13) {
+        if (subVer <= 7) {
+            mcMap = NMS.getMcItemStackClass()
+                    .getConstructor(NMS.getMcItemClass(), int.class, int.class)
+                    .newInstance(NMS.getMcItemsClass().getField("MAP").get(null), 1, (short) mapViewId);
+        } else if (subVer <= 12) {
             mcMap = NMS.getMcItemStackClass()
                     .getConstructor(NMS.getMcItemClass(), int.class, int.class)
                     .newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, (short) mapViewId);
         } else {
             String itemFieldName = "FILLED_MAP";
-            switch (CustomSprays.getSubVer()) {
+            switch (subVer) {
                 case 17: case 18:
                     itemFieldName = "pp"; break;
             }
@@ -136,7 +145,7 @@ public class Spray {
                     .newInstance(NMS.getMcItemsClass().getField(itemFieldName).get(null));
 
             Object nbtTagCompound = NMS.getMcNBTTagCompoundClass().getConstructor().newInstance();
-            if (CustomSprays.getSubVer() < 18) {
+            if (subVer < 18) {
                 nbtTagCompound.getClass().getMethod("setInt", String.class, int.class).invoke(nbtTagCompound, "map", mapViewId);
                 mcMap.getClass().getMethod("setTag", NMS.getMcNBTTagCompoundClass()).invoke(mcMap, nbtTagCompound);
             } else {
@@ -148,16 +157,21 @@ public class Spray {
     }
 
     public static Object getMapPacket(int mapViewId, byte[] pixels) throws ReflectiveOperationException {
+        int subVer = CustomSprays.getSubVer();
         Object mapPacket;
-        if (CustomSprays.getSubVer() == 8) {
+        if (subVer == 7) {
+            mapPacket = NMS.getPacketClass("PacketPlayOutMap")
+                    .getConstructor(int.class, byte[].class, byte.class)
+                    .newInstance(mapViewId, pixels, (byte) 4);
+        } else if (subVer == 8) {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
                     .newInstance(mapViewId, (byte) 3, Collections.emptyList(), pixels, 0, 0, 128, 128);
-        } else if (CustomSprays.getSubVer() < 14) {
+        } else if (subVer < 14) {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
                     .newInstance(mapViewId, (byte) 3, false, Collections.emptyList(), pixels, 0, 0, 128, 128);
-        } else if (CustomSprays.getSubVer() < 17) {
+        } else if (subVer < 17) {
             mapPacket = NMS.getPacketClass("PacketPlayOutMap")
                     .getConstructor(int.class, byte.class, boolean.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class)
                     .newInstance(mapViewId, (byte) 3, false, false, Collections.emptyList(), pixels, 0, 0, 128, 128);
@@ -174,54 +188,73 @@ public class Spray {
     }
 
     protected Object getItemFrame(Object mcMap, Location location) throws ReflectiveOperationException {
-        Object itemFrame =
-                NMS.getMcEntityItemFrameClass()
-                .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
-                .newInstance(
-                        NMS.getMcWorld(world),
-                        NMS.getMcBlockPosition(location),
-                        blockFaceToEnumDirection(blockFace)
-                );
+        int subVer = CustomSprays.getSubVer();
+        Object itemFrame;
+        if (subVer <= 7) {
+            itemFrame =
+                    NMS.getMcEntityItemFrameClass() /*world, x, y, z, enum*/
+                            .getConstructor(NMS.getMcWorldClass(), int.class, int.class, int.class, int.class)
+                            .newInstance(
+                                    NMS.getMcWorld(world),
+                                    location.getBlockX(), location.getBlockY(), location.getBlockZ(), intDirection
+                            );
+        } else {
+            itemFrame =
+                    NMS.getMcEntityItemFrameClass()
+                            .getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass())
+                            .newInstance(
+                                    NMS.getMcWorld(world),
+                                    NMS.getMcBlockPosition(location),
+                                    blockFaceToEnumDirection(blockFace)
+                            );
+        }
         // set invisible
-        switch (CustomSprays.getSubVer()) {
+        switch (subVer) {
             case 18:
                 itemFrame.getClass().getMethod("j", boolean.class).invoke(itemFrame, true); break;
             case 16: case 17: default:
                 itemFrame.getClass().getMethod("setInvisible", boolean.class).invoke(itemFrame, true);
         }
         //set silent
-        switch (CustomSprays.getSubVer()) {
+        switch (subVer) {
+            case 6: NMS.getMcEntityClass().getMethod("e", boolean.class).invoke(itemFrame, true); break;
             case 8: NMS.getMcEntityClass().getMethod("b", boolean.class).invoke(itemFrame, true); break;
             case 9: NMS.getMcEntityClass().getMethod("c", boolean.class).invoke(itemFrame, true); break;
             case 18: NMS.getMcEntityClass().getMethod("d", boolean.class).invoke(itemFrame, true); break;
             default: NMS.getMcEntityClass().getMethod("setSilent", boolean.class).invoke(itemFrame, true);
         }
         // set item
-        if (CustomSprays.getSubVer() < 18) {
+        if (subVer < 18) {
             itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass()).invoke(itemFrame, mcMap);
         } else {
             itemFrame.getClass().getMethod("setItem", NMS.getMcItemStackClass(), boolean.class, boolean.class).invoke(itemFrame, mcMap, false, false);
         }
         // set rotation
         if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
-            Method setRotation = itemFrame.getClass().getDeclaredMethod(CustomSprays.getSubVer()<18?"setRotation":"a", int.class, boolean.class);
+            Method setRotation = itemFrame.getClass().getDeclaredMethod(subVer<18?"setRotation":"a", int.class, boolean.class);
             setRotation.setAccessible(true);
-            setRotation.invoke(itemFrame, getItemFrameRotate(player.getLocation(), blockFace), false);
+            setRotation.invoke(itemFrame, getItemFrameRotate(playerLocation, blockFace), false);
         }
         return itemFrame;
     }
 
     protected Object getSpawnPacket(Object itemFrame) throws ReflectiveOperationException {
-        if (CustomSprays.getSubVer() < 14) {
-            /* ItemFrame.class, ItemFrameID:71, Data:Facing(int) */
+        int subVer = CustomSprays.getSubVer();
+        if (subVer <= 7) {
+            /* EntityLiving */
+            return NMS.getPacketClass("Packet24MobSpawn")
+                    .getConstructor(NMS.getMcEntityLivingClass())
+                    .newInstance(itemFrame);
+        } else if (subVer <= 13) {
+            /* ItemFrame, ItemFrameID:71, Data:Facing(int) */
             return NMS.getPacketClass("PacketPlayOutSpawnEntity")
                     .getConstructor(NMS.getMcEntityClass(), int.class, int.class)
-                    .newInstance(itemFrame, 71, blockFaceToIntDirection(blockFace));
+                    .newInstance(itemFrame, 71, intDirection);
         } else {
-            /* ItemFrame.class, Data:Facing(int) */
+            /* ItemFrame, Data:Facing(int) */
             return NMS.getPacketClass("PacketPlayOutSpawnEntity")
                     .getConstructor(NMS.getMcEntityClass(), int.class)
-                    .newInstance(itemFrame, blockFaceToIntDirection(blockFace));
+                    .newInstance(itemFrame, intDirection);
         }
     }
 
@@ -245,7 +278,7 @@ public class Spray {
         }
     }
 
-    protected static int blockFaceToIntDirection(BlockFace face) {
+    protected int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
         if (CustomSprays.getSubVer() < 13) {
             switch (face) {

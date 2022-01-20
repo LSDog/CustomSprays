@@ -6,17 +6,18 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
+import java.util.Objects;
 
+@SuppressWarnings("all")
 public class DataMySQL implements IData {
 
     @Override
-    @SuppressWarnings("all")
     public int saveImageBytes(Player player, byte[] imgBytes) {
         byte[] data = DataManager.compressBytes(imgBytes);
-        try (Connection con = getConnection(); PreparedStatement stat = con.prepareStatement("REPLACE INTO sprays(UUID,name,image) VALUES(?,?,?);")) {
-            stat.setString(1, player.getUniqueId().toString());
-            stat.setString(2, player.getName());
-            stat.setBytes(3, data);
+        try (Connection con = getConnection(); PreparedStatement stat = Objects.requireNonNull(con).prepareStatement("UPDATE sprays set name=?, image=? WHERE UUID=?;")) {
+            stat.setString(3, player.getUniqueId().toString());
+            stat.setString(1, player.getName());
+            stat.setBytes(2, data);
             stat.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -25,25 +26,66 @@ public class DataMySQL implements IData {
     }
 
     @Override
-    @SuppressWarnings("all")
     public byte[] getImageBytes(Player player) {
-        try (Connection con = getConnection(); Statement stat = con.createStatement()) {
+        try (Connection con = getConnection(); Statement stat = Objects.requireNonNull(con).createStatement()) {
             ResultSet resultSet = stat.executeQuery("SELECT image FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
-            if (resultSet.next()) return DataManager.decompressBytes(resultSet.getBytes("image"));
+            if (resultSet.next()) {
+                return DataManager.decompressBytes(resultSet.getBytes("image"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    @SuppressWarnings("all")
+    @Override
+    public void setCopyAllowed(Player player, boolean flag) {
+        try (Connection con = getConnection(); PreparedStatement stat = Objects.requireNonNull(con).prepareStatement("UPDATE sprays SET name=?, allow_copy=? WHERE UUID=?;")) {
+            stat.setString(3, player.getUniqueId().toString());
+            stat.setString(1, player.getName());
+            stat.setBoolean(2, flag);
+            stat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean getCopyAllowed(Player player) {
+        try (Connection con = getConnection(); Statement stat = Objects.requireNonNull(con).createStatement()) {
+            ResultSet resultSet = stat.executeQuery("SELECT allow_copy FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
+            if (resultSet.next()) return resultSet.getBoolean("allow_copy");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
     public static void createTableIfNotExist() {
-        try(Connection connection = getConnection(); Statement stat = connection.createStatement()) {
+        try(Connection connection = getConnection(); Statement stat = Objects.requireNonNull(connection).createStatement()) {
             stat.executeUpdate("CREATE TABLE IF NOT EXISTS sprays(" +
-                    "UUID varchar(64) not null , " +
-                    "name varchar(64) not null , " +
-                    "image BLOB not null , " +
+                    "UUID varchar(64) NOT NULL , " +
+                    "name varchar(64) NOT NULL , " +
+                    "image MEDIUMBLOB DEFAULT null , " +
+                    "allow_copy BOOLEAN NOT NULL DEFAULT 1 , " +
                     "primary key (UUID))");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addAccountIfNotExist(Player player) {
+        try (Connection con = getConnection(); Statement stat = Objects.requireNonNull(con).createStatement()) {
+            ResultSet resultSet = stat.executeQuery("SELECT name FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
+            if (resultSet.next()) return; // 存在就不管了
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try (Connection con = getConnection(); PreparedStatement stat = con.prepareStatement("INSERT sprays(UUID,name,allow_copy) VALUES(?,?,?);")) {
+            stat.setString(1, player.getUniqueId().toString());
+            stat.setString(2, player.getName());
+            stat.setBoolean(3, true);
+            stat.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }

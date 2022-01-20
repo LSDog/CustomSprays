@@ -21,14 +21,14 @@ public class CommandSpray implements CommandExecutor {
             if (args.length != 0) {
                 // 大喷漆
                 if (args[0].equalsIgnoreCase("big")) {
-                    CustomSprays.spray(player, true, players);
+                    CustomSprays.spray(player, true);
                     return;
                 }
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.TOO_MANY_ARGUMENTS"));
                 return;
             }
             // 小喷漆
-            CustomSprays.spray(player, false, players);
+            CustomSprays.spray(player, false);
         });
         return true;
     }

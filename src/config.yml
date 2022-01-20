@@ -10,8 +10,12 @@
 #    description: 允许喷漆 | Allow spray
 #
 #  CustomSprays.bigspray:
-#   default: true
-#   description: 允许3*3大喷漆 | Allow 3*3 big spray
+#    default: true
+#    description: 允许3*3大喷漆 | Allow 3*3 big spray
+#
+#  CustomSprays.copy:
+#    default: true
+#    description: 允许复制他人图像 | Allow copy other's spray
 #
 #  CustomSprays.view:
 #    default: op
@@ -26,6 +30,20 @@
 #    description: 没有上传和喷涂的冷却 | No cooling for spray and upload
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+# # # # # # # # 教程: 设置默认图案
+# # # Tutorial: Set default image
+#
+# |游戏内 yml存储方式[storage: YML] 上传图片后复制 <\plugins\CustomSprays\playerData\{你的uuid}.yml> image项的内容(不要包括 "image: " !!) ,
+#    创建 <\plugins\CustomSprays\default.yml> 并粘贴到其中, "/cspray reload" 即可设置默认图像
+#    若玩家没有上传图像则喷这个, default.yml不存在时不启用
+# |Upload image by using yml-storage[storage: YML] and go copy content in "image: " from <\plugins\CustomSprays\playerData\{你的uuid}.yml> (but not contain "image: " !!) ,
+#    then create file <\plugins\CustomSprays\default.yml> and paste there, using "/cspray reload" to load the default image
+#    若玩家没有上传图像则喷这个, default.yml不存在时不启用
+#
+# # # # # # # # # # # # # # #
+
 
 storage: YML
 # 支持|Support: YML, MYSQL
@@ -65,25 +83,46 @@ destroy: 40
 # |Spray self destroy time (Second)
 # 默认|Default: 40
 
+
 spray_cooldown: 30
 # |玩家喷漆的时间间隔 (秒)
 # |Cool down between player spray (Second)
 # 默认|Default: 30
+
+big_spray_cooldown_multiple: 1.5
+# big_spray_cooldown == spray_cooldown * big_spray_cooldown_multiple
+# |玩家使用大喷漆的时间间隔倍数 (倍数)
+# |Multiple of cool down between player use big spray (Multiple number)
+# 默认|Default: 1.5
+
 
 upload_cooldown: 60
 # |玩家上传图片的时间间隔 (秒)
 # |Cool down between player upload a new image (Second)
 # 默认|Default: 60
 
-file_size_limit: 256
+upload_failed_cooldown_multiple: 0.2
+# upload_failed_cooldown == upload_cooldown * upload_failed_cooldown_multiple
+# |玩家上传图片失败的时间间隔倍数 (倍数)
+# |Multiple of cool down between player failed upload an image (Multiple number)
+# 默认|Default: 0.2
+
+copy_cooldown_multiple: 0.3
+# copy_cooldown == upload_cooldown * copy_cooldown_multiple
+# |玩家复制另一个玩家图片的时间间隔倍数 (倍数)
+# |Multiple of cool down between player copy an image from a player (Multiple number)
+# 默认|Default: 0.3
+
+
+file_size_limit: 1024
 # |玩家提供的链接图片大小限制 (kb), 图片会被保存到 384*384px 大小以节省空间
 # |Max size of the image from link (kb), the image will saved in 384*384px to save space
-# 默认|Default: 256
+# 默认|Default: 1024
 
-download_limit: 4
+download_limit: 3
 # |同时下载的数量限制
 # |Max downloads at the same time
-# 默认|Default: 4
+# 默认|Default: 3
 
 
 
@@ -135,11 +174,12 @@ Messages:
     DISABLED_WORLD: "§7这里... 不可以的哟...❤ (此世界被禁用)"
 
   COMMAND_HELP:
-    UPLOAD: "上传图片链接 (尺寸§c建议为128*128px§r)"
-    VIEW: "查看玩家的自定义喷漆"
+    UPLOAD: "上传图片链接 (尺寸§c建议为384*384px§r)"
+    COPY: "复制某玩家的图片"
+    VIEW: "查看某玩家的自定义喷漆"
     CHECK: "检查喷漆者"
     RELOAD: "重载插件"
-    TIP: "§7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\"\n  §7§l使用 §e§l/spray (big)§7 或在 §e§l1.9+版本(蹲下)双击F §7来§b§l喷漆！ "
+    TIP: "\n§7TIP: §7§l\"在线图床 和 在线修改图片 很有用哦~\"\n  §7§l使用 §e§l/spray (big)§7 或在 §e§l1.9+版本(蹲下)双击F §7来§b§l喷漆(大)！ "
 
   COMMAND_UPLOAD:
     IN_BUSY: "服务器正忙，请稍后再传......"
@@ -151,18 +191,32 @@ Messages:
     CANT_GET_SIZE: "我们无法获取文件的大小！\n          请换一个以图片后缀§7(.png/.jpg/.jpeg)§r结尾的url试试吧......"
     UPLOADING: "§7加载中... 请稍候......"
     FAILED_GET_IMAGE: "获取文件失败！ 可恶！！！"
-    OK: "喷图案保存成功！"
+    OK: "喷图图案保存成功！\n"
 
   COMMAND_VIEW:
     NO_PLAYER: "查无此人啦..."
-    PLAYER_NO_IMAGE: "还没有上传图片呢"
+    PLAYER_NO_IMAGE: " 还没有上传图片呢！"
     WARN: "§7注意: 这是个假物品"
 
+  COMMAND_COPY:
+    HELP: "\n | /§7cspray copy§r§l <Player> §r§7- 复制某个玩家的喷漆\n | /§7cspray copy§r§l x §r§7- 禁止他人复制你的图片\n | /§7cspray copy§r§l o §r§7- 允许他人复制你的图片"
+    NO_PLAYER: "查无此人啦..."
+    COPY_SELF: "§7...你是不是很无聊啊"
+    NOT_ALLOW: " 不允许复制图片！"
+    PLAYER_NO_IMAGE: " 还没有上传图片呢！"
+    OK: "喷图图案复制成功！嘿嘿~\n"
+
+
+# 如果你想提供多语言的翻译，请到 [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159] 向我投稿！
+# If you wanna help me to translate messages, find me in [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159] ！
 
 #####################
 #  ENGLISH VERSION  #
+#  Translator: 小关  #
 #####################
 
+# |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
+# |Mention that we're not support color code "&", please use "§"
 #Messages:
 #  # |所有信息支持 PlaceholderAPI
 #  # |All messages support PlaceholderAPI
@@ -173,37 +227,45 @@ Messages:
 #
 #  SPRAY:
 #    TOO_MANY_ARGUMENTS: "This is the painting command. Please use the §b/cspray§r !"
-#    NO_IMAGE: "Sorry! You haven't uploaded the picture yet."
-#    NO_IMAGE_TIP: "Please use §b/cspray§r §3upload§l <url>§r to upload your picture!"
+#    NO_IMAGE: "Sorry! You haven't uploaded the image yet."
+#    NO_IMAGE_TIP: "Please use §b/cspray§r §3upload§l <url>§r to upload your image!"
 #    DISABLED_WORLD: "§7Sorry! This world has been disabled!"
 #
 #  COMMAND_HELP:
-#    UPLOAD: "Upload picture link (Size:§cBetter be 128*128px§r)"
+#    UPLOAD: "Upload image link (Size:§cBetter be 384*384px§r)"
+#    COPY: "Copy the image from a player"
 #    VIEW: "View player's custom paint."
 #    CHECK: "Check the painter."
 #    RELOAD: "Reload the plugin."
-#    TIP: "§7TIP: §7§l\"Image Hosting Web Site and Modify Pictures Online are very useful~\"\n  §7§lUse §e§l/spray (big)§7 or Double click (in snaking) 'F' in §e§l1.9+§b§l to paint !"
+#    TIP: "\n§7TIP: §7§l\"Image Hosting Web Site and Modify Pictures Online are very useful~\"\n  §7§lUse §e§l/spray (big)§7 or Double click (in snaking) 'F' in §e§l1.9+§b§l to paint (big)!"
 #
 #  COMMAND_UPLOAD:
 #    IN_BUSY: "Server in busy, please upload later!"
-#    NO_URL: "Sorry! You forgot to write the address of the picture!"
+#    NO_URL: "Sorry! You forgot to write the address of the image!"
 #    NOT_URL: "Sorry! The URL is invalid!"
-#    CONNECT_FAILED: "Sorry! An error occurred while linking the picture!"
+#    CONNECT_FAILED: "Sorry! An error occurred while linking the image!"
 #    CONNECT_HTTPS_FAILED: "If your are using the URL start with §e§l https§r ,please try §e§l http§r again!"
-#    FILE_TOO_BIG: "The size of the picture you provided is too big! It is {size}K! §7(Up to §f§l{limit}k§r§7 pictures can be uploaded!)"
-#    CANT_GET_SIZE: "We couldn't get the size of the picture!\n          Please change the URL ending in §7(.png/.jpg/.jpeg)§r......"
+#    FILE_TOO_BIG: "The size of the image you provided is too big! It is {size}K! §7(Up to §f§l{limit}k§r§7 image can be uploaded!)"
+#    CANT_GET_SIZE: "We couldn't get the size of the image!\n          Please change the URL ending in §7(.png/.jpg/.jpeg)§r......"
 #    UPLOADING: "§7Loading... Please wait for a while..."
-#    FAILED_GET_IMAGE: "Sorry! An error occurred while getting the picture!"
-#    OK: "Success!The painting had been saved! "
+#    FAILED_GET_IMAGE: "Sorry! An error occurred while getting the image!"
+#    OK: "Success!The image has been saved! \n"
 #
 #  COMMAND_VIEW:
 #    NO_PLAYER: "No player found..."
-#    PLAYER_NO_IMAGE: "You haven't uploaded the picture yet."
+#    PLAYER_NO_IMAGE: " haven't uploaded the image yet!"
 #    WARN: "§7Warning: This is a fake item!"
-
+#
+#  COMMAND_COPY:
+#    HELP: "\n | /§7cspray copy§r§l <Player> §r§7-§r Copy some one's image\n | /§7cspray copy§r§l x §r§7-§r don't let others copy your image\n | /§7cspray copy§r§l o §r§7-§r allow others copy your image"
+#    NO_PLAYER: "No player found..."
+#    COPY_SELF: "§7... do you really know that you are making a big trouble?"
+#    NOT_ALLOW: " does not allow image copy!"
+#    PLAYER_NO_IMAGE: " haven't uploaded the image yet!"
+#    OK: "Image has benn copied! ho~ho~\n"
 
 
 
 # |Checking compatibility, take care of this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.4
+configVersion: 1.5
