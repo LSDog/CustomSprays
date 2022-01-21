@@ -1,5 +1,6 @@
 package fun.LSDog.CustomSprays.utils;
 
+import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import org.bukkit.map.MapPalette;
 
@@ -54,7 +55,7 @@ public class ImageGetter implements Closeable {
             conn.getInputStream();
             size = conn.getContentLength()/1024;
             if (size == 0) return 4;
-            if (size >= DataManager.downloadLimit+1) return 3;
+            if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit")+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {
             return 2;
