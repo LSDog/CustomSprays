@@ -1,5 +1,5 @@
 name: CustomSprays
-version: 1.5
+version: 1.6-SNAPSHOT
 main: fun.LSDog.CustomSprays.CustomSprays
 authors: [LSDog]
 softdepend: [PlaceholderAPI]

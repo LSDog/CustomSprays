@@ -53,8 +53,9 @@ public class ImageGetter implements Closeable {
             conn.connect();
             if (conn.getResponseCode() == 403) return 4;
             conn.getInputStream();
-            size = conn.getContentLength()/1024;
-            if (size == 0) return 4;
+            int byteSize = conn.getContentLength();
+            if (byteSize == 0) return 4;
+            size = byteSize/1024;
             if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit")+1) return 3;
             else if (conn.getContentLength() == 0) return 4;
         } catch (SSLHandshakeException e) {

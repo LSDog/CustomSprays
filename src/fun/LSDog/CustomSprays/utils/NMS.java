@@ -46,6 +46,7 @@ public class NMS {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static Object getDeclaredField(Object object, String name) {
+        if (object == null || name == null) return null;
         try {
             Field field = object.getClass().getDeclaredField(name);
             field.setAccessible(true);

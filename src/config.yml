@@ -155,6 +155,10 @@ disabled_world: ["示例_世界名", "EXAMPLE_WORLD_NAME"]
 # |禁用的世界名称列表，列表中的世界无法喷漆
 # |Disabled world names, where are not able to spray
 
+disabled_region: ["示例_区域/领地名", "EXAMPLE_REGION_NAME"]
+# |禁用的区域名称列表，列表中的区域无法喷漆
+# |Disabled region names, where are not able to spray
+
 
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
 # |Mention that we're not support color code "&", please use "§"
@@ -172,6 +176,7 @@ Messages:
     NO_IMAGE: "笨蛋！ 你还没有上传图片呢！！！"
     NO_IMAGE_TIP: "使用 §b/cspray§r §3upload§l <url>§r 来上传图片！"
     DISABLED_WORLD: "§7这里... 不可以的哟...❤ (此世界被禁用)"
+    DISABLED_REGION: "§7这.. 这里不可以呀啊！！ (此区域被禁用)"
 
   COMMAND_HELP:
     UPLOAD: "上传图片链接 (尺寸§c建议为384*384px§r)"
@@ -230,6 +235,7 @@ Messages:
 #    NO_IMAGE: "Sorry! You haven't uploaded the image yet."
 #    NO_IMAGE_TIP: "Please use §b/cspray§r §3upload§l <url>§r to upload your image!"
 #    DISABLED_WORLD: "§7Sorry! This world has been disabled!"
+#    DISABLED_REGION: "§7Sorry! This region has been disabled!"
 #
 #  COMMAND_HELP:
 #    UPLOAD: "Upload image link (Size:§cBetter be 384*384px§r)"
@@ -268,4 +274,4 @@ Messages:
 
 # |Checking compatibility, take care of this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.5
+configVersion: 1.6

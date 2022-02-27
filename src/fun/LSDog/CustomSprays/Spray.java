@@ -1,10 +1,12 @@
 package fun.LSDog.CustomSprays;
 
 import com.sun.istack.internal.Nullable;
+import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.manager.SprayManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.RayTracer;
+import fun.LSDog.CustomSprays.utils.RegionChecker;
 import fun.LSDog.CustomSprays.utils.TargetBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -57,6 +59,11 @@ public class Spray {
 
             /* ↓喷漆有占用就取消 */
             if (SprayManager.getSpray(location, blockFace) != null) return false;
+            /* 喷漆在禁止区域就取消 */
+            if (RegionChecker.isLocInDisabledRegion(location)) {
+                player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_REGION"));
+                return false;
+            }
 
             spawn(players, true);
             SprayManager.addSpray(this);
