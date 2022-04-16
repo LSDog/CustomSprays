@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CustomSprays">
+    <output-path>$PROJECT_DIR$/out/</output-path>
+    <root id="archive" name="CustomSprays.jar">
+      <element id="module-output" name="CustomSprays" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/config.yml" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/reflectasm-1.11.9.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
