@@ -2,11 +2,9 @@ package fun.LSDog.CustomSprays.utils;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
-import org.bukkit.map.MapPalette;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.IOException;
@@ -15,7 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class ImageGetter implements Closeable {
+public class ImageDownloader implements Closeable {
 
     private static int downloadCount = 0;
 
@@ -26,7 +24,7 @@ public class ImageGetter implements Closeable {
 
     public int size;
 
-    public ImageGetter(String destUrl) throws TooManyDownloadException {
+    public ImageDownloader(String destUrl) throws TooManyDownloadException {
         if (downloadCount >= DataManager.downloadLimit) {
             throw new TooManyDownloadException();
         }
@@ -66,7 +64,7 @@ public class ImageGetter implements Closeable {
         return 0;
     }
 
-    public void getBufferedImage() {
+    public BufferedImage getBufferedImage() {
         try {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -80,24 +78,7 @@ public class ImageGetter implements Closeable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    public byte[] get384pxMapBytes() throws IOException {
-        int[] pixels = new int[384*384];
-        get384pxImage().getRGB(0, 0, 384, 384, pixels, 0, 384);
-        byte[] result = new byte[384*384];
-        for(int i = 0; i < pixels.length; ++i) {
-            result[i] = MapPalette.matchColor(new Color(pixels[i], true));
-        }
-        return result;
-    }
-
-    private BufferedImage get384pxImage() {
-        BufferedImage bufferedImage = new BufferedImage(384, 384, BufferedImage.TYPE_INT_ARGB);
-        bufferedImage.createGraphics().drawImage(image, 0, 0, 384, 384, null);
-        bufferedImage.getGraphics().dispose();
-        return bufferedImage;
+        return image;
     }
 
     @Override

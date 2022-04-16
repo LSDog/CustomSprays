@@ -4,8 +4,9 @@ import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
-import fun.LSDog.CustomSprays.manager.SprayManager;
-import fun.LSDog.CustomSprays.utils.ImageGetter;
+import fun.LSDog.CustomSprays.manager.SpraysManager;
+import fun.LSDog.CustomSprays.utils.ImageDownloader;
+import fun.LSDog.CustomSprays.utils.ImageUtil;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapView;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -48,7 +50,7 @@ public class CommandCustomSprays implements TabExecutor {
                     sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(sender, "NO_PERMISSION"));
                     return true;
                 }
-                SprayManager.destroyAllSpray();
+                SpraysManager.removeAllSpray();
                 CustomSprays.instant.reloadConfig();
                 DataManager.initialize(CustomSprays.instant.getConfig().getString("storage"));
                 CoolDownManager.reset();
@@ -81,38 +83,38 @@ public class CommandCustomSprays implements TabExecutor {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
-                        ImageGetter imageGetter;
+                        ImageDownloader imageDownloader;
                         try {
-                            imageGetter = new ImageGetter(url);
-                        } catch (ImageGetter.TooManyDownloadException e) {
+                            imageDownloader = new ImageDownloader(url);
+                        } catch (ImageDownloader.TooManyDownloadException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.IN_BUSY"));
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
-                        byte result = imageGetter.checkImage();
+                        byte result = imageDownloader.checkImage();
                         if (result != 0) {
                             if (result == 1) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED"));
                             if (result == 2) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED")+"\n"+CustomSprays.prefix+ DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_HTTPS_FAILED"));
-                            if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageGetter.size+"").replace("{limit}", config.getDouble("file_size_limit")+""));
+                            if (result == 3) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FILE_TOO_BIG").replace("{size}", imageDownloader.size+"").replace("{limit}", config.getDouble("file_size_limit")+""));
                             if (result == 4) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CANT_GET_SIZE"));
-                            imageGetter.close();
+                            imageDownloader.close();
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.UPLOADING"));
-                        imageGetter.getBufferedImage();
+                        BufferedImage image = imageDownloader.getBufferedImage();
                         byte[] imgBytes;
                         try {
-                            imgBytes = imageGetter.get384pxMapBytes();
+                            imgBytes = ImageUtil.getPxMapBytes(ImageUtil.resizeImage(image, 384, 384));
                         } catch (IllegalArgumentException | IOException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
-                            imageGetter.close();
+                            imageDownloader.close();
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
                         int size = DataManager.saveImageBytes(player, imgBytes);
                         /* 上传成功了就用原冷却时间，所谓人性化是也~~ */
                         CoolDownManager.setUploadCooldown(player, 1);
-                        CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+imageGetter.size+"§7->§e§l"+size/1024+" K§r) " + url);
+                        CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+ imageDownloader.size+"§7->§e§l"+size/1024+" K§r) " + url);
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
-                        imageGetter.close();
+                        imageDownloader.close();
                         uploadingSet.remove(player.getUniqueId());
                     }
                 }.runTaskAsynchronously(CustomSprays.instant);
@@ -247,7 +249,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        Spray spray = SprayManager.getSpray(player);
+                        Spray spray = SpraysManager.getSpray(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }

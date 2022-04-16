@@ -8,14 +8,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-
 public class CommandSpray implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) return true;
-        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
         Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> {
             Player player = ((Player) sender).getPlayer();
             if (args.length != 0) {

@@ -1,8 +1,8 @@
 package fun.LSDog.CustomSprays.manager;
 
+import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.utils.RayTracer;
-import fun.LSDog.CustomSprays.utils.TargetBlock;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SprayManager {
+public class SpraysManager {
 
     public static Map<UUID, List<Spray>> playerSprayMap = new ConcurrentHashMap<>();
 
@@ -30,15 +30,13 @@ public class SprayManager {
 
     public static Spray getSpray(Player player) {
 
-        try {
-            TargetBlock targetBlock = RayTracer.getTargetBlock(player);
-            if (targetBlock == null) return null;
-            return getSpray(targetBlock.getRelativeBlock().getLocation(), targetBlock.getBlockFace());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Location eyeLocation = player.getEyeLocation();
+        RayTracer.BlockRayTraceResult targetBlock =
+                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance"))
+                        .rayTraceBlock(block -> block.getType().isSolid());
+        if (targetBlock == null) return null;
+        return getSpray(targetBlock.getRelativeBlock().getLocation(), targetBlock.blockFace);
 
-        return null;
     }
 
     public static Spray getSpray(Location location, BlockFace blockFace) {
@@ -54,29 +52,28 @@ public class SprayManager {
 
     /**
      * 清除某玩家的喷漆和记录用map
-     * @param player 喷漆者
      * @param spray 喷漆
      */
-    public static void removeSpray(Player player, Spray spray) {
+    public static void removeSpray(Spray spray) {
 
-        spray.destroy();
+        spray.remove();
 
-        List<Spray> playerList = playerSprayMap.getOrDefault(player.getUniqueId(), new ArrayList<>());
-        if (!playerList.isEmpty()) playerList.remove(spray);
-        playerSprayMap.put(player.getUniqueId(), playerList);
+        List<Spray> playerSprayList = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
+        if (!playerSprayList.isEmpty()) playerSprayList.remove(spray);
+        playerSprayMap.put(spray.player.getUniqueId(), playerSprayList);
 
-        List<Spray> locList = locationSprayMap.getOrDefault(spray.location, new ArrayList<>());
-        if (!playerList.isEmpty()) locList.remove(spray);
-        locationSprayMap.put(spray.location, locList);
+        List<Spray> locSprayList = locationSprayMap.getOrDefault(spray.location, new ArrayList<>());
+        if (!locSprayList.isEmpty()) locSprayList.remove(spray);
+        locationSprayMap.put(spray.location, locSprayList);
     }
 
     /**
      * 清除所有喷漆和记录用map
      */
-    public static void destroyAllSpray() {
+    public static void removeAllSpray() {
 
-        playerSprayMap.values().forEach(sprays -> sprays.forEach(Spray::destroy));
-        // locationSprayMap.values().forEach(sprays -> sprays.forEach(Spray::destroy));
+        playerSprayMap.values().forEach(sprays -> sprays.forEach(Spray::remove));
+        // locationSprayMap.values().forEach(sprays -> sprays.forEach(Spray::remove));
         // 我们姑且不去担心两个map不一样的情况，俺尽力了
 
         playerSprayMap.clear();

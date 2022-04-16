@@ -80,7 +80,7 @@ distance: 4.5
 
 destroy: 40
 # |玩家喷漆自动消失时间 (秒)
-# |Spray self destroy time (Second)
+# |Spray self remove time (Second)
 # 默认|Default: 40
 
 

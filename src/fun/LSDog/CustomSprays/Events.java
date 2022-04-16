@@ -2,7 +2,7 @@ package fun.LSDog.CustomSprays;
 
 import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.Data.DataMySQL;
-import fun.LSDog.CustomSprays.manager.SprayManager;
+import fun.LSDog.CustomSprays.manager.SpraysManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,7 +11,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 实现双击F喷漆
@@ -26,7 +29,6 @@ public class Events implements Listener {
     @EventHandler (priority = EventPriority.MONITOR)
     public void onToggleF(PlayerSwapHandItemsEvent e) {
         Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> {
-            Collection<? extends Player> players = Bukkit.getOnlinePlayers();
             Player player = e.getPlayer();
             UUID uuid = player.getUniqueId();
             Long t = timeMap.get(uuid);
@@ -51,7 +53,7 @@ public class Events implements Listener {
                 DataMySQL.addAccountIfNotExist(e.getPlayer());
             }
         }, 10L);
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SpraysManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
             try {
                 spray.spawn(Collections.singletonList(e.getPlayer()), false);
             } catch (ReflectiveOperationException reflectiveOperationException) {

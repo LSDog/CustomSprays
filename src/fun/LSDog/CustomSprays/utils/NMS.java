@@ -7,6 +7,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 全是 Object 的跨版本NMS适配机器（
@@ -14,6 +17,8 @@ import java.lang.reflect.Field;
 public class NMS {
 
     public static String version;
+
+    private static final Map<String, Class<?>> mcClassMap = new HashMap<>();
 
     static {
         version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -28,18 +33,13 @@ public class NMS {
         return null;
     }
 
-    public static Class<?> getPacketClass() {
-        if (CustomSprays.getSubVer() < 17) return getLegacyMcClass("Packet");
-        else return getMcClass("network.protocol.Packet");
-    }
-    public static Class<?> getPacketClass(String paketName) {
-        if (CustomSprays.getSubVer() < 17) return getLegacyMcClass(paketName);
-        else return getMcClass("network.protocol.game."+paketName);
-    }
-
+    private static Method PlayerConnection_SendPacket;
     public static void sendPacket(Player player, Object packet) throws ReflectiveOperationException {
-        if (CustomSprays.getSubVer() < 18) getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
-        else getMcPlayerConnectionClass().getMethod("a", getPacketClass()).invoke(getMcPlayerConnection(player), packet);
+        if (PlayerConnection_SendPacket == null) {
+            if (CustomSprays.getSubVer() < 18) PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass());
+            else PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("a", getPacketClass());
+        }
+        PlayerConnection_SendPacket.invoke(getMcPlayerConnection(player), packet);
     }
 
 
@@ -60,13 +60,33 @@ public class NMS {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    // "Legacy" means version < 1.17
-    public static Class<?> getLegacyMcClass(String name) {
-        return getClass("net.minecraft.server."+version+"."+name);
+    public static Class<?> getMcClass(String name) {
+        Class<?> clazz = mcClassMap.get(name);
+        if (clazz == null) {
+            clazz = getClass("net.minecraft."+name);
+            mcClassMap.put(name, clazz);
+        }
+        return clazz;
     }
 
-    public static Class<?> getMcClass(String name) {
-        return getClass("net.minecraft."+name);
+    // "Legacy" means version < 1.17
+    public static Class<?> getLegacyMcClass(String name) {
+        Class<?> clazz = mcClassMap.get(name);
+        if (clazz == null) {
+            clazz = getClass("net.minecraft.server."+version+"."+name);
+            mcClassMap.put(name, clazz);
+        }
+        return clazz;
+    }
+
+    public static Class<?> getPacketClass() {
+        if (CustomSprays.getSubVer() < 17) return getLegacyMcClass("Packet");
+        else return getMcClass("network.protocol.Packet");
+    }
+
+    public static Class<?> getPacketClass(String paketName) {
+        if (CustomSprays.getSubVer() < 17) return getLegacyMcClass(paketName);
+        else return getMcClass("network.protocol.game."+paketName);
     }
 
     private static Class<?> fluidCollisionModeClass = null;

@@ -134,15 +134,6 @@ public class DataManager {
         CustomSprays.log("Data loaded!");
     }
 
-    /*
-    thinking......
-# |游戏内上传图片后复制 <imageData.yml的  {你的uuid}.image项的内容> 到双引号""中，/cspray reload 即可设置默认图像
-#   若玩家没有上传图像则喷这个, (默认)设置为 [DEFAULT_IMAGE: ""] 时不启用
-# |Upload image and go copy <imageData.yml-> {your uuid}.image> in to "", and use /cspray reload to set the default image
-#   Spray this image if player has no image, (default) set to [DEFAULT_IMAGE: ""] will not enable this
-# 默认|Default: ""
-     */
-
     public enum StorageMethod {
         YML, MYSQL;
         public static StorageMethod getValue(String name) {

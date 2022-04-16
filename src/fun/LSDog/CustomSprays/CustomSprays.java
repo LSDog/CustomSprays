@@ -36,8 +36,12 @@ public class CustomSprays extends JavaPlugin {
             if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.41) {
                 System.out.println("\n\n\n\n\n\n\n=====================\n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
-                log("| Unsupported config detected! please delete config.yml and re-config me!");
-                System.out.println("\n=====================\n\n\n\n\n\n\n");
+                log("| Unsupported config detected! please delete config.yml and re-config me! \n");
+                log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
+                log("| Unsupported config detected! please delete config.yml and re-config me! \n");
+                log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
+                log("| Unsupported config detected! please delete config.yml and re-config me! \n");
+                System.out.println("=====================\n\n");
                 Bukkit.shutdown();
                 return;
             }
@@ -76,16 +80,16 @@ public class CustomSprays extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        try {
-            // ↓ SprayManager.destroyAllSpray();
-            Class.forName("fun.LSDog.CustomSprays.manager.SprayManager").getMethod("destroyAllSpray").invoke(null);
-        } catch (Exception ignored) {
-        }
+        try { // ↓ SpraysManager.removeAllSpray();
+            Class.forName("fun.LSDog.CustomSprays.manager.SpraysManager").getMethod("removeAllSpray").invoke(null);
+        } catch (Exception ignored) { }
+
         log("CustomSprays disabled.");
     }
 
     /**
-     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家
+     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家 <br>
+     * <b>务必使用 runTaskAsynchronously 异步执行, 否则可能造成卡顿！！</b>
      * @param player 喷漆玩家
      * @param isBigSpray 是否为大型喷漆
      */
