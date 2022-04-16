@@ -1,6 +1,6 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.manager.SprayManager;
+import fun.LSDog.CustomSprays.manager.SpraysManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Bukkit;
@@ -19,6 +19,13 @@ public class BigSpray extends Spray {
     private final int[] itemFrameIds = new int[9]; // 九宫格展示框ID (0 ~ 8)
     private Location[] locs; // 九宫格位置 (0 ~ 8)
 
+    /**
+     * The constructor of BigSpray <br>
+     * <b>pixels must be 384*384</b>
+     * @param player The sprayer
+     * @param pixels Byte color array
+     * @param showTo The players who can see this spray (in spraying).
+     */
     public BigSpray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         super(player, pixels, showTo);
         breakPixels();
@@ -33,11 +40,11 @@ public class BigSpray extends Spray {
 
         BlockFace opposite = blockFace.getOppositeFace();
 
-        Collection<? extends Player> $playersShowTo = players;
+        Collection<? extends Player> $playersShowTo = playersShown;
 
         if (playersShowTo != null) {
             $playersShowTo = playersShowTo;
-            players.addAll($playersShowTo); // 重新生成的也要加到可见玩家里
+            playersShown.addAll($playersShowTo); // 重新生成的也要加到可见玩家里
         }
 
         for (int i = 0; i < 9; i++) {
@@ -71,11 +78,11 @@ public class BigSpray extends Spray {
 
     @Override
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SprayManager.removeSpray(player, this), tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SpraysManager.removeSpray(this), tick);
     }
 
     @Override
-    public void destroy() {
+    public void remove() {
         valid = false;
         try {
             for (Player p : Bukkit.getOnlinePlayers()) {
