@@ -19,7 +19,7 @@ ___
 > |介绍 / Discrip |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
 > |指令 / Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
 > |权限 / Perm    |请见 / see "config.yml"|
-> |特性 / Feature |[🏆特性](#-%E7%89%B9%E6%80%A7)|
+> |特性 / Feature |[🏆特性](`#-%E7%89%B9%E6%80%A7`)|
 > 
 > MCBBS >> https://www.mcbbs.net/thread-1289391-1-1.html
 >
