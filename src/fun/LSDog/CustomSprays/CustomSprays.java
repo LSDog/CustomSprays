@@ -83,7 +83,10 @@ public class CustomSprays extends JavaPlugin {
         try { // ↓ SpraysManager.removeAllSpray();
             Class.forName("fun.LSDog.CustomSprays.manager.SpraysManager").getMethod("removeAllSpray").invoke(null);
         } catch (Exception ignored) { }
-
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            if (bukkitWorker.getOwner().getName().equals("CustomSprays")) //noinspection deprecation
+                bukkitWorker.getThread().stop();
+        });
         log("CustomSprays disabled.");
     }
 
@@ -94,15 +97,18 @@ public class CustomSprays extends JavaPlugin {
      * @param isBigSpray 是否为大型喷漆
      */
     public static void spray(Player player, boolean isBigSpray) {
+        // 检测喷漆权限
         if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }
-        if (DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
+        // 检测禁止的世界和区域
+        if (!player.hasPermission("CustomSprays.nodisable") && DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
             return;
         }
-        if (!player.hasPermission("CustomSprays.noCD") && CoolDownManager.isSprayCooling(player)) {
+        // 检测CD
+        if (!player.hasPermission("CustomSprays.nocd") && CoolDownManager.isSprayCooling(player)) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
             return;
         }

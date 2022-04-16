@@ -14,9 +14,10 @@ import java.util.List;
 
 /**
  * 检测位置是否处于某个区域 (来自各类领域/领地插件) <br>
- * 测试过的版本: <br>
+ * 可用的版本: <br>
  * Residence - 5.0.1.3 <br>
  * WorldGuard - 6.2.2 & 7.0.6 <br>
+ * GriefDefender - 2.1.4
  */
 public class RegionChecker {
 
@@ -35,6 +36,12 @@ public class RegionChecker {
     private static Constructor<?> cWorldEdit_Vector;
     private static Class<?> WorldEdit_BlockVector3;
     private static Method WorldEdit_BlockVector3_at;
+
+
+    private static Object GriefDefenderAPI_core;
+    private static Method GriefDefenderAPI_Core_getClaimAt;
+    private static Method GriefDefenderAPI_Claim_getParents;
+    private static Method GriefDefenderAPI_Claim_getDisplayName;
 
     static {
         reload();
@@ -61,6 +68,13 @@ public class RegionChecker {
                 WorldEdit_BlockVector3 = Class.forName("com.sk89q.worldedit.math.BlockVector3");
                 WorldEdit_BlockVector3_at = WorldEdit_BlockVector3.getMethod("at", int.class, int.class, int.class);
             }
+        } catch (ReflectiveOperationException | NullPointerException ignore) {
+        }
+        try {
+            GriefDefenderAPI_core = Class.forName("com.griefdefender.api.GriefDefender").getMethod("getCore").invoke(null);
+            GriefDefenderAPI_Core_getClaimAt = GriefDefenderAPI_core.getClass().getMethod("getClaimAt", Object.class);
+            GriefDefenderAPI_Claim_getParents = Class.forName("com.griefdefender.api.claim").getMethod("getParents", boolean.class);
+            GriefDefenderAPI_Claim_getDisplayName = Class.forName("com.griefdefender.api.claim").getMethod("getDisplayName");
         } catch (ReflectiveOperationException | NullPointerException ignore) {
         }
     }
@@ -118,6 +132,21 @@ public class RegionChecker {
             }
         }
 
+
+        // GriefDefender
+        // GriefDefender.getCore().getClaimAt(loc).getDisplayName();
+        // GriefDefender.getCore().getClaimAt(loc).getParents(true);
+        if (GriefDefenderAPI_core != null) {
+            try {
+                Object claim = GriefDefenderAPI_Core_getClaimAt.invoke(loc, GriefDefenderAPI_core);
+                nameList.add((String) GriefDefenderAPI_Claim_getDisplayName.invoke(claim));
+                List<?> parentClaimList = ((List<?>) GriefDefenderAPI_Claim_getParents.invoke(claim, true));
+                for (Object parentClaim : parentClaimList) {
+                    nameList.add((String) GriefDefenderAPI_Claim_getDisplayName.invoke(parentClaim));
+                }
+            } catch (NullPointerException | IllegalAccessException | InvocationTargetException ignore) {
+            }
+        }
 
         return nameList;
     }

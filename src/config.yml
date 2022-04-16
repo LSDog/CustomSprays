@@ -160,7 +160,11 @@ disabled_world: ["示例_世界名", "EXAMPLE_WORLD_NAME"]
 disabled_region: ["示例_区域/领地名", "EXAMPLE_REGION_NAME"]
 # |禁用的区域名称列表，列表中的区域无法喷漆，可以判断父级领地
 # |Disabled region names, where are not able to spray, able to check parent region
-
+# |可用的插件
+# |Available plugins:
+#   * Residence - 5.0.1.3 <br>
+#   * WorldGuard - 6.2.2 & 7.0.6 <br>
+#   * GriefDefender - 2.1.4
 
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
 # |Mention that we're not support color code "&", please use "§"

@@ -4,11 +4,14 @@ import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-public class CommandSpray implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class CommandSpray implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -20,6 +23,9 @@ public class CommandSpray implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("big")) {
                     CustomSprays.spray(player, true);
                     return;
+                } else if (args[0].equalsIgnoreCase("small")) {
+                    CustomSprays.spray(player, false);
+                    return;
                 }
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.TOO_MANY_ARGUMENTS"));
                 return;
@@ -28,6 +34,18 @@ public class CommandSpray implements CommandExecutor {
             CustomSprays.spray(player, false);
         });
         return true;
+    }
+
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            List<String> argList = new ArrayList<>();
+            argList.add("small");
+            argList.add("big");
+            return argList;
+        }
+        return null;
     }
 
 }
