@@ -7,20 +7,20 @@
 - " 就像起源游戏的喷漆一样! "
 - " Just like source games'spraying! "
 
-## 📢 介绍 & 下载 | Introduce & Download
+## 📢 介绍 | Introduce
 ___
 >
 > |*Name*|*Content*|
 > |:---:|---|
 > |名字 / Name    |CustomSprays ~ 花样喷漆|
 > |作者 / Author  |LSDog|
-> |版本 / Version |1.5|
+> |版本 / Version |1.5.1-beta|
 > |支持 / Support | Bukkit \ Spigot \ Paper <b>1.8 ~ 1.18</b> |
 > |介绍 / Discrip |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
 > |指令 / Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
 > |权限 / Perm    |请见 / see "config.yml"|
 > 
-> MCBBS >> https://www.mcbbs.net/thread-1289391-1-1.html
+> Mcbbs >> https://www.mcbbs.net/thread-1289391-1-1.html
 >
 > Spigot >> https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/
 
@@ -72,7 +72,13 @@ ___
 > 
 > ⭕ <b>Support after *TEST* </b> : 1.8 ~ 1.18
 
-
+> 📏 支持的"领域"插件: <br>
+> 📏 Supported "region" plugins:
+>    * Residence - [ *x* ~ 5.0.1.3+ ]
+>    * WorldGuard - [ 6.*x* ~ 7.*x* ]
+>    * GriefDefender - [ *x* ~ 2.1.4+ ]
+> 
+> (理论上能支持更新的版本 | newer versions should be ok)
 
 ## 🏆 特性
 ___
@@ -81,12 +87,16 @@ ___
 - 🙅‍ NO Bungeecord-side plugin，all the data storage in MySQL / yml
 
 
-- 📦 纯发包实现喷漆【玩家无法交互 | 不生成map_xxx.dat
+- 📦 纯发包实现喷漆【玩家无法交互 | 不生成map_xxx.dat】
 - 📦 All packet sending to achieve【no interact with spray | no generating "map_xxx.dat"】
 
 
+- 📐 限制喷漆的世界或区域！
+- 📐 Disable spraying in specific worlds or regions!
+
+
 - ☕ 无需前置API，发包纯手搓（
-- ☕ No API required ，making NMS shit by my self（
+- ☕ No API required ，making NMS sh-t by my self（
 
 
 - 🔗 玩家上传图片链接 >> 文本存储图片 (image->base64) >> 喷漆后自动消失

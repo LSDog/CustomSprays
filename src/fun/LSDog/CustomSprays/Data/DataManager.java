@@ -5,10 +5,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.map.MapPalette;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +29,7 @@ public class DataManager {
     private static final File defaultImageFile = new File(CustomSprays.instant.getDataFolder() + File.separator + "default.yml");
 
     public static String getMsg(Player player, String path) {
+
         String msg = CustomSprays.instant.getConfig().getString("Messages."+path);
         if (usePapi) {
             return PlaceholderAPI.setPlaceholders(player, msg);
@@ -39,6 +37,7 @@ public class DataManager {
     }
 
     public static String getMsg(CommandSender sender, String path) {
+
         if (sender instanceof Player) {
             return getMsg((Player) sender, path);
         }
@@ -46,6 +45,7 @@ public class DataManager {
     }
 
     public static byte[] get384pxImageBytes(Player player) {
+
         byte[] bytes = data.getImageBytes(player);
         if (bytes != null && bytes.length == 147456) return bytes;
         if (defaultImage != null) {
@@ -55,7 +55,6 @@ public class DataManager {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public static byte[] get128pxImageBytes(Player player) {
 
         byte[] bytes384 = data.getImageBytes(player);
@@ -67,27 +66,10 @@ public class DataManager {
             }
         }
 
-        BufferedImage image384 = new BufferedImage(384, 384, BufferedImage.TYPE_INT_ARGB);
-        int[] ints384 = new int[384*384];
-        for (int i = 0; i < 384*384; i++) {
-            try {
-                ints384[i] = bytes384[i]==0 ? 0 : MapPalette.getColor(bytes384[i]).getRGB();
-            } catch (IndexOutOfBoundsException e) {
-                /* cross-version fix */
-                ints384[i] = bytes384[i]==0 ? 0 : MapPalette.getColor(MapPalette.matchColor(new Color(bytes384[i], true))).getRGB();
-            }
-        }
-        image384.setRGB(0,0,384,384,ints384,0,384);
-
-        BufferedImage image128 = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        image128.createGraphics().drawImage(image384, 0, 0, 128, 128, null);
-        image128.getGraphics().dispose();
-        int[] ints128 = new int[128*128];
-        image128.getRGB(0, 0, 128, 128, ints128, 0, 128);
-
         byte[] bytes128 = new byte[128*128];
-        for(int i = 0; i < 128*128; i++) {
-            bytes128[i] = MapPalette.matchColor(new Color(ints128[i], true));
+        
+        for (int i = 0; i < bytes128.length; i++) {
+            bytes128[i] = bytes384[ (i % 128) * 3 + (i / 128) * 1152 + 385]; // 384*384 -> 128*128 缩小直接取9*9中间的那个像素
         }
 
         return bytes128;

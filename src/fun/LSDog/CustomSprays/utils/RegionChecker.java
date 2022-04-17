@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * 检测位置是否处于某个区域 (来自各类领域/领地插件) <br>
- * 可用的版本: <br>
+ * Tested Version: <br>
  * Residence - 5.0.1.3 <br>
  * WorldGuard - 6.2.2 & 7.0.6 <br>
  * GriefDefender - 2.1.4
@@ -79,6 +79,9 @@ public class RegionChecker {
         }
     }
 
+    /**
+     * 检测某个位置是否处于禁止的区域
+     */
     public static boolean isLocInDisabledRegion(Location loc) {
         List<String> disableList = CustomSprays.instant.getConfig().getStringList("disabled_region");
         for (String name : getRegionNames(loc)) {
@@ -122,7 +125,7 @@ public class RegionChecker {
                     // WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(loc.getWorld())).getApplicableRegionsIDs(BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
                     Object regionManager = WorldGuard_RegionContainer_get.invoke(regionContainer, WorldEdit_BukkitAdapter_adapt.invoke(null, loc.getWorld()));
                     List<String> nList = (List<String>) regionManager.getClass()
-                            .getMethod("getApplicableRegionsIDs", WorldEdit_BlockVector3) // 偷个小懒不改了
+                            .getMethod("getApplicableRegionsIDs", WorldEdit_BlockVector3)
                             .invoke(regionManager, WorldEdit_BlockVector3_at.invoke(null, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
                     if (nList != null) nameList.addAll(nList);
                 }
@@ -134,12 +137,12 @@ public class RegionChecker {
 
 
         // GriefDefender
-        // GriefDefender.getCore().getClaimAt(loc).getDisplayName();
-        // GriefDefender.getCore().getClaimAt(loc).getParents(true);
         if (GriefDefenderAPI_core != null) {
             try {
                 Object claim = GriefDefenderAPI_Core_getClaimAt.invoke(loc, GriefDefenderAPI_core);
+                // GriefDefender.getCore().getClaimAt(loc).getDisplayName();
                 nameList.add((String) GriefDefenderAPI_Claim_getDisplayName.invoke(claim));
+                // GriefDefender.getCore().getClaimAt(loc).getParents(true);
                 List<?> parentClaimList = ((List<?>) GriefDefenderAPI_Claim_getParents.invoke(claim, true));
                 for (Object parentClaim : parentClaimList) {
                     nameList.add((String) GriefDefenderAPI_Claim_getDisplayName.invoke(parentClaim));

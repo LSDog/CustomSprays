@@ -5,10 +5,7 @@ import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.manager.SpraysManager;
-import fun.LSDog.CustomSprays.utils.ImageDownloader;
-import fun.LSDog.CustomSprays.utils.ImageUtil;
-import fun.LSDog.CustomSprays.utils.NMS;
-import fun.LSDog.CustomSprays.utils.RegionChecker;
+import fun.LSDog.CustomSprays.utils.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -96,6 +93,7 @@ public class CommandCustomSprays implements TabExecutor {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.IN_BUSY"));
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
+                        player.sendMessage(CustomSprays.prefix + "§7♦ ......");
                         byte result = imageDownloader.checkImage();
                         if (result != 0) {
                             if (result == 1) player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.CONNECT_FAILED"));
@@ -118,7 +116,7 @@ public class CommandCustomSprays implements TabExecutor {
                         int size = DataManager.saveImageBytes(player, imgBytes);
                         /* 上传成功了就用原冷却时间，所谓人性化是也~~ */
                         CoolDownManager.setUploadCooldown(player, 1);
-                        CustomSprays.debug("§4§l" + player.getName() + "§r upload §7->§r (§e§l"+ imageDownloader.size+"§7->§e§l"+size/1024+" K§r) " + url);
+                        CustomSprays.debug("§f§l" + player.getName() + "§b upload §7->§r (§e§l"+ imageDownloader.size+"k§7>>§e§l"+size/1024+"k§r) " + url);
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageDownloader.close();
                         uploadingSet.remove(player.getUniqueId());
@@ -255,13 +253,12 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        Spray spray = SpraysManager.getSpray(player);
+                        Spray spray = SpraysManager.getSprayInSight(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
                 }.runTaskAsynchronously(CustomSprays.instant);
                 break;
-
 
 /*
             // RayTracer 和 BlockIterator 使用 10000 次的速度比较

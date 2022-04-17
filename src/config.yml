@@ -59,9 +59,13 @@ MySQL:
   user: 'root'
   password: 'password'
 
+
+log_spray: true
+# |控制台输出玩家喷漆
+
 debug: true
-# |Debug (会输出所有玩家上传的图片链接和文件大小)
-# |Debug (Out put image link and file size)
+# |Debug (会输出上传的图片链接和文件大小和玩家喷漆)
+# |Debug (Out put image link and file size and log player's spraying)
 # 默认|Default: true
 
 msg_prefix: "§3§lCustomSprays >>§r "
@@ -165,6 +169,11 @@ disabled_region: ["示例_区域/领地名", "EXAMPLE_REGION_NAME"]
 #   * Residence - 5.0.1.3 <br>
 #   * WorldGuard - 6.2.2 & 7.0.6 <br>
 #   * GriefDefender - 2.1.4
+
+
+
+############ MESSAGE CONFIG ############
+############ 消息有关的配置 ##############
 
 # |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
 # |Mention that we're not support color code "&", please use "§"
@@ -280,4 +289,4 @@ Messages:
 
 # |Checking compatibility, take care of this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.6
+configVersion: 1.5

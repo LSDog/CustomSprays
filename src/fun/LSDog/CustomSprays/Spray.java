@@ -10,6 +10,7 @@ import fun.LSDog.CustomSprays.utils.RegionChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
@@ -28,6 +29,7 @@ public class Spray {
     protected final byte[] pixels;
     protected final Set<Player> playersShown;
 
+    public Block block;
     public Location location;
     public BlockFace blockFace;
     protected Location playerLocation;
@@ -58,20 +60,23 @@ public class Spray {
         Location eyeLocation = player.getEyeLocation();
         RayTracer.BlockRayTraceResult targetBlock =
                 new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance"))
-                        .rayTraceBlock(block -> block.getType().isSolid()); // 检测方块是否符合
+                        .rayTraceBlock(block -> !block.getType().isTransparent()); // 检测方块是否符合
         if (targetBlock == null) return false;
-        /* ↓不符合放置条件就取消 */
+
+        // 禁止在1.13以下, 在方块上下面喷漆
         if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) return false;
 
-        this.location = targetBlock.getRelativeBlock().getLocation();
+        this.block = targetBlock.getRelativeBlock();
+        this.location = block.getLocation();
         this.blockFace = targetBlock.blockFace;
         this.playerLocation = player.getLocation();
         this.intDirection = blockFaceToIntDirection(blockFace);
 
-        /* ↓喷漆有占用就取消 */
-        if (SpraysManager.getSpray(location, blockFace) != null) return false;
-        /* 喷漆在禁止区域就取消 */
-        if (RegionChecker.isLocInDisabledRegion(location)) {
+        // ↓喷漆占用就取消
+        if (SpraysManager.getSpray(targetBlock.getRelativeBlock(), blockFace) != null) return false;
+
+        // 喷漆在禁止区域就取消
+        if (!player.hasPermission("CustomSprays.nodisable") && RegionChecker.isLocInDisabledRegion(location)) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_REGION"));
             return false;
         }
@@ -88,9 +93,9 @@ public class Spray {
         return true;
     }
 
-    private Constructor<?> cPacketPlayOutEntityMetadata;
-    private Method itemFrame_getId;
-    private Method itemFrame_getDataWatcher;
+    private static Constructor<?> cPacketPlayOutEntityMetadata;
+    private static Method itemFrame_getId;
+    private static Method itemFrame_getDataWatcher;
     /**
      * 生成展示框与地图
      * @param playersShowTo 要展示给的玩家, null为默认初始值
@@ -152,12 +157,13 @@ public class Spray {
      * 自毁
      */
     public void remove() {
-        valid = false;
+        if (!valid) return;
         try {
             for (Player p : playersShown) {
                 if (!p.isOnline()) continue;
                 NMS.sendPacket(p, NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class).newInstance( new Object[]{new int[]{itemFrameId}} ));
             }
+            valid = false;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -418,7 +424,7 @@ public class Spray {
         }
     }
 
-    protected int blockFaceToIntDirection(BlockFace face) {
+    protected static int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
         if (CustomSprays.getSubVer() < 13) {
             switch (face) {
@@ -441,7 +447,7 @@ public class Spray {
         }
     }
 
-    protected int getItemFrameRotate(Location location, BlockFace face) {
+    protected static int getItemFrameRotate(Location location, BlockFace face) {
         if (CustomSprays.getSubVer() < 17) {
             float yaw = location.getYaw() % 360;
             if (135 < yaw && yaw <= 225) return 0;

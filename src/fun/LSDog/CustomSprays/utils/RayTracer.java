@@ -20,22 +20,24 @@ import java.util.function.Predicate;
  */
 public class RayTracer {
 
-    private final Location start;                   // 起始点
-    private final double stepX, stepY, stepZ;       // 单位向量坐标
-    private final double max;                       // 最大距离
-    private final int sbx, sby, sbz;                // 给 getFace() 用的解决向量方向计算什么的数, 坐标正数取0，负数取1
-    private double x, y, z, oldx, oldy, oldz;       // 当前点坐标 / 上一个点坐标
-    private int bx, by, bz, oldbx, oldby, oldbz;    // 当前点所在格点 / 上一个点所在格点
-    private double distance = 0;                    // 已追踪的距离
-    private boolean isMultiCross = false;           // 代表一次前进是否跨越了多于一个的面
+    final double stepX, stepY, stepZ;       // 单位向量坐标
+    final double max;                       // 最大距离
+    final int sbx, sby, sbz;                // 给 getFace() 用的解决向量方向计算什么的数, 坐标正数取0，负数取1
+    final int worldMaxHeight;               // 世界最高高度
+    final World world;                      // 当前世界
 
-    private Block block = null;                     // 循环探测中取到的方块
-    private BlockFace face;                         // 循环探测中指向的方块面
-    private final BlockFace[] faces;                // 可能的方块面, 众所周知在现实生活中最多能看到方块的3个面，除非你带了什么魔镜
-    private final World world;                      // 当前世界
+    double x, y, z, oldx, oldy, oldz;       // 当前点坐标 / 上一个点坐标
+    int bx, by, bz, oldbx, oldby, oldbz;    // 当前点所在格点 / 上一个点所在格点
+    double distance = 0;                    // 已追踪的距离
+    boolean isMultiCross = false;           // 代表一次前进是否跨越了多于一个的面
+    BlockFace face;                         // 循环探测中指向的方块面
+    final BlockFace[] faces;                // 可能的方块面, 众所周知在现实生活中最多能看到方块的3个面，除非你带了什么魔镜
 
-    private static final double STEP_LONG = 1;      // 理论在(0,1]可用, 数字越大越快, 但是数字越小也不见得会越精准, 我的建议是不要改
-    private static final double ACC = 0.00001;       // 还是不要乱动为好呢... (取值准确度, 过于准确会导致究极死亡无限glitch)
+    private BlockRayTraceResult result;     // 方块追踪结果
+
+    static final double STEP_LONG = 1;      // 理论在(0,1]可用, 数字越大越快, 但是数字越小也不见得会越精准, 我的建议是不要改
+    static final double ACC = 0.00001;       // 还是不要乱动为好呢... (取值准确度, 过于准确会导致究极死亡无限glitch)
+
 
     /**
      * 射线追踪
@@ -44,20 +46,21 @@ public class RayTracer {
      * @param maxLong 最远距离
      */
     public RayTracer(Vector direction, Location startLocation, double maxLong) {
-        this.start = startLocation.clone();
+        this.max = maxLong;
+        Location start = startLocation.clone();
+        Vector step = direction.clone().normalize().multiply(STEP_LONG); // 算出单位向量, 然后赋值给 stepXYZ
         this.x = start.getX();
         this.y = start.getY();
         this.z = start.getZ();
-        Vector step = direction.clone().normalize().multiply(STEP_LONG); // 算出单位向量, 然后赋值给 stepXYZ
         this.stepX = step.getX();
         this.stepY = step.getY();
         this.stepZ = step.getZ();
         this.world = start.getWorld();
-        this.max = maxLong;
+        this.worldMaxHeight = world.getMaxHeight();
         this.faces = new BlockFace[] {
-                direction.getX() >= 0 ? BlockFace.WEST : BlockFace.EAST,
-                direction.getY() >= 0 ? BlockFace.DOWN : BlockFace.UP,
-                direction.getZ() >= 0 ? BlockFace.NORTH : BlockFace.SOUTH,
+                this.stepX >= 0 ? BlockFace.WEST : BlockFace.EAST,
+                this.stepY >= 0 ? BlockFace.DOWN : BlockFace.UP,
+                this.stepZ >= 0 ? BlockFace.NORTH : BlockFace.SOUTH,
         };
         this.sbx = stepX > 0 ? 0 : 1;
         this.sby = stepY > 0 ? 0 : 1;
@@ -67,22 +70,12 @@ public class RayTracer {
     }
 
     /**
-     * 重置所有数据，这样就可以重复使用了，虽然感觉没什么用
-     */
-    private void clearAll() {
-        x = start.getX(); y = start.getY(); z = start.getZ();
-        distance = 0;
-        block = null;
-        face = null;
-        getBlockPoses();
-        putPosToOld();
-    }
-
-    /**
      * 开始追踪
      * @return 返回追踪结果见 {@link BlockRayTraceResult}
      */
-    public synchronized BlockRayTraceResult rayTraceBlock(Predicate<Block> blockChecker) {
+    public BlockRayTraceResult rayTraceBlock(Predicate<Block> blockChecker) {
+
+        if (result != null) return result; // 如果有人闲的没事复用的话...
 
         // 循环向前查找方块
         while (distance <= max) {
@@ -94,13 +87,14 @@ public class RayTracer {
             getBlockPoses();
 
             // 超出方块可放置位置 return null
-            if (by > world.getMaxHeight() || by < 0) {
-                clearAll();
+            if (by > worldMaxHeight || by < 0) {
                 return null;
             }
 
             /* 所在方块不变 */
-            if (bx == oldbx && by == oldby && bz == oldbz) continue; // 所在方块没有变, 下一个下一个
+            if (bx == oldbx && by == oldby && bz == oldbz) {
+                continue; // 所在方块没有变, 下一个下一个
+            }
 
             /* 所在方块改变 */
             face = getFace(); // 计算率先接触的方块面
@@ -115,7 +109,8 @@ public class RayTracer {
                 getBlockPoses();                                    // 获取现在的方块点坐标
             }
 
-            block = world.getBlockAt(bx, by, bz); // 获取目标点的方块
+            // 循环探测中取到的方块
+            Block block = world.getBlockAt(bx, by, bz); // 获取目标点的方块
 
             if (blockChecker.test(block)) { // 判断方块合乎要求
                 /* 比较起点到终点的长度是否超过max限制. 当 isMultiCross == false 时, 因为 distance 此时还未计算长度, 所以计算此时到交点的正确距离，然后再进行比较 */
@@ -128,13 +123,11 @@ public class RayTracer {
                     distance = length;
                     x -= stepX * m; y -= stepY * m; z -= stepZ * m;
                 }
-                BlockRayTraceResult result = new BlockRayTraceResult(new Vector(x, y, z), block, face);
-                clearAll(); // 测完重置一遍
+                this.result = new BlockRayTraceResult(new Vector(x, y, z), block, face, distance);
                 return result;
             }
         }
 
-        clearAll();
         return null; // 超过最大距离
     }
 
@@ -142,7 +135,7 @@ public class RayTracer {
     /**
      * 判断方块面
      */
-    private BlockFace getFace() {
+    BlockFace getFace() {
 
         isMultiCross = false;
 
@@ -205,7 +198,7 @@ public class RayTracer {
      * 计算打到面上的交点与当前目标点的倍数差
      * @return 向量"走过站"的倍数 m, 即当前坐标需减去 m * 步长
      */
-    private double getPointRedundantMultiples() {
+    double getPointRedundantMultiples() {
         switch (face) {
             case WEST: return (x-bx)/stepX; // dir↑ East
             case EAST: return (x-oldbx)/stepX; // dir↓ West
@@ -217,15 +210,16 @@ public class RayTracer {
         return 1; // ??but why, u should never touch here....
     }
 
-    private void getBlockPoses() {
+    void getBlockPoses() {
         bx = (int) x; by = (int) y; bz = (int) z;
     }
 
-    private void putPosToOld() {
+    void putPosToOld() {
         oldx = x; oldy = y; oldz = z;
         oldbx = bx; oldby = by; oldbz = bz;
     }
 
+    // from JDK lol
     public static double abs(double a) {
         return (a <= 0.0D) ? 0.0D - a : a;
     }
@@ -238,11 +232,13 @@ public class RayTracer {
         public final Vector point;          // 交点
         public final Block block;           // 方块
         public final BlockFace blockFace;   // 交点所在方块面
+        public final double distance;       // 距离
 
-        public BlockRayTraceResult(Vector point, Block block, BlockFace blockFace) {
+        public BlockRayTraceResult(Vector point, Block block, BlockFace blockFace, double distance) {
             this.point = point;
             this.block = block;
             this.blockFace = blockFace;
+            this.distance = distance;
         }
 
         /**

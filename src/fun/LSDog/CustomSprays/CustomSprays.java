@@ -33,7 +33,7 @@ public class CustomSprays extends JavaPlugin {
             saveDefaultConfig();
         } else {
             /*每次更迭版本的时候别忘了改这里！！*/
-            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.41) {
+            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.5) {
                 System.out.println("\n\n\n\n\n\n\n=====================\n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me! \n");
@@ -90,6 +90,7 @@ public class CustomSprays extends JavaPlugin {
         log("CustomSprays disabled.");
     }
 
+
     /**
      * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家 <br>
      * <b>务必使用 runTaskAsynchronously 异步执行, 否则可能造成卡顿！！</b>
@@ -97,12 +98,13 @@ public class CustomSprays extends JavaPlugin {
      * @param isBigSpray 是否为大型喷漆
      */
     public static void spray(Player player, boolean isBigSpray) {
+
         // 检测喷漆权限
         if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
             return;
         }
-        // 检测禁止的世界和区域
+        // 检测禁止的世界
         if (!player.hasPermission("CustomSprays.nodisable") && DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
             return;
@@ -112,9 +114,12 @@ public class CustomSprays extends JavaPlugin {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
             return;
         }
+
+
         try {
-            // 如果 [不是大喷漆 |或者| (是大喷漆却)没有大喷漆权限]
+            // 如果 [不是大喷漆  或者  (是大喷漆却)没有大喷漆权限]
             if (!isBigSpray || (player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray"))) {
+
                 // 小喷漆
                 byte[] bytes = DataManager.get128pxImageBytes(player);
                 if (bytes == null) {
@@ -122,10 +127,14 @@ public class CustomSprays extends JavaPlugin {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return;
                 }
-                if (new Spray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                Spray spray = new Spray(player, bytes, Bukkit.getOnlinePlayers());
+                if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
                     CoolDownManager.setSprayCooldown(player,1);
+                    CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ());
                 }
+
             } else {
+
                 // 大喷漆
                 byte[] bytes = DataManager.get384pxImageBytes(player);
                 if (bytes == null) {
@@ -133,9 +142,12 @@ public class CustomSprays extends JavaPlugin {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return;
                 }
-                if (new BigSpray(player, bytes, Bukkit.getOnlinePlayers()).create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                Spray spray = new BigSpray(player, bytes, Bukkit.getOnlinePlayers());
+                if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
                     CoolDownManager.setSprayCooldown(player, CustomSprays.instant.getConfig().getDouble("bigspray_cooldown_multiple"));
+                    CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
                 }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
