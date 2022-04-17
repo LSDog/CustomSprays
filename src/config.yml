@@ -29,6 +29,10 @@
 #    default: op
 #    description: 没有上传和喷涂的冷却 | No cooling for spray and upload
 #
+#  CustomSprays.nodisable:
+#    default: op
+#    description: 允许在 配置disabled_world,disabled_region 中禁止的地方喷漆 | Allow spraying from the world or region that in the config disabled_world, disabled_region
+#
 # # # # # # # # # # # # # # # # # # # # # # # #
 
 
