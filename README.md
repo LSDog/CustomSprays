@@ -2,23 +2,24 @@
 
 # <b>CustomSprays</b> | 花样喷漆 🎉
 
->![logo](logo64.png)
+> ![logo](logo64.png)
+> ![use](https://s1.ax1x.com/2022/04/18/Ldo6SK.gif)
 
 - " 就像起源游戏的喷漆一样! "
-- " Just like source games'spraying! "
+- " Just like source games' spraying! "
 
 ## 📢 介绍 | Introduce
 ___
 >
 > |*Name*|*Content*|
 > |:---:|---|
-> |名字 / Name    |CustomSprays ~ 花样喷漆|
-> |作者 / Author  |LSDog|
-> |版本 / Version |1.5.1|
-> |支持 / Support | Bukkit \ Spigot \ Paper <b>1.8 ~ 1.18</b> |
-> |介绍 / Discrip |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
-> |指令 / Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
-> |权限 / Perm    |请见 / see "config.yml"|
+> |名字 <br> Name    |CustomSprays ~ 花样喷漆|
+> |作者 <br> Author  |LSDog|
+> |版本 <br> Version |1.5.1|
+> |支持 <br> Support | Bukkit \ Spigot \ Paper <b>1.8 ~ 1.18</b> |
+> |介绍 <br> Description |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
+> |指令 <br> Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
+> |权限 <br> Perm    |请见 / see "config.yml"|
 > 
 > Mcbbs >> https://www.mcbbs.net/thread-1289391-1-1.html
 >
