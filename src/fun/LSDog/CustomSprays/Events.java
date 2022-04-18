@@ -61,6 +61,11 @@ public class Events implements Listener {
                 reflectiveOperationException.printStackTrace();
             }
         })), 20L);
+        if (CustomSprays.latestVersion != null && !CustomSprays.updateMentioned && e.getPlayer().isOp()) {
+            e.getPlayer().sendMessage(CustomSprays.prefix + " §cHey, OP!§7 CustomSprays has an update~~ -> §b§l" + CustomSprays.latestVersion);
+            e.getPlayer().sendMessage(CustomSprays.prefix + " §c嘿, 管理!§7 CustomSprays 有个更新~~ -> §b§l" + CustomSprays.latestVersion);
+            CustomSprays.updateMentioned = true;
+        }
     }
 
     @EventHandler

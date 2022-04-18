@@ -56,7 +56,7 @@ public class RayTracer {
         this.stepY = step.getY();
         this.stepZ = step.getZ();
         this.world = start.getWorld();
-        this.worldMaxHeight = world.getMaxHeight();
+        this.worldMaxHeight = world == null ? 256 : world.getMaxHeight();
         this.faces = new BlockFace[] {
                 this.stepX >= 0 ? BlockFace.WEST : BlockFace.EAST,
                 this.stepY >= 0 ? BlockFace.DOWN : BlockFace.UP,
@@ -211,7 +211,9 @@ public class RayTracer {
     }
 
     void getBlockPoses() {
-        bx = (int) x; by = (int) y; bz = (int) z;
+        bx = (int) Math.floor(x);
+        by = (int) Math.floor(y);
+        bz = (int) Math.floor(z);
     }
 
     void putPosToOld() {

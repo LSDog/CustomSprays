@@ -18,6 +18,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * 喷漆本体，包括所有的反射发包方法
@@ -58,9 +59,14 @@ public class Spray {
     public boolean create(long removeTick) {
 
         Location eyeLocation = player.getEyeLocation();
+        Predicate<Block> blockChecker;
+        if (CustomSprays.getSubVer() < 13) {
+            blockChecker = block -> !block.getType().isTransparent();
+        } else {
+            blockChecker = block -> !block.isPassable();
+        }
         RayTracer.BlockRayTraceResult targetBlock =
-                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance"))
-                        .rayTraceBlock(block -> !block.getType().isTransparent()); // 检测方块是否符合
+                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(blockChecker);
         if (targetBlock == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆
@@ -238,7 +244,7 @@ public class Spray {
                     NbtTagCompound_setInt.setAccessible(true);
                 }
                 if (Map_setTag == null) {
-                    Map_setTag = NMS.getMcItemClass().getDeclaredMethod("c", NMS.getMcNBTTagCompoundClass());
+                    Map_setTag = mcMap.getClass().getDeclaredMethod("c", NMS.getMcNBTTagCompoundClass());
                     Map_setTag.setAccessible(true);
                 }
             }

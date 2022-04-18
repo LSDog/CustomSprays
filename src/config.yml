@@ -84,6 +84,11 @@ spray_item: "GOLDEN_HORSE_ARMOR" # 1.12 is "GOLD_BARDING"
 # (1.13→): https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java
 # (←1.12): https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java?until=7eb6b52fb21699805eab4b074599030861227e64&untilPath=src%2Fmain%2Fjava%2Forg%2Fbukkit%2FMaterial.java
 
+check_update: true
+# |检查最新版本, 启动后只会通知op一次
+# |Check the newest version, only tells op ones after start up
+
+
 ############ NUMBER CONFIG #############
 ############ 数字有关的配置 ##############
 

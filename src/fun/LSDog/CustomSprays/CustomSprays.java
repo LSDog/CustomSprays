@@ -5,6 +5,7 @@ import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
 import fun.LSDog.CustomSprays.commands.CommandSpray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
+import fun.LSDog.CustomSprays.utils.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,6 +26,9 @@ public class CustomSprays extends JavaPlugin {
 
     public File config = new File(getDataFolder() + File.separator + "config.yml");
     public File playerDataFolder = new File(getDataFolder() + File.separator + "playerData");
+
+    public static String latestVersion = null;
+    public static boolean updateMentioned = false;
 
     @Override
     public void onEnable() {
@@ -74,6 +78,14 @@ public class CustomSprays extends JavaPlugin {
         // 信息统计
         // https://bstats.org/plugin/bukkit/CustomSprays/13633
         new Metrics(this, 13633);
+
+        if (getConfig().getBoolean("check_update")) Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+           String nVersion = CustomSprays.instant.getDescription().getVersion();
+           String lVersion = UpdateChecker.check();
+           if (lVersion == null) return;
+           if (nVersion.equals(lVersion)) return;
+           latestVersion = lVersion;
+        });
 
         log("§eCustomSprays§r Enabled! plugin by §b§lLSDog§r."+" §8(Running on "+getMcVer()+")");
     }
