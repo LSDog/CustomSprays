@@ -3,7 +3,6 @@ package fun.LSDog.CustomSprays.manager;
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Spray;
 import fun.LSDog.CustomSprays.utils.SprayRayTracer;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

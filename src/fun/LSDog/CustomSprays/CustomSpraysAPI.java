@@ -58,7 +58,10 @@ public class CustomSpraysAPI {
     }
 
     /**
-     * Set a player's image by using byte color array
+     * Set a player's image by using byte color array <br>
+     * You can use ImageUtil.resizeImage() and resizeImage() to get colors
+     * @param colors <b>Size must be 384*384</b>
+     * @see fun.LSDog.CustomSprays.utils.ImageUtil
      */
     public static void setPlayerImage(Player player, byte[] colors) {
         DataManager.saveImageBytes(player, colors);

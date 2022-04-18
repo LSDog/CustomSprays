@@ -144,7 +144,7 @@ public class CustomSprays extends JavaPlugin {
                 }
                 Spray spray = new BigSpray(player, bytes, Bukkit.getOnlinePlayers());
                 if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
-                    CoolDownManager.setSprayCooldown(player, CustomSprays.instant.getConfig().getDouble("bigspray_cooldown_multiple"));
+                    CoolDownManager.setSprayCooldown(player, CustomSprays.instant.getConfig().getDouble("big_spray_cooldown_multiple"));
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
                 }
 
