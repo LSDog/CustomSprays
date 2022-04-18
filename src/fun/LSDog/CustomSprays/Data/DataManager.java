@@ -113,7 +113,6 @@ public class DataManager {
                 e.printStackTrace();
             }
         } else defaultImage = null;
-        CustomSprays.log("Data loaded!");
     }
 
     public enum StorageMethod {

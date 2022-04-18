@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
@@ -60,6 +61,13 @@ public class Events implements Listener {
                 reflectiveOperationException.printStackTrace();
             }
         })), 20L);
+    }
+
+    @EventHandler
+    public void onUse(PlayerInteractEvent e) {
+        if (e.getAction().name().contains("RIGHT") && e.hasItem() && e.getMaterial().name().equalsIgnoreCase(CustomSprays.instant.getConfig().getString("spray_item"))) {
+            CustomSprays.spray(e.getPlayer(), e.getPlayer().isSneaking());
+        }
     }
 
 }

@@ -229,7 +229,7 @@ public class Spray {
                     NbtTagCompound_setInt.setAccessible(true);
                 }
                 if (Map_setTag == null) {
-                    Map_setTag = NMS.getMcItemClass().getMethod("setTag", NMS.getMcNBTTagCompoundClass());
+                    Map_setTag = mcMap.getClass().getMethod("setTag", NMS.getMcNBTTagCompoundClass());
                     Map_setTag.setAccessible(true);
                 }
             } else {
