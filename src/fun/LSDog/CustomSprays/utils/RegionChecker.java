@@ -61,7 +61,8 @@ public class RegionChecker {
                 WorldGuard_getRegionManager = WorldGuardPlugin.getClass().getMethod("getRegionManager", World.class);
                 cWorldEdit_Vector = Class.forName("com.sk89q.worldedit.Vector").getConstructor(int.class, int.class, int.class);
             } else {
-                Object worldGuardPlatform = WorldGuardPlugin.getClass().getMethod("getPlatform").invoke(WorldGuardPlugin);
+                Object WorldGuard = Class.forName("com.sk89q.worldguard.WorldGuard").getMethod("getInstance").invoke(null);
+                Object worldGuardPlatform = WorldGuard.getClass().getMethod("getPlatform").invoke(WorldGuard);
                 regionContainer = worldGuardPlatform.getClass().getMethod("getRegionContainer").invoke(worldGuardPlatform);
                 WorldGuard_RegionContainer_get = regionContainer.getClass().getMethod("get", Class.forName("com.sk89q.worldedit.world.World"));
                 WorldEdit_BukkitAdapter_adapt = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter").getMethod("adapt", World.class);

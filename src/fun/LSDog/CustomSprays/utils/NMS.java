@@ -89,25 +89,10 @@ public class NMS {
         else return getMcClass("network.protocol.game."+paketName);
     }
 
-    private static Class<?> fluidCollisionModeClass = null;
-    public static Class<?> getFluidCollisionModeClass() {
-        return fluidCollisionModeClass == null ? fluidCollisionModeClass = getClass("org.bukkit.FluidCollisionMode") : fluidCollisionModeClass;
-    }
-
-    public static Object getFluidCollisionModeClass(String value) throws ReflectiveOperationException {
-        return getFluidCollisionModeClass().getMethod("valueOf", String.class).invoke(null, value);
-    }
-
     private static Class<?> mcWorldClass = null;
     public static Class<?> getMcWorldClass() {
         if (CustomSprays.getSubVer() < 17) return mcWorldClass == null ? mcWorldClass = getLegacyMcClass("World") : mcWorldClass;
         else return mcWorldClass == null ? mcWorldClass = getMcClass("world.level.World") : mcWorldClass;
-    }
-
-    private static Class<?> mcWorldServerClass = null;
-    public static Class<?> getMcWorldServerClass() {
-        if (CustomSprays.getSubVer() < 17) return mcWorldServerClass == null ? mcWorldServerClass = getLegacyMcClass("WorldServer") : mcWorldServerClass;
-        else return mcWorldServerClass == null ? mcWorldServerClass = getMcClass("server.level.WorldServer") : mcWorldServerClass;
     }
 
     private static Class<?> mcEntityClass = null;
@@ -138,12 +123,6 @@ public class NMS {
     public static Class<?> getMcPlayerConnectionClass() {
         if (CustomSprays.getSubVer() < 17) return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getLegacyMcClass("PlayerConnection") : mcPlayerConnectionClass;
         else return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("server.network.PlayerConnection") : mcPlayerConnectionClass;
-    }
-
-    private static Class<?> mcVec3DClass = null;
-    public static Class<?> getMcVec3DClass() {
-        if (CustomSprays.getSubVer() < 17) return mcVec3DClass == null ? mcVec3DClass = getLegacyMcClass("Vec3D") : mcVec3DClass;
-        else return mcVec3DClass == null ? mcVec3DClass = getMcClass("world.phys.Vec3D") : mcVec3DClass;
     }
 
     private static Class<?> mcItemStackClass = null;
@@ -202,10 +181,6 @@ public class NMS {
     }
 
     public static Object getMcWorld(World world) throws ReflectiveOperationException {
-        return getHandle(world);
-    }
-
-    public static Object getMcWorldServer(World world) throws ReflectiveOperationException {
         return getHandle(world);
     }
 

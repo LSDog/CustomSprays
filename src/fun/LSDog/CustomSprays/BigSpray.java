@@ -48,9 +48,8 @@ public class BigSpray extends Spray {
         }
 
         for (int i = 0; i < 9; i++) {
-            // jump over if theres no solid block behind, or the current block is not transparent
+            // jump over if theres no solid block behind
             if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) continue;
-            if (!locs[i].getBlock().getType().isTransparent()) continue;
 
             int mapViewId = MapViewId.getId();
 
@@ -72,7 +71,8 @@ public class BigSpray extends Spray {
             }
 
         }
-        if (playSound) SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
+
+        if (playSound) SoundEffects.spray(player);
 
     }
 

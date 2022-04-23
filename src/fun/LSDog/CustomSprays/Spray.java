@@ -9,6 +9,7 @@ import fun.LSDog.CustomSprays.utils.RayTracer;
 import fun.LSDog.CustomSprays.utils.RegionChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -24,6 +25,34 @@ import java.util.function.Predicate;
  * 喷漆本体，包括所有的反射发包方法
  */
 public class Spray {
+
+    public static Method Material_isTransparent;
+    public static Method Block_isPassable;
+
+    static {
+        try {
+            Material_isTransparent = Material.class.getMethod("isTransparent");
+        } catch (NoSuchMethodException ignore) {
+        }
+        try {
+            //noinspection JavaReflectionMemberAccess
+            Block_isPassable = Block.class.getMethod("isPassable");
+        } catch (NoSuchMethodException ignore) {
+        }
+    }
+
+    public static Predicate<Block> blockChecker = block -> {
+        if (CustomSprays.getSubVer() < 13) {
+            try {
+                return !(boolean) Material_isTransparent.invoke(block.getType());
+            } catch (ReflectiveOperationException e) { e.printStackTrace(); }
+        } else {
+            try {
+                return !(boolean) Block_isPassable.invoke(block);
+            } catch (ReflectiveOperationException e) { e.printStackTrace(); }
+        }
+        return false;
+    };
 
     public final Player player;
     protected final World world;
@@ -59,12 +88,6 @@ public class Spray {
     public boolean create(long removeTick) {
 
         Location eyeLocation = player.getEyeLocation();
-        Predicate<Block> blockChecker;
-        if (CustomSprays.getSubVer() < 13) {
-            blockChecker = block -> !block.getType().isTransparent();
-        } else {
-            blockChecker = block -> !block.isPassable();
-        }
         RayTracer.BlockRayTraceResult targetBlock =
                 new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(blockChecker);
         if (targetBlock == null) return false;
@@ -147,7 +170,8 @@ public class Spray {
             NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
             NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
         }
-        if (playSound) SoundEffects.playSound(player, SoundEffects.Effect.SPRAY);
+
+        if (playSound) SoundEffects.spray(player);
 
     }
 

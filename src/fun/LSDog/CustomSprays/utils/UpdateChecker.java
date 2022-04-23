@@ -7,7 +7,7 @@ import org.json.simple.JSONValue;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class UpdateChecker {
 
@@ -25,7 +25,7 @@ public class UpdateChecker {
                 byte[] bytes = new byte[in.available()];
                 int read = in.read(bytes);
                 if (read == -1) return null;
-                JSONObject jsonObject = (JSONObject) JSONValue.parse(new String(bytes, Charset.defaultCharset()));
+                JSONObject jsonObject = (JSONObject) JSONValue.parse(new String(bytes, StandardCharsets.UTF_8));
                 return (String) jsonObject.get("tag_name");
             }
         } catch (Exception e) {

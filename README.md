@@ -15,7 +15,7 @@ ___
 > |:---:|---|
 > |名字 <br> Name    |CustomSprays ~ 花样喷漆|
 > |作者 <br> Author  |LSDog|
-> |版本 <br> Version |1.5.2|
+> |版本 <br> Version |1.5.4|
 > |支持 <br> Support | Bukkit \ Spigot \ Paper <b>1.8 ~ 1.18</b> |
 > |介绍 <br> Description |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
 > |指令 <br> Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
@@ -29,6 +29,7 @@ ___
 ### [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !! [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 
 <b>⭐ 1.8 ~ 1.18 适配完毕 ！ fully supported ! ⭐</b>
+<b>⭐ [Spray音效资源包](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ！ [Spray sound resource pack](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ! ⭐</b>
 
 <b>⭐ English message config is also in config.yml (commented out by #) ⭐</b>
 
@@ -89,11 +90,15 @@ ___
 
 
 - 📦 纯发包实现喷漆【玩家无法交互 | 不生成map_xxx.dat】
-- 📦 All packet sending to achieve【no interact with spray | no generating "map_xxx.dat"】
+- 📦 All packet sending to achieve【never interact with spray | no generating "map_xxx.dat"】
 
 
 - 📐 限制喷漆的世界或区域！
 - 📐 Disable spraying in specific worlds or regions!
+
+
+- 📺 自定义喷漆物品/喷漆音效！
+- 📺 Custom spray item / spray sound effect！
 
 
 - ☕ 无需前置API，发包纯手搓（
