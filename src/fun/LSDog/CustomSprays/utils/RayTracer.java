@@ -26,7 +26,7 @@ public class RayTracer {
     final int worldMaxHeight;               // 世界最高高度
     final World world;                      // 当前世界
 
-    double x, y, z, oldx, oldy, oldz;       // 当前点坐标 / 上一个点坐标
+    double x, y, z;                         // 当前点坐标
     int bx, by, bz, oldbx, oldby, oldbz;    // 当前点所在格点 / 上一个点所在格点
     double distance = 0;                    // 已追踪的距离
     boolean isMultiCross = false;           // 代表一次前进是否跨越了多于一个的面
@@ -155,16 +155,16 @@ public class RayTracer {
         -   如果 bx, by, bz 都改变了也是一样的, 判断先穿过的面就行了
         */
 
-        // double sx = (bx+sbx-oldx)/stepX, sy = (by+sby-oldy)/stepY, sz = (bz+sbz-oldz)/stepZ;
+        // double sx = (bx+sbx-x)/stepX, sy = (by+sby-y)/stepY, sz = (bz+sbz-z)/stepZ;
         // 用 在当前单位向量围出的框里的整数格点 的 相对位置, 判断单位向量率先交于方块的哪个面
         // 总之是看谁最小就选哪个轴对应的面
         // 按需获取更快哦~
         if (bx != oldbx) {
             if (by != oldby) {
                 isMultiCross = true;
-                double sx = (bx+sbx-oldx)/stepX, sy = (by+sby-oldy)/stepY;
+                double sx = (bx+sbx-x)/stepX, sy = (by+sby-y)/stepY;
                 if (bz != oldbz) {
-                    double sz = (bz+sbz-oldz)/stepZ;
+                    double sz = (bz+sbz-z)/stepZ;
                     /* x y z */ if (sx < sy && sx < sz) return faces[0]; else if (sy < sx && sy < sz) return faces[1]; else return faces[2];
                 } else {
                     /* x y */ return (sx < sy) ? faces[0] : faces[1];
@@ -172,7 +172,7 @@ public class RayTracer {
             } else {
                 if (bz != oldbz) {
                     isMultiCross = true;
-                    double sx = (bx+sbx-oldx)/stepX, sz = (bz+sbz-oldz)/stepZ;
+                    double sx = (bx+sbx-x)/stepX, sz = (bz+sbz-z)/stepZ;
                     /* x z */ return (sx < sz) ? faces[0] : faces[2];
                 } else {
                     /* x */ return faces[0];
@@ -182,7 +182,7 @@ public class RayTracer {
             if (by != oldby) {
                 if (bz != oldbz) {
                     isMultiCross = true;
-                    double sy = (by+sby-oldy)/stepY, sz = (bz+sbz-oldz)/stepZ;
+                    double sy = (by+sby-y)/stepY, sz = (bz+sbz-z)/stepZ;
                     /* y z */ return (sy < sz) ? faces[1] : faces[2];
                 } else {
                     /* y */ return faces[1];
@@ -217,7 +217,6 @@ public class RayTracer {
     }
 
     void putPosToOld() {
-        oldx = x; oldy = y; oldz = z;
         oldbx = bx; oldby = by; oldbz = bz;
     }
 

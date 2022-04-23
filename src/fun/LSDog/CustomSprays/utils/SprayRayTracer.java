@@ -6,6 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
+import java.util.function.Predicate;
+
 public class SprayRayTracer extends RayTracer {
 
     /**
@@ -19,7 +21,11 @@ public class SprayRayTracer extends RayTracer {
         super(direction, startLocation, maxLong);
     }
 
-    public Spray rayTraceSpray() {
+    /**
+     * 检测视线中的喷漆
+     * @param blockChecker 算遮挡方块
+     */
+    public Spray rayTraceSpray(Predicate<Block> blockChecker) {
 
         // 循环向前查找方块
         while (distance <= max) {
@@ -60,6 +66,7 @@ public class SprayRayTracer extends RayTracer {
             Spray backSpray = SpraysManager.getSpray(block, face.getOppositeFace()); // 获取指向的可能存在的背对着视线的喷漆
             if (backSpray != null) return backSpray; // 背向视线的喷漆总是先被"指向"
             if (spray != null) return spray; // 如果没有就看看背向视角的
+            if (blockChecker.test(block)) return null; // 如果是遮挡方块则返回null
         }
 
         return null; // 超过最大距离

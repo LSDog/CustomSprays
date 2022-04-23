@@ -202,7 +202,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }
                         if (targetPlayer == null) {
                             for (OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()) {
-                                if (offlinePlayer.getName().equalsIgnoreCase(args[1])) {
+                                if (args[1].equalsIgnoreCase(offlinePlayer.getName())) {
                                     targetPlayer = (Player) offlinePlayer;
                                     break;
                                 }
@@ -262,52 +262,6 @@ public class CommandCustomSprays implements TabExecutor {
                     }
                 }.runTaskAsynchronously(CustomSprays.instant);
                 break;
-
-/*
-            // RayTracer 和 BlockIterator 使用 10000 次的速度比较
-            case "test" :
-                new BukkitRunnable() {
-                    public void run() {
-
-                        if (!(sender instanceof Player)) {
-                            sender.sendMessage(CustomSprays.prefix + "player only!");
-                            return;
-                        }
-                        Player player = (Player) sender;
-
-                        Block b = null;
-                        int testTimes = 10000;
-
-                        player.sendMessage("\n\n");
-                        player.sendMessage("| LSDog's RayTracer");
-                        long time = System.nanoTime();
-                        for (int i = 0; i < testTimes; i++) {
-                            b = new RayTracer(player.getEyeLocation().getDirection(), player.getEyeLocation(), 140).rayTraceBlock(block -> block.getType() != Material.AIR).block;
-                        }
-                        long lsd = (System.nanoTime() - time);
-                        player.sendMessage("use " + lsd + " ns, type: " + b.getType());
-
-                        player.sendMessage("| bukkit BlockIterator");
-                        time = System.nanoTime();
-                        for (int i = 0; i < testTimes; i++) {
-                            Iterator<Block> iterator = new BlockIterator(player, 140);
-                            while (iterator.hasNext()) {
-                                b = iterator.next();
-                                if (b.getType() != Material.AIR) {
-                                    break;
-                                }
-                            }
-                        }
-                        long bukkit = (System.nanoTime() - time);
-                        player.sendMessage("use " + bukkit + " ns, type: " + b.getType());
-
-
-                        player.sendMessage("§b| ratio lsd/bukkit =" + (double)lsd/(double)bukkit);
-
-                    }
-                }.runTaskAsynchronously(CustomSprays.instant);
-                break;
-*/
 
             default:
                 sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(sender, "UNKNOWN_COMMAND"));

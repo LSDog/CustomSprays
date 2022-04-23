@@ -64,6 +64,8 @@ public class BigSpray extends Spray {
                 if (!frontBlock.getType().isSolid()) {
                     // spray to the front block of it
                     locs[i] = frontBlock.getLocation();
+                } else {
+                    continue;
                 }
             }
 

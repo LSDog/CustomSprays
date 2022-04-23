@@ -80,6 +80,7 @@ public class DataManager {
     }
 
     public static void initialize(String method) {
+        if (method == null) method = "YML";
         debug = CustomSprays.instant.getConfig().getBoolean("debug");
         downloadLimit = CustomSprays.instant.getConfig().getInt("download_limit");
         urlRegex = CustomSprays.instant.getConfig().getString("url_regex");

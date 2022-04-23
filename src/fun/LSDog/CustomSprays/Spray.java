@@ -26,32 +26,17 @@ import java.util.function.Predicate;
  */
 public class Spray {
 
-    public static Method Material_isTransparent;
-    public static Method Block_isPassable;
-
-    static {
-        try {
-            Material_isTransparent = Material.class.getMethod("isTransparent");
-        } catch (NoSuchMethodException ignore) {
-        }
-        try {
-            //noinspection JavaReflectionMemberAccess
-            Block_isPassable = Block.class.getMethod("isPassable");
-        } catch (NoSuchMethodException ignore) {
-        }
-    }
-
     public static Predicate<Block> blockChecker = block -> {
-        if (CustomSprays.getSubVer() < 13) {
-            try {
-                return !(boolean) Material_isTransparent.invoke(block.getType());
-            } catch (ReflectiveOperationException e) { e.printStackTrace(); }
-        } else {
-            try {
-                return !(boolean) Block_isPassable.invoke(block);
-            } catch (ReflectiveOperationException e) { e.printStackTrace(); }
+        Material type = block.getType();
+        switch (type.name()) {
+            case "WATER":
+            case "STATIONARY_WATER":
+            case "LAVA":
+            case "STATIONARY_LAVA":
+                return false;
+            default:
+                return !block.getType().isTransparent();
         }
-        return false;
     };
 
     public final Player player;
@@ -213,14 +198,7 @@ public class Spray {
     public static Object getMcMap(int mapViewId) throws ReflectiveOperationException {
         int subVer = CustomSprays.getSubVer();
         Object mcMap;
-        if (subVer <= 7) {
-            // MAP
-            if (cItem == null) {
-                cItem = NMS.getMcItemStackClass().getConstructor(NMS.getMcItemClass(), int.class, int.class);
-                cItem.setAccessible(true);
-            }
-            mcMap = cItem.newInstance(NMS.getMcItemsClass().getField("MAP").get(null), 1, (short) mapViewId);
-        } else if (subVer <= 12) {
+        if (subVer <= 12) {
             // MAP
             if (cItem == null) {
                 cItem = NMS.getMcItemStackClass().getConstructor(NMS.getMcItemClass(), int.class, int.class);
@@ -291,13 +269,7 @@ public class Spray {
     public static Object getMapPacket(int mapViewId, byte[] pixels) throws ReflectiveOperationException {
         int subVer = CustomSprays.getSubVer();
         Object mapPacket;
-        if (subVer == 7) {
-            if (cPacketPlayOutMap == null) {
-                cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class, byte.class);
-                cPacketPlayOutMap.setAccessible(true);
-            }
-            mapPacket = cPacketPlayOutMap.newInstance(mapViewId, pixels, (byte) 4);
-        } else if (subVer == 8) {
+        if (subVer == 8) {
             if (cPacketPlayOutMap == null) {
                 cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class);
                 cPacketPlayOutMap.setAccessible(true);
@@ -345,19 +317,11 @@ public class Spray {
     protected Object getItemFrame(Object mcMap, Location location) throws ReflectiveOperationException {
         int subVer = CustomSprays.getSubVer();
         Object itemFrame;
-        if (subVer <= 7) {
-            if (cItemFrame == null) { //world, x, y, z, enum
-                cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), int.class, int.class, int.class, int.class);
-                cItemFrame.setAccessible(true);
-            }
-            itemFrame = cItemFrame.newInstance(NMS.getMcWorld(world), location.getBlockX(), location.getBlockY(), location.getBlockZ(), intDirection);
-        } else {
-            if (cItemFrame == null) {
-                cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass());
-                cItemFrame.setAccessible(true);
-            }
-            itemFrame = cItemFrame.newInstance(NMS.getMcWorld(world), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
+        if (cItemFrame == null) {
+            cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass());
+            cItemFrame.setAccessible(true);
         }
+        itemFrame = cItemFrame.newInstance(NMS.getMcWorld(world), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
 
         // set invisible
         if (ItemFrame_setInvisible == null) switch (subVer) {
@@ -374,7 +338,6 @@ public class Spray {
 
         // set silent
         if (ItemFrame_setSilent == null) switch (subVer) {
-            case 6: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("e", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
             case 8: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("b", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
             case 9: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("c", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
             case 18: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("d", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
@@ -416,12 +379,7 @@ public class Spray {
      */
     protected Object getSpawnPacket(Object itemFrame) throws ReflectiveOperationException {
         int subVer = CustomSprays.getSubVer();
-        if (subVer <= 7) {
-            /* EntityLiving */
-            return NMS.getPacketClass("Packet24MobSpawn")
-                    .getConstructor(NMS.getMcEntityLivingClass())
-                    .newInstance(itemFrame);
-        } else if (subVer <= 13) {
+        if (subVer <= 13) {
             /* ItemFrame, ItemFrameID:71, Data:Facing(int) */
             return NMS.getPacketClass("PacketPlayOutSpawnEntity")
                     .getConstructor(NMS.getMcEntityClass(), int.class, int.class)

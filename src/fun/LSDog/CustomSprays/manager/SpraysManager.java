@@ -39,7 +39,7 @@ public class SpraysManager {
     public static Spray getSprayInSight(Player player) {
 
         Location eyeLocation = player.getEyeLocation();
-        return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceSpray();
+        return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceSpray(Spray.blockChecker);
     }
 
     /**
