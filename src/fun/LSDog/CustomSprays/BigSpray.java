@@ -5,6 +5,7 @@ import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
@@ -48,8 +49,23 @@ public class BigSpray extends Spray {
         }
 
         for (int i = 0; i < 9; i++) {
-            // jump over if theres no solid block behind
-            if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) continue;
+
+            if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) {
+                Block nextBlock = locs[i].getBlock().getRelative(opposite).getRelative(opposite);
+                if (nextBlock.getType().isSolid()) {
+                    // spray to the next(next) block of it
+                    locs[i] = nextBlock.getRelative(blockFace).getLocation();
+                } else {
+                    continue;
+                }
+            }
+            if (locs[i].getBlock().getType().isSolid()) {
+                Block frontBlock = locs[i].getBlock().getRelative(blockFace);
+                if (!frontBlock.getType().isSolid()) {
+                    // spray to the front block of it
+                    locs[i] = frontBlock.getLocation();
+                }
+            }
 
             int mapViewId = MapViewId.getId();
 

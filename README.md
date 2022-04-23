@@ -29,6 +29,7 @@ ___
 ### [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !! [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 
 <b>⭐ 1.8 ~ 1.18 适配完毕 ！ fully supported ! ⭐</b>
+
 <b>⭐ [Spray音效资源包](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ！ [Spray sound resource pack](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ! ⭐</b>
 
 <b>⭐ English message config is also in config.yml (commented out by #) ⭐</b>
@@ -85,28 +86,28 @@ ___
 ## 🏆 特性
 ___
 
-- 🙅‍ 无 Bungeecord 端插件，所有数据皆由 MySQL / yml 进行存储
-- 🙅‍ NO Bungeecord-side plugin，all the data storage in MySQL / yml
+- 🙅‍ 无 Bungeecord 端插件，所有数据皆由 MySQL / yml 进行存储   
+- 🙅‍ NO Bungeecord-side plugin，all the data storage in MySQL / yml  
 
 
-- 📦 纯发包实现喷漆【玩家无法交互 | 不生成map_xxx.dat】
-- 📦 All packet sending to achieve【never interact with spray | no generating "map_xxx.dat"】
+- 📦 纯发包实现喷漆【玩家无法交互 | 不生成map_xxx.dat】    
+- 📦 All packet sending to achieve【never interact with spray | no generating "map_xxx.dat"】  
 
 
-- 📐 限制喷漆的世界或区域！
-- 📐 Disable spraying in specific worlds or regions!
+- 📐 限制喷漆的世界或区域！ 
+- 📐 Disable spraying in specific worlds or regions! 
 
 
-- 📺 自定义喷漆物品/喷漆音效！
-- 📺 Custom spray item / spray sound effect！
+- 📺 自定义喷漆物品/喷漆音效！   
+- 📺 Custom spray item / spray sound effect！ 
 
 
-- ☕ 无需前置API，发包纯手搓（
-- ☕ No API required ，making NMS sh-t by my self（
+- ☕ 无需前置API，发包纯手搓（  
+- ☕ No API required ，making NMS sh-t by my self（    
 
 
-- 🔗 玩家上传图片链接 >> 文本存储图片 (image->base64) >> 喷漆后自动消失
-- 🔗Player uploads link >> Storage image (image->base64) >> spray auto disappear
+- 🔗 玩家上传图片链接 >> 文本存储图片 (image->base64) >> 喷漆后自动消失   
+- 🔗Player uploads link >> Storage image (image->base64) >> spray auto disappear 
 
 <br>
 
