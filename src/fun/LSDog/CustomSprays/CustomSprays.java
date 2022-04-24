@@ -38,14 +38,14 @@ public class CustomSprays extends JavaPlugin {
         } else {
             /*每次更迭版本的时候别忘了改这里！！*/
             if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.5) {
-                System.out.println("\n\n\n\n\n\n\n=====================\n");
+                log("\n\n\n\n\n\n\n=====================\n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me! \n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me! \n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me! \n");
-                System.out.println("=====================\n\n");
+                log("=====================\n\n");
                 Bukkit.shutdown();
                 return;
             }

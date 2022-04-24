@@ -27,13 +27,22 @@ public class DataMySQL implements IData {
 
     @Override
     public byte[] getImageBytes(Player player) {
+        ResultSet resultSet = null;
         try (Connection con = getConnection(); Statement stat = Objects.requireNonNull(con).createStatement()) {
-            ResultSet resultSet = stat.executeQuery("SELECT image FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
-            if (resultSet.next()) {
+            resultSet = stat.executeQuery("SELECT image FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
+            if (resultSet != null && resultSet.next()) {
                 return DataManager.decompressBytes(resultSet.getBytes("image"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            if (resultSet == null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }
@@ -52,11 +61,20 @@ public class DataMySQL implements IData {
 
     @Override
     public boolean getCopyAllowed(Player player) {
+        ResultSet resultSet = null;
         try (Connection con = getConnection(); Statement stat = Objects.requireNonNull(con).createStatement()) {
-            ResultSet resultSet = stat.executeQuery("SELECT allow_copy FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
-            if (resultSet.next()) return resultSet.getBoolean("allow_copy");
+            resultSet = stat.executeQuery("SELECT allow_copy FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
+            if (resultSet != null && resultSet.next()) return resultSet.getBoolean("allow_copy");
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            if (resultSet == null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return true;
     }
@@ -75,12 +93,22 @@ public class DataMySQL implements IData {
     }
 
     public static void addAccountIfNotExist(Player player) {
+        ResultSet resultSet = null;
         try (Connection con = getConnection(); Statement stat = Objects.requireNonNull(con).createStatement()) {
-            ResultSet resultSet = stat.executeQuery("SELECT name FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
-            if (resultSet.next()) return; // 存在就不管了
+            resultSet = stat.executeQuery("SELECT name FROM sprays WHERE UUID = '"+player.getUniqueId().toString()+"';");
+            if (resultSet != null && resultSet.next()) return; // 存在就不管了
         } catch (SQLException e) {
             e.printStackTrace();
+        }  finally {
+            if (resultSet == null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        // 添加账户
         try (Connection con = getConnection(); PreparedStatement stat = con.prepareStatement("INSERT sprays(UUID,name,allow_copy) VALUES(?,?,?);")) {
             stat.setString(1, player.getUniqueId().toString());
             stat.setString(2, player.getName());

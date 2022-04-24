@@ -210,13 +210,13 @@ public class RayTracer {
         return 1; // ??but why, u should never touch here....
     }
 
-    void getBlockPoses() {
+    final void getBlockPoses() {
         bx = (int) Math.floor(x);
         by = (int) Math.floor(y);
         bz = (int) Math.floor(z);
     }
 
-    void putPosToOld() {
+    final void putPosToOld() {
         oldbx = bx; oldby = by; oldbz = bz;
     }
 

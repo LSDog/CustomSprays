@@ -44,7 +44,7 @@ public class CommandCustomSprays implements TabExecutor {
             return true;
         }
 
-        switch (args[0].toLowerCase()) {
+        switch (args[0].toLowerCase(Locale.ENGLISH)) {
 
             case "reload":
                 if (!sender.isOp()) {
@@ -85,7 +85,7 @@ public class CommandCustomSprays implements TabExecutor {
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
                         String url = args[1];
-                        if (!Pattern.compile(StringEscapeUtils.escapeJava(DataManager.urlRegex)).matcher(url.toLowerCase()).matches()) {
+                        if (!Pattern.compile(StringEscapeUtils.escapeJava(DataManager.urlRegex)).matcher(url.toLowerCase(Locale.ENGLISH)).matches()) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NOT_URL"));
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
@@ -291,7 +291,7 @@ public class CommandCustomSprays implements TabExecutor {
         if (input == null || "".equals(input)) return tabs;
         ArrayList<String> list = new ArrayList<>();
         for (String s : tabs) {
-            if (s.toLowerCase().startsWith(input.toLowerCase())) list.add(s);
+            if (s.toLowerCase(Locale.ENGLISH).startsWith(input.toLowerCase(Locale.ENGLISH))) list.add(s);
         }
         return list;
     }
