@@ -36,7 +36,7 @@ public class DataMySQL implements IData {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (resultSet == null) {
+            if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
@@ -68,7 +68,7 @@ public class DataMySQL implements IData {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (resultSet == null) {
+            if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
@@ -100,7 +100,7 @@ public class DataMySQL implements IData {
         } catch (SQLException e) {
             e.printStackTrace();
         }  finally {
-            if (resultSet == null) {
+            if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
