@@ -15,6 +15,7 @@ public class CustomSpraysAPI {
 
     /**
      * Get the plugin it self
+     * @see fun.LSDog.CustomSprays.CustomSprays
      */
     public static Plugin getPlugin() {
         return CustomSprays.instant;
@@ -22,12 +23,14 @@ public class CustomSpraysAPI {
 
     /**
      * Get the manager of sprays
+     * @see fun.LSDog.CustomSprays.manager.SpraysManager
      */
     public static class SpraysManager extends fun.LSDog.CustomSprays.manager.SpraysManager {
     }
 
     /**
      * Get the ImageUtil
+     * @see fun.LSDog.CustomSprays.utils.ImageUtil
      */
     public static class ImageUtil extends fun.LSDog.CustomSprays.utils.ImageUtil {
     }
@@ -42,7 +45,7 @@ public class CustomSpraysAPI {
     /**
      * Get a player's byte color array image
      */
-    public static byte[] getPlayerImag(Player player) {
+    public static byte[] getPlayerByteColorArray(Player player) {
         return DataManager.get384pxImageBytes(player);
     }
 
@@ -59,12 +62,12 @@ public class CustomSpraysAPI {
 
     /**
      * Set a player's image by using byte color array <br>
-     * You can use ImageUtil.resizeImage() and resizeImage() to get colors
-     * @param colors <b>Size must be 384*384</b>
+     * You can use ImageUtil.resizeImage() and resizeImage() to get colorArray
+     * @param colorArray <b>Size must be 384*384</b>
      * @see fun.LSDog.CustomSprays.utils.ImageUtil
      */
-    public static void setPlayerImage(Player player, byte[] colors) {
-        DataManager.saveImageBytes(player, colors);
+    public static void setPlayerImage(Player player, byte[] colorArray) {
+        DataManager.saveImageBytes(player, colorArray);
     }
 
 

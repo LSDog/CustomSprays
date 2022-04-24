@@ -25,7 +25,7 @@
 #    default: op
 #    description: 允许检测喷漆者 | Can check the sprayer of a spray (/customsprays check)
 #
-#  CustomSprays.noCD:
+#  CustomSprays.nocd:
 #    default: op
 #    description: 没有上传和喷涂的冷却 | No cooling for spray and upload
 #

@@ -4,12 +4,12 @@ import com.sun.istack.internal.Nullable;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.manager.SpraysManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
+import fun.LSDog.CustomSprays.utils.BlockUtil;
 import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.RayTracer;
 import fun.LSDog.CustomSprays.utils.RegionChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -19,25 +19,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * 喷漆本体，包括所有的反射发包方法
  */
 public class Spray {
-
-    public static Predicate<Block> blockChecker = block -> {
-        Material type = block.getType();
-        switch (type.name()) {
-            case "WATER":
-            case "STATIONARY_WATER":
-            case "LAVA":
-            case "STATIONARY_LAVA":
-                return false;
-            default:
-                return !block.getType().isTransparent();
-        }
-    };
 
     public final Player player;
     protected final World world;
@@ -74,7 +60,7 @@ public class Spray {
 
         Location eyeLocation = player.getEyeLocation();
         RayTracer.BlockRayTraceResult targetBlock =
-                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(blockChecker);
+                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(BlockUtil::isSpraySurfaceBlock);
         if (targetBlock == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆

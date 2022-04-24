@@ -2,6 +2,7 @@ package fun.LSDog.CustomSprays.manager;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Spray;
+import fun.LSDog.CustomSprays.utils.BlockUtil;
 import fun.LSDog.CustomSprays.utils.SprayRayTracer;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -19,7 +20,7 @@ public class SpraysManager {
     // 注意block指的是喷漆所在的方块而不是依附着的方块
 
     /**
-     * 在喷漆列表中加入新的喷漆, 玩家将会在进入相应世界的时候看到
+     * 在喷漆列表中加入新的喷漆, 玩家将会在进入相应世界的时候看到列表中的喷漆
      */
     public static void addSpray(Spray spray) {
 
@@ -39,7 +40,7 @@ public class SpraysManager {
     public static Spray getSprayInSight(Player player) {
 
         Location eyeLocation = player.getEyeLocation();
-        return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceSpray(Spray.blockChecker);
+        return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceSpray(BlockUtil::isSpraySurfaceBlock);
     }
 
     /**

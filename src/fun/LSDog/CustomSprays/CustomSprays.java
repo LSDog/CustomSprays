@@ -95,9 +95,9 @@ public class CustomSprays extends JavaPlugin {
         try { // ↓ SpraysManager.removeAllSpray();
             Class.forName("fun.LSDog.CustomSprays.manager.SpraysManager").getMethod("removeAllSpray").invoke(null);
         } catch (Exception ignored) { }
+        // cancel async tasks
         Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
-            if (bukkitWorker.getOwner().getName().equals("CustomSprays")) //noinspection deprecation
-                bukkitWorker.getThread().stop();
+            if (bukkitWorker.getOwner().getName().equals("CustomSprays")) bukkitWorker.getThread().interrupt();
         });
         log("CustomSprays disabled.");
     }
