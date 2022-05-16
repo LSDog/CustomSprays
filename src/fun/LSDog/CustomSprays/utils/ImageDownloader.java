@@ -11,14 +11,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 
 public class ImageDownloader implements Closeable {
 
     private static int downloadCount = 0;
 
-    private final String destUrl;
-
+    private String destUrl;
+    private boolean triedNoHttps = false;
     private InputStream in;
     private BufferedImage image;
 
@@ -45,20 +46,27 @@ public class ImageDownloader implements Closeable {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept-Encoding", "identity");
-            conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
+            setSpecialProps(conn);
             conn.setUseCaches(false);
-            conn.setConnectTimeout(5000);
+            conn.setConnectTimeout(10000);
             conn.connect();
             if (conn.getResponseCode() == 403) return 4;
             conn.getInputStream();
             int byteSize = conn.getContentLength();
             if (byteSize == 0) return 4;
             size = byteSize/1024;
-            if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit")+1) return 3;
-            else if (conn.getContentLength() == 0) return 4;
+            if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit") + 1) {
+                return 3;
+            } else if (conn.getContentLength() == 0){
+                return 4;
+            }
         } catch (SSLHandshakeException e) {
-            return 2;
-        } catch (IllegalArgumentException|IOException e) {
+            if (triedNoHttps) return 2;
+            triedNoHttps = true;
+            destUrl = destUrl.replaceFirst("(?i)https", "http");
+            return checkImage();
+        } catch (IllegalArgumentException | IOException e) {
             return 1;
         }
         return 0;
@@ -68,14 +76,15 @@ public class ImageDownloader implements Closeable {
         try {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.addRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (compatible; MSIE 6.0;WindowsNT 5.0)");
+            setSpecialProps(conn);
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
             conn.setConnectTimeout(10000);
             conn.connect();
             in = conn.getInputStream();
             image = ImageIO.read(in);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return image;
@@ -87,5 +96,31 @@ public class ImageDownloader implements Closeable {
         // 关闭 InputStream
         if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
     }
+
+    private static void setSpecialProps(URLConnection conn) {
+        String url = conn.getURL().toString();
+        if (url.contains("i.pximg.net")) {
+            setPixivProps(conn);
+        }
+    }
+
+    private static void setPixivProps(URLConnection conn) {
+        conn.setRequestProperty("HOST", " i.pximg.net");
+        conn.setRequestProperty("Connection", "keep-alive");
+        conn.setRequestProperty("Pragma", "no-cache");
+        conn.setRequestProperty("Cache-Control", "no-cache");
+        conn.setRequestProperty("sec-ch-ua", "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"101\", \"Microsoft Edge\";v=\"101\"");
+        conn.setRequestProperty("sec-ch-ua-mobile", "?0");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47");
+        conn.setRequestProperty("sec-ch-ua-platform", "\"Windows\"");
+        conn.setRequestProperty("Accept", "image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8");
+        conn.setRequestProperty("Sec-Fetch-Site", "cross-site");
+        conn.setRequestProperty("Sec-Fetch-Mode", "no-cors");
+        conn.setRequestProperty("Sec-Fetch-Dest", "image");
+        conn.setRequestProperty("Referer", "https://www.pixiv.net/");
+        conn.setRequestProperty("Accept-Encoding", "gzip, deflate, br");
+        conn.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7");
+    }
+
 
 }

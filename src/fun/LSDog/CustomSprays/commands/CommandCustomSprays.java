@@ -70,7 +70,10 @@ public class CommandCustomSprays implements TabExecutor {
                         if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!"); return; }
 
                         Player player = (Player) sender;
-                        if (uploadingSet.contains(player.getUniqueId())) return;
+                        if (uploadingSet.contains(player.getUniqueId())) {
+                            player.sendMessage(CustomSprays.prefix + ". . . . . .");
+                            return;
+                        }
                         if ( !player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player) ) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
                             uploadingSet.remove(player.getUniqueId()); return;
