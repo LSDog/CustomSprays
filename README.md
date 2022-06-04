@@ -2,11 +2,11 @@
 
 # <b>CustomSprays</b> | 花样喷漆 🎉
 
-> ![logo](logo64.png)
+> ![logo](logo64.png)👈这事Logo 👇**大概是一些用法** 👉这是右手
 > ![use](https://s1.ax1x.com/2022/04/18/Ldo6SK.gif)
 
-- " 就像起源游戏的喷漆一样! "
-- " Just like source games' spraying! "
+- ***" 就像起源游戏的喷漆一样！ "***
+- ***" Just like source games' spraying! "***
 
 ## 📢 介绍 | Introduce
 ___
@@ -38,7 +38,7 @@ ___
 
 ## ✨ 用法 | Usage
 ___
-### 步骤 | steps:
+### 步骤
 
     1 | 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
       |
@@ -49,6 +49,7 @@ ___
       |
     4 | 🎇 如果服务器版本 ≥ 1.9，【快速双击F键】也可以喷漆！🎇
 
+### Steps:
 
     1 | Put "CustomSprays.jar" in "plugins" folder，restart the server.
       |
@@ -59,21 +60,17 @@ ___
       |
     4 | 🎇 If server version ≥ 1.9，【Quick double click "F"】can also do the spray！🎇
 
-![QuickUse](QuickUse.gif "糊到爆炸的示意图")
-
-<b>📡双击 "F" 喷漆! </b>(交换主副手的快捷键)
-
-<b>📡 Double click "F" to spray! </b>(the key exchanges items in you both hand)
 
 
-### 💻 更多指令发送 "/cspray" |  More commands send "/cspray"
+### 💻 更多指令发送 "/cspray" |  More commands send "/cspray"  
+
 ### 💻 更多设置请见 "config.yml" | More configuration see "config.yml"
 
 ## 🎮 版本支持 | Version Support
 ___
-> ⭕ <b>经 *测试* 后支持</b> : 1.8 ~ 1.18
+> ⭕ <b>经 *测试* 后支持 : 1.8 ~ 1.18</b>
 > 
-> ⭕ <b>Support after *TEST* </b> : 1.8 ~ 1.18
+> ⭕ <b>Support after *TEST*  : 1.8 ~ 1.18</b>
 
 > 📏 支持的"领域"插件: <br>
 > 📏 Supported "region" plugins:
@@ -102,19 +99,16 @@ ___
 - 📺 Custom spray item / spray sound effect！ 
 
 
+- 👋 复制别人的喷漆，或者禁止别人喷漆！
+- 👋 Copy others spray or prevent others copying yours!
+
+
 - ☕ 无需前置API，发包纯手搓（  
 - ☕ No API required ，making NMS sh-t by my self（    
 
 
 - 🔗 玩家上传图片链接 >> 文本存储图片 (image->base64) >> 喷漆后自动消失   
 - 🔗Player uploads link >> Storage image (image->base64) >> spray auto disappear 
-
-<br>
-
-... *[已完善]* <sub>(~~仅支持 128\*128px 图片~~)</sub> 保存数据时直接压缩图片到 384*384 大小...
-
-... *[Fixed]* <sub>(~~Only support 128\*128px image~~)</sub> Save the image directly in 384*384 ...
-
 
 
 ## ⚡ 注意事项
@@ -133,7 +127,9 @@ ___
 
 ## ✍ TODO
 ___
-- 空 (笑)
+- SQLite 支持
+- 有时间做一个商店版的... 就是需要买预制的喷漆的那种插件
+- 喷漆仓库，实际上跟上面这个设想有相通的地方，问题是如果单个玩家仓库过大加载单个玩家yaml时间会很长，所以应该要搞成分文件的，直接把384*384转成的bytearray存到奇怪后缀的文件里，sql就不管了，该扩展扩展
 
 
 
