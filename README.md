@@ -1,6 +1,6 @@
 ![CustomSprays](banner.png)
 
-# <b>CustomSprays</b> | 花样喷漆 🎉
+# **CustomSprays** | 花样喷漆 🎉
 
 > ![logo](logo64.png)👈这事Logo 👇**大概是一些用法** 👉这是右手
 > ![use](https://s1.ax1x.com/2022/04/18/Ldo6SK.gif)
@@ -16,7 +16,7 @@ ___
 > |名字 <br> Name    |CustomSprays ~ 花样喷漆|
 > |作者 <br> Author  |LSDog|
 > |版本 <br> Version |1.5.4|
-> |支持 <br> Support | Bukkit \ Spigot \ Paper <b>1.8 ~ 1.18</b> |
+> |支持 <br> Support | Bukkit \ Spigot \ Paper **1.8 ~ 1.18** |
 > |介绍 <br> Description |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
 > |指令 <br> Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
 > |权限 <br> Perm    |请见 / see "config.yml"|
@@ -25,14 +25,14 @@ ___
 >
 > Spigot >> https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/
 
-## ⏬ <b>下载 | Download</b>: [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
+## ⏬ **下载 | Download**: [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 ### [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !! [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 
-<b>⭐ 1.8 ~ 1.18 适配完毕 ！ fully supported ! ⭐</b>
+**⭐ 1.8 ~ 1.18 适配完毕 ！ fully supported ! ⭐**
 
-<b>⭐ [Spray音效资源包](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ！ [Spray sound resource pack](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ! ⭐</b>
+**⭐ [Spray音效资源包](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ！ [Spray sound resource pack](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ! ⭐**
 
-<b>⭐ English message config is also in config.yml (commented out by #) ⭐</b>
+**⭐ English message config is also in config.yml (commented out by #) ⭐**
 
 
 
@@ -68,9 +68,9 @@ ___
 
 ## 🎮 版本支持 | Version Support
 ___
-> ⭕ <b>经 *测试* 后支持 : 1.8 ~ 1.18</b>
+> ⭕ **经 *测试* 后支持 : 1.8 ~ 1.18**
 > 
-> ⭕ <b>Support after *TEST*  : 1.8 ~ 1.18</b>
+> ⭕ **Support after *TEST*  : 1.8 ~ 1.18**
 
 > 📏 支持的"领域"插件: <br>
 > 📏 Supported "region" plugins:
@@ -114,14 +114,14 @@ ___
 ## ⚡ 注意事项
 ___
 
-> 已知问题 <b>*[仅限版本1.8~1.12]*</b>：当某一世界地图数量 >32467 时 <sub>(世界地图最多为32767)</sub> 喷漆会导致某些原生地图被暂时替换
+> 已知问题 ***[仅限版本1.8~1.12]***：当某一世界地图数量 >32467 时 <sub>(世界地图最多为32767)</sub> 喷漆会导致某些原生地图被暂时替换
 >
->> <b>原因:</b> 插件使用 MapView id [32467~32767] 对喷漆进行标识，在喷漆时可能会一并被发包上色
+>> **原因:** 插件使用 MapView id [32467~32767] 对喷漆进行标识，在喷漆时可能会一并被发包上色
 
 
-> Known problems <b>*[Only in version 1.8~1.12]*</b>: When the map count is >32467 in a world <sub>(max 32767 in a world)</sub>, spraying will make some original map replaced by spray image temporarily.
+> Known problems ***[Only in version 1.8~1.12]***: When the map count is >32467 in a world <sub>(max 32767 in a world)</sub>, spraying will make some original map replaced by spray image temporarily.
 >
->> <b>Reason:</b> Plugin use MapView id [32467~32767] to target the spray ...So map with that id will be replaced.
+>> **Reason:** Plugin use MapView id [32467~32767] to target the spray ...So map with that id will be replaced.
 
 
 
