@@ -15,8 +15,8 @@ ___
 > |:---:|---|
 > |名字 <br> Name    |CustomSprays ~ 花样喷漆|
 > |作者 <br> Author  |LSDog|
-> |版本 <br> Version |1.5.4|
-> |支持 <br> Support | Bukkit \ Spigot \ Paper **1.8 ~ 1.18** |
+> |版本 <br> Version |1.5.5|
+> |支持 <br> Support | Bukkit \ Spigot \ Paper **1.8 ~ 1.19** |
 > |介绍 <br> Description |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
 > |指令 <br> Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
 > |权限 <br> Perm    |请见 / see "config.yml"|
@@ -28,7 +28,6 @@ ___
 ## ⏬ **下载 | Download**: [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 ### [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !! [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 
-**⭐ 1.8 ~ 1.18 适配完毕 ！ fully supported ! ⭐**
 
 **⭐ [Spray音效资源包](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ！ [Spray sound resource pack](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ! ⭐**
 
@@ -58,21 +57,19 @@ ___
     2 | Send command: /cspray upload <url>  -  Upload image
     3 | Send command: /spray                -  Spray at wall
       |
-    4 | 🎇 If server version ≥ 1.9，【Quick double click "F"】can also do the spray！🎇
+    4 | 🎇 If server version ≥ 1.9，【Quick double click "F"】can also spray！🎇
 
 
 
-### 💻 更多指令发送 "/cspray" |  More commands send "/cspray"  
+### 💻 更多指令发送 "/cspray" |  Send "/cspray" for more commands  
 
-### 💻 更多设置请见 "config.yml" | More configuration see "config.yml"
+### 💻 更多设置请见 "config.yml" | See "config.yml" for more configuration
 
 ## 🎮 版本支持 | Version Support
 ___
-> ⭕ **经 *测试* 后支持 : 1.8 ~ 1.18**
-> 
-> ⭕ **Support after *TEST*  : 1.8 ~ 1.18**
+> ⭕ **1.8 ~ 1.19**
 
-> 📏 支持的"领域"插件: <br>
+> 📏 支持的"领域"插件:  
 > 📏 Supported "region" plugins:
 >    * Residence - [ *x* ~ 5.0.1.3+ ]
 >    * WorldGuard - [ 6.*x* ~ 7.*x* ]
@@ -114,12 +111,12 @@ ___
 ## ⚡ 注意事项
 ___
 
-> 已知问题 ***[仅限版本1.8~1.12]***：当某一世界地图数量 >32467 时 <sub>(世界地图最多为32767)</sub> 喷漆会导致某些原生地图被暂时替换
+> 已知问题 ***[仅限版本1.8~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换
 >
 >> **原因:** 插件使用 MapView id [32467~32767] 对喷漆进行标识，在喷漆时可能会一并被发包上色
 
 
-> Known problems ***[Only in version 1.8~1.12]***: When the map count is >32467 in a world <sub>(max 32767 in a world)</sub>, spraying will make some original map replaced by spray image temporarily.
+> Known problems ***[Only in version 1.8~1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
 >
 >> **Reason:** Plugin use MapView id [32467~32767] to target the spray ...So map with that id will be replaced.
 
@@ -139,12 +136,6 @@ ___
 
 ![logo](banner_logo.png)
 
-如果您有能力，可以考虑捐献我们，帮助我们做得更好！
-
-微信：
-[图片]
-支付宝：
-[图片]
 
 ### 爱发电 | Aifadian  https://afdian.net/@LSDog
 
