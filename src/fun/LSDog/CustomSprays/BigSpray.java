@@ -71,10 +71,10 @@ public class BigSpray extends Spray {
 
             int mapViewId = MapViewId.getId();
 
-            Object mcMap = getMcMap(mapViewId);
-            Object mapPacket = getMapPacket(mapViewId, pixelPieces[i]);
-            Object itemFrame = getItemFrame(mcMap, locs[i]);
-            Object spawnPacket = getSpawnPacket(itemFrame);
+            Object mcMap = SprayFactory.getMcMap(mapViewId);
+            Object mapPacket = SprayFactory.getMapPacket(mapViewId, pixelPieces[i]);
+            Object itemFrame = SprayFactory.getItemFrame(mcMap, locs[i], blockFace, playerLocation);
+            Object spawnPacket = SprayFactory.getSpawnPacket(itemFrame, intDirection);
             itemFrameIds[i] = (int) itemFrame.getClass().getMethod(CustomSprays.getSubVer() < 18 ? "getId" : "ae").invoke(itemFrame);
             Object dataWatcher = itemFrame.getClass().getMethod(CustomSprays.getSubVer() < 18 ? "getDataWatcher" : "ai").invoke(itemFrame);
             Object dataPacket = NMS.getPacketClass("PacketPlayOutEntityMetadata")
@@ -156,7 +156,7 @@ public class BigSpray extends Spray {
                         l(0,-1,-1),l(0,-1,0),l(0,-1,1),
                 }; return;
         }
-        int rotation = getItemFrameRotate(playerLocation, blockFace);
+        int rotation = SprayFactory.getItemFrameRotate(playerLocation, blockFace);
         if (blockFace == BlockFace.UP) {
             switch (rotation) {
                 case 0:

@@ -3,6 +3,7 @@ package fun.LSDog.CustomSprays.commands;
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.Spray;
+import fun.LSDog.CustomSprays.SprayFactory;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.manager.SpraysManager;
 import fun.LSDog.CustomSprays.utils.ImageDownloader;
@@ -30,8 +31,8 @@ public class CommandCustomSprays implements TabExecutor {
     private static final Set<UUID> uploadingSet = new HashSet<>();
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+    @SuppressWarnings({"deprecation", "NullableProblems"})
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         FileConfiguration config = CustomSprays.instant.getConfig();
         if (args.length == 0) {
             sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.instant.getDescription().getVersion() + "§r" +
@@ -223,13 +224,13 @@ public class CommandCustomSprays implements TabExecutor {
                             if (CustomSprays.getSubVer() < 17) {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
                                         .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
-                                        .newInstance(0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
+                                        .newInstance(0,36+player.getInventory().getHeldItemSlot(), SprayFactory.getMcMap(id)));
                             } else {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
                                         .getConstructor(int.class, int.class, int.class, NMS.getMcItemStackClass())
-                                        .newInstance(0,0,36+player.getInventory().getHeldItemSlot(),Spray.getMcMap(id)));
+                                        .newInstance(0,0,36+player.getInventory().getHeldItemSlot(), SprayFactory.getMcMap(id)));
                             }
-                            NMS.sendPacket(player, Spray.getMapPacket(id, DataManager.get128pxImageBytes(player)));
+                            NMS.sendPacket(player, SprayFactory.getMapPacket(id, DataManager.get128pxImageBytes(player)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -273,6 +274,7 @@ public class CommandCustomSprays implements TabExecutor {
     }
 
     @Override
+    @SuppressWarnings({"NullableProblems"})
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
             List<String> argList = new ArrayList<>();

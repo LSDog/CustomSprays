@@ -59,7 +59,7 @@ storage: YML
 
 MySQL:
   # |注意: 插件将会创建的表名为 "sprays"
-  # |Mention: Plugin will create the table that names "sprays"
+  # |Mention: Plugin will create table "sprays"
   host: '127.0.0.1'
   port: '3306'
   database: 'minecraft'
@@ -79,7 +79,7 @@ msg_prefix: "§3§lCustomSprays >>§r "
 spray_item: "GOLDEN_HORSE_ARMOR" # 1.12 is "GOLD_BARDING"
 # |默认的右键喷漆物品
 # |Default item that can spray with right click
-# 默认|Default: (←1.12)"GOLD_BARDING"   (1.13→)"GOLDEN_HORSE_ARMOR"
+# 默认|Default: "GOLD_BARDING"(←1.12)  (1.13→)"GOLDEN_HORSE_ARMOR"
 # 提示|Tip: 物品名列表，注意区分版本。 | Item name list, note the different versions.
 # (1.13→): https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java
 # (←1.12): https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java?until=7eb6b52fb21699805eab4b074599030861227e64&untilPath=src%2Fmain%2Fjava%2Forg%2Fbukkit%2FMaterial.java
@@ -88,12 +88,12 @@ spray_sound: "default"
 # |喷漆音效
 # |Spray sound
 # 默认|Default: "default"
-# |自定义格式: "minecraft:entity.silverfish.hurt-1-0.8" << 最后两个"1"分别指音量和音调
-# |Custom format: "minecraft:entity.silverfish.hurt-1-0.8" << the two "1" means volume and pitch
+# |自定义格式: "minecraft:entity.silverfish.hurt-1-0.8" << 1 和 0.8分别指音量和音调
+# |Custom format: "minecraft:entity.silverfish.hurt-1-0.8" << 1 and 0.8 means volume and pitch
 
 check_update: true
-# |检查最新版本, 启动后只会通知op一次
-# |Check the newest version, only tells op ones after start up
+# |检查最新版本后发送给op
+# |Check the newest version then tell op
 
 
 ############ NUMBER CONFIG #############
@@ -142,7 +142,7 @@ copy_cooldown_multiple: 0.3
 
 file_size_limit: 1024
 # |玩家提供的链接图片大小限制 (kb), 图片会被保存到 384*384px 大小以节省空间
-# |Max size of the image from link (kb), the image will saved in 384*384px to save space
+# |Max size of the image from link (kb), the image are saved to 384*384px to save space
 # 默认|Default: 1024
 
 download_limit: 3
@@ -156,13 +156,13 @@ download_limit: 3
 ############ 填"是否" 的配置 ##############
 
 F_spray: true
-# |启用 双击"F" 喷漆, 仅在1.9+有效
-# |Enable double "F" to spray, only support version≥1.9
+# |启用 双击"F"喷漆, 仅在1.9+有效
+# |Enable double click "F" to spray, only support version 1.9+
 # 默认|Default: true
 
 spray_on_ground: true
 # |允许在方块上下面喷涂, 仅在1.13+有效
-# |Allow spraying above or below the block, only support version1.13+
+# |Allow spray on the upper and lower surfaces of the block, only support version 1.13+
 # 默认|Default: true
 
 
@@ -180,11 +180,11 @@ url_regex: "^https?://.*"
 
 disabled_world: ["示例_世界名", "EXAMPLE_WORLD_NAME"]
 # |禁用的世界名称列表，列表中的世界无法喷漆
-# |Disabled world names, where are not able to spray
+# |List of disabled world names where prohibits spraying
 
 disabled_region: ["示例_区域/领地名", "EXAMPLE_REGION_NAME"]
 # |禁用的区域名称列表，列表中的区域无法喷漆，可以判断父级领地
-# |Disabled region names, where are not able to spray, able to check parent region
+# |List of disabled region names where prohibits spraying, able to check parent region
 # |可用的插件
 # |Available plugins:
 #   * Residence - 5.0.1.3 <br>
@@ -195,14 +195,16 @@ disabled_region: ["示例_区域/领地名", "EXAMPLE_REGION_NAME"]
 
 ############ MESSAGE CONFIG ############
 ############ 消息有关的配置 ##############
-# Scroll down to get messages in English
 
-# |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
-# |Mention that we're not support color code "&", please use "§"
+# |English version please scroll down|
+# |English version please scroll down|
+
+# |请注意, 此处不支持"&"作为颜色符号, 请使用"§" (Windows用户提示: Alt按住 + 小键盘:0 1 6 7)
+# |Mention that we're not support color code "&", please use "§", (Windows user tip: Alt + NumberKeypad:0 1 6 7)
+
 Messages:
   # |所有信息支持 PlaceholderAPI
   # |All messages support PlaceholderAPI
-  # |English version please scroll down
 
   UNKNOWN_COMMAND: "未知指令，使用 §3/cspray§r 查看帮助!"
   NO_PERMISSION: "§c无权限！"
@@ -249,16 +251,14 @@ Messages:
     OK: "喷图图案复制成功！嘿嘿~\n"
 
 
-# 如果你想提供多语言的翻译，请到 [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159] 向我投稿！
-# If you wanna help me to translate messages, find me in [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159] ！
+# 如果你想翻译，请到 [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] 向我投稿！
+# If you want to translate, find me in [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] ！
 
 #####################
 #  ENGLISH VERSION  #
 #  Translator: 小关  #
 #####################
 
-# |请注意, 此处不支持"&"作为颜色符号, 请使用"§"
-# |Mention that we're not support color code "&", please use "§"
 #Messages:
 #  # |所有信息支持 PlaceholderAPI
 #  # |All messages support PlaceholderAPI

@@ -53,6 +53,7 @@ public class DataYml implements IData {
     /**
      * 都是384*384大小
      */
+    @Override
     public byte[] getImageBytes(Player player) {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(getDataPath(player)), StandardCharsets.ISO_8859_1)) {
             String line;

@@ -31,6 +31,7 @@ public class DataManager {
     public static String getMsg(Player player, String path) {
 
         String msg = CustomSprays.instant.getConfig().getString("Messages."+path);
+        if (msg == null) return msg;
         if (usePapi) {
             return PlaceholderAPI.setPlaceholders(player, msg);
         } else return msg;

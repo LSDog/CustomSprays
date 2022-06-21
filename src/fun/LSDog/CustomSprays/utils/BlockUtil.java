@@ -6,17 +6,15 @@ import org.bukkit.block.Block;
 public class BlockUtil {
 
 
+    @SuppressWarnings("deprecation")
     public static boolean isSpraySurfaceBlock(Block block) {
         if (block.isEmpty() || block.isLiquid()) return false;
         Material type = block.getType();
-        switch (type) {
-            case SIGN:
-            case WALL_SIGN:
-            case STRING:
-                return false;
-        }
         String name = type.name();
         switch (name) {
+            case "SIGN":
+            case "WALL_SIGN":
+            case "STRING":
             case "LIGHT":
             case "BUBBLE_COLUMN":
             case "CONDUIT":
