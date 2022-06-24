@@ -28,7 +28,6 @@ public class CustomSprays extends JavaPlugin {
     public File playerDataFolder = new File(getDataFolder() + File.separator + "playerData");
 
     public static String latestVersion = null;
-    public static boolean updateMentioned = false;
 
     @Override
     public void onEnable() {

@@ -26,6 +26,7 @@ public class UpdateChecker {
                 int read = in.read(bytes);
                 if (read == -1) return null;
                 JSONObject jsonObject = (JSONObject) JSONValue.parse(new String(bytes, StandardCharsets.UTF_8));
+                CustomSprays.log("found new version: " + jsonObject.get("tag_name"));
                 return (String) jsonObject.get("tag_name");
             }
         } catch (Exception e) {

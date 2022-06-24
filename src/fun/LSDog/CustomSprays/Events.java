@@ -61,10 +61,11 @@ public class Events implements Listener {
                 exception.printStackTrace();
             }
         })), 20L);
-        if (CustomSprays.latestVersion != null && !CustomSprays.updateMentioned && e.getPlayer().isOp()) {
-            e.getPlayer().sendMessage(CustomSprays.prefix + " §c嘿, 管理!§7 CustomSprays 有个更新~~ -> §b§l" + CustomSprays.latestVersion);
-            e.getPlayer().sendMessage(CustomSprays.prefix + " §cHey, OP!§7 CustomSprays has an update~~ -> §b§l" + CustomSprays.latestVersion);
-            CustomSprays.updateMentioned = true;
+        if (CustomSprays.latestVersion != null && e.getPlayer().isOp()) {
+            e.getPlayer().sendMessage(CustomSprays.prefix + " §6§l嘿, 管理! CustomSprays 有个更新~~ §7-> §b§l" + CustomSprays.latestVersion);
+            e.getPlayer().sendMessage(CustomSprays.prefix + " §6§lHey, OP! CustomSprays has an update~~ §7-> §b§l" + CustomSprays.latestVersion);
+            //e.getPlayer().sendRawMessage("[{\"text\":\"*CustomSprays*\",\"color\":\"dark_blue\",\"bold\":true,\"italic\":true,\"underlined\":true,\"strikethrough\":false,\"obfuscated\":false,\"insertion\":\"https://gitee.com/pixelmc/CustomSprays/releases\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://gitee.com/pixelmc/CustomSprays/releases\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"*click*\"}}]");
+            // Use less.
         }
     }
 
