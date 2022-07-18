@@ -12,12 +12,15 @@ import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.RegionChecker;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MapView;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -30,20 +33,32 @@ public class CommandCustomSprays implements TabExecutor {
 
     private static final Set<UUID> uploadingSet = new HashSet<>();
 
+    public static List<String> getTabs(String input, List<String> tabs) {
+        if (input == null || "".equals(input)) return tabs;
+        ArrayList<String> list = new ArrayList<>();
+        for (String s : tabs)
+            if (s.toLowerCase(Locale.ENGLISH).startsWith(input.toLowerCase(Locale.ENGLISH))) list.add(s);
+        return list;
+    }
+
     @Override
-    @SuppressWarnings({"deprecation", "NullableProblems"})
+    @SuppressWarnings({"deprecation"})
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         FileConfiguration config = CustomSprays.instant.getConfig();
         if (args.length == 0) {
             sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.instant.getDescription().getVersion() + "§r" +
-                    "\n    §b/cspray§r §3upload§l <url> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.UPLOAD") +
-                    (sender.hasPermission("CustomSprays.copy") ? "\n    §b/cspray§r §3copy§l <player> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.COPY") : "") +
-                    (sender.hasPermission("CustomSprays.view") ? "\n    §b/cspray§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") : "") +
-                    (sender.hasPermission("CustomSprays.check") ? "\n    §b/cspray§r §3check §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.CHECK") : "") +
-                    (sender.isOp() ? "\n    §b/cspray§r §3reload§l §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.RELOAD") : "") +
+                    "\n    §b/sprays§r §3upload§l <url> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.UPLOAD") +
+                    (sender.hasPermission("CustomSprays.copy") ? "\n    §b/sprays§r §3copy§l <player> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.COPY") : "") +
+                    (sender.hasPermission("CustomSprays.view") ? "\n    §b/sprays§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") : "") +
+                    (sender.hasPermission("CustomSprays.check") ? "\n    §b/sprays§r §3check §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.CHECK") : "") +
+                    (sender.hasPermission("CustomSprays.delete") ? "\n    §b/sprays§r §3delete §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.DELETE") : "") +
+                    (sender.hasPermission("CustomSprays.getitem") ? "\n    §b/sprays§r §3getitem §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.GETITEM") : "") +
+                    (sender.isOp() ? "\n    §b/sprays§r §3reload§l §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.RELOAD") : "") +
                     "\n\n\n  " +  DataManager.getMsg(sender, "COMMAND_HELP.TIP"));
             return true;
         }
+
+        Player player = sender instanceof Player ? (Player) sender : null;
 
         switch (args[0].toLowerCase(Locale.ENGLISH)) {
 
@@ -114,7 +129,7 @@ public class CommandCustomSprays implements TabExecutor {
                         BufferedImage image = imageDownloader.getBufferedImage();
                         byte[] imgBytes;
                         try {
-                            imgBytes = ImageUtil.getPxMapBytes(ImageUtil.resizeImage(image, 384, 384));
+                            imgBytes = ImageUtil.getMcColorBytes(ImageUtil.resizeImage(image, 384, 384));
                         } catch (IllegalArgumentException | IOException e) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.FAILED_GET_IMAGE"));
                             imageDownloader.close();
@@ -236,7 +251,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }
                         Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> {
                             player.updateInventory();
-                            MapView mapView = Bukkit.getMap(id);
+                            MapView mapView = CustomSprays.getSubVer() > 12 ? Bukkit.getMap(id) : null;
                             if (mapView == null) {
                                 mapView = Bukkit.createMap(player.getWorld());
                             }
@@ -248,11 +263,10 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             case "check":
-                if (!(sender instanceof Player)) {
+                if (player == null) {
                     sender.sendMessage(CustomSprays.prefix + "player only!");
                     return true;
                 }
-                Player player = (Player) sender;
                 if (!player.hasPermission("CustomSprays.check")) {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
                     return true;
@@ -267,6 +281,41 @@ public class CommandCustomSprays implements TabExecutor {
                 }.runTaskAsynchronously(CustomSprays.instant);
                 break;
 
+            case "delete":
+                if (player == null) {
+                    sender.sendMessage(CustomSprays.prefix + "player only!");
+                    return true;
+                }
+                if (!player.hasPermission("CustomSprays.delete")) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+                    return true;
+                }
+
+                new BukkitRunnable() {
+                    public void run() {
+                        Spray spray = SpraysManager.getSprayInSight(player);
+                        if (spray != null) {
+                            player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
+                            spray.remove();
+                        }
+                        else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
+                    }
+                }.runTaskAsynchronously(CustomSprays.instant);
+                break;
+
+            case "getitem":
+                if (!sender.isOp()) return true;
+                if (player != null) {
+                    ItemStack item = new ItemStack(Material.matchMaterial(CustomSprays.instant.getConfig().getString("spray_item")));
+                    ItemMeta itemMeta = item.getItemMeta();
+                    String lore = CustomSprays.instant.getConfig().getString("spray_item_lore");
+                    if (lore != null) itemMeta.setLore(Collections.singletonList(lore));
+                    itemMeta.setDisplayName("§f\u2743"); //It's ❃
+                    item.setItemMeta(itemMeta);
+                    player.getInventory().addItem(item);
+                }
+                break;
+
             default:
                 sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(sender, "UNKNOWN_COMMAND"));
         }
@@ -274,7 +323,6 @@ public class CommandCustomSprays implements TabExecutor {
     }
 
     @Override
-    @SuppressWarnings({"NullableProblems"})
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
             List<String> argList = new ArrayList<>();
@@ -282,6 +330,8 @@ public class CommandCustomSprays implements TabExecutor {
             if (sender.hasPermission("CustomSprays.copy")) argList.add("copy");
             if (sender.hasPermission("CustomSprays.view")) argList.add("view");
             if (sender.hasPermission("CustomSprays.check")) argList.add("check");
+            if (sender.hasPermission("CustomSprays.delete")) argList.add("delete");
+            if (sender.hasPermission("CustomSprays.getitem")) argList.add("getitem");
             if (sender.isOp()) argList.add("reload");
             return getTabs(args[0], argList);
         } else {
@@ -289,16 +339,6 @@ public class CommandCustomSprays implements TabExecutor {
             Bukkit.getOnlinePlayers().forEach(p -> list.add(p.getName()));
             return getTabs(args[1], list);
         }
-    }
-
-
-    public static List<String> getTabs(String input, List<String> tabs) {
-        if (input == null || "".equals(input)) return tabs;
-        ArrayList<String> list = new ArrayList<>();
-        for (String s : tabs) {
-            if (s.toLowerCase(Locale.ENGLISH).startsWith(input.toLowerCase(Locale.ENGLISH))) list.add(s);
-        }
-        return list;
     }
 
 }

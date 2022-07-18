@@ -34,7 +34,7 @@ public class CoolDownManager {
         }
     }
 
-    public static long getSprayCool(Player player) {
+    public static long getSprayCD(Player player) {
         return (sprayCooldown.getOrDefault(player.getUniqueId(), time()) - time())/1000;
     }
 

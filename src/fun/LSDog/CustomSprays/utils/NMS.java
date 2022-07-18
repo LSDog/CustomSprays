@@ -69,7 +69,7 @@ public class NMS {
         return clazz;
     }
 
-    // "Legacy" means version < 1.17
+    // "Legacy" 指的是版本 < 1.17, 因为 NMS 在1.17后相应类的路径大改
     public static Class<?> getLegacyMcClass(String name) {
         Class<?> clazz = mcClassMap.get(name);
         if (clazz == null) {
@@ -99,12 +99,6 @@ public class NMS {
     public static Class<?> getMcEntityClass() {
         if (CustomSprays.getSubVer() < 17) return mcEntityClass == null ? mcEntityClass = getLegacyMcClass("Entity") : mcEntityClass;
         else return mcEntityClass == null ? mcEntityClass = getMcClass("world.entity.Entity") : mcEntityClass;
-    }
-
-    private static Class<?> mcEntityLivingClass = null;
-    public static Class<?> getMcEntityLivingClass() {
-        if (CustomSprays.getSubVer() < 17) return mcEntityLivingClass == null ? mcEntityLivingClass = getLegacyMcClass("EntityLiving") : mcEntityLivingClass;
-        else return mcEntityLivingClass == null ? mcEntityLivingClass = getMcClass("world.entity.EntityLiving") : mcEntityLivingClass;
     }
 
     private static Class<?> mcEntityPlayerClass = null;

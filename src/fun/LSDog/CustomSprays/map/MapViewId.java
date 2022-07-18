@@ -4,17 +4,16 @@ import fun.LSDog.CustomSprays.CustomSprays;
 
 /**
  * 获取一个 用作标识的 MapviewID <br>
- * 保持在 32467 ~ 32765 (300张"缓存") <br>
- * 1.13+ 是 -2047483645 到 -2047483047
+ * 1.13 以前最多 32767
  */
 public class MapViewId {
 
-    private static short id = 0;
+    private static int id = 0;
 
-    private static short MAX = 32765;
-    private static short MIN = 32467;
+    private static int MAX = 32765;
+    private static int MIN = 32467;
 
-    public static short getId() {
+    public static int getId() {
         return (++id > MAX || id < MIN) ? (id = MIN) : id;
     }
 
@@ -22,8 +21,8 @@ public class MapViewId {
         if (CustomSprays.getSubVer() < 13) {
             if (max > 32767 || max < -32768 || min > 32767 || min < -32768) return;
         }
-        MAX = (short) Math.max(max, min);
-        MIN = (short) Math.min(max, min);
+        MAX = Math.max(max, min);
+        MIN = Math.min(max, min);
     }
 
 }

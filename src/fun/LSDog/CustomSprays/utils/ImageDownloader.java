@@ -6,6 +6,7 @@ import fun.LSDog.CustomSprays.Data.DataManager;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,7 @@ public class ImageDownloader implements Closeable {
     public static class TooManyDownloadException extends Exception {
     }
 
-    private static void setSimulationProp(URLConnection conn) {
+    private static void setPixivSimulationProp(URLConnection conn) {
         String url = conn.getURL().toString();
         String host = url.substring(url.indexOf("://") + 3);
         host = host.substring(0, url.indexOf("/"));
@@ -58,6 +59,23 @@ public class ImageDownloader implements Closeable {
         conn.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7");
     }
 
+    public static String inputStreamToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+        return result.toString("UTF-8");
+    }
+
+    @Override
+    public void close() {
+        if (downloadCount > 0) downloadCount--;
+        // 关闭 InputStream
+        if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
+    }
+
     /**
      * 检测url指向的图片大小是否合规
      * 0 -> ok; 1 -> connect failed; 2 -> https connect failed; 3 -> file too big; 4 -> cannot get size;
@@ -68,14 +86,13 @@ public class ImageDownloader implements Closeable {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept-Encoding", "identity");
-            setSimulationProp(conn);
+            setPixivSimulationProp(conn);
             conn.setUseCaches(false);
             conn.setConnectTimeout(10000);
-            conn.connect();
             if (conn.getResponseCode() == 403) return 4;
-            conn.getInputStream();
             int byteSize = conn.getContentLength();
-            if (byteSize == 0) return 4;
+            String contentType = conn.getContentType();
+            if ((byteSize == 0) || (contentType != null && !contentType.startsWith("image"))) return 4;
             size = byteSize/1024;
             if (size >= CustomSprays.instant.getConfig().getDouble("file_size_limit") + 1) {
                 return 3;
@@ -93,18 +110,11 @@ public class ImageDownloader implements Closeable {
         return 0;
     }
 
-    @Override
-    public void close() {
-        if (downloadCount > 0) downloadCount--;
-        // 关闭 InputStream
-        if (in != null) try { in.close(); } catch (IOException e) { e.printStackTrace(); }
-    }
-
     public BufferedImage getBufferedImage() {
         try {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            setSimulationProp(conn);
+            setPixivSimulationProp(conn);
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
             conn.setConnectTimeout(10000);
@@ -116,6 +126,4 @@ public class ImageDownloader implements Closeable {
         }
         return image;
     }
-
-
 }

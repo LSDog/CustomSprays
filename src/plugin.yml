@@ -1,5 +1,5 @@
 name: CustomSprays
-version: 1.5.5
+version: 1.6.0
 main: fun.LSDog.CustomSprays.CustomSprays
 authors: [LSDog]
 softdepend: [PlaceholderAPI,WorldEdit,FastAsyncWorldEdit,Residence,WorldGuard,GriefDefender]
@@ -7,7 +7,7 @@ api-version: 1.13
 
 commands:
   customsprays:
-    aliases: [cspray]
+    aliases: [sprays,cspray]
     description: 插件主命令 | Main command
   spray:
     description: 喷喷漆 | Do spraying
@@ -15,22 +15,28 @@ commands:
 permissions:
   CustomSprays.spray:
     default: true
-    description: 允许喷漆 | Allow spraying
+    description: 允许喷漆 | Allow spraying (/spray)
   CustomSprays.bigspray:
     default: true
-    description: 允许3*3大喷漆 | Allow 3*3 big spray
+    description: 允许3*3大喷漆 | Allow 3*3 big spray (/spray big)
   CustomSprays.copy:
     default: true
-    description: 允许复制他人图像 | Allow copying other player's spray
+    description: 允许复制他人图像 | Allow copying other player's spray (/sprays copy)
   CustomSprays.view:
     default: op
-    description: 允许查看其他玩家的图像 | Can get a image (map)view from any player (/customsprays view <player>)
+    description: 允许查看其他玩家的图像 | Can get a image(map) view from any player (/sprays view <player>)
   CustomSprays.check:
     default: op
-    description: 允许检测喷漆者 | Allow detection of sprayers from a spray (/customsprays check)
+    description: 允许检测喷漆者 | Allow detection of sprayers from a spray (/sprays check)
+  CustomSprays.delete:
+    default: op
+    description: 允许删除单个喷漆 | Allow to delete a spray (/sprays delete)
+  CustomSprays.getitem:
+    default: op
+    description: 允许获取一个喷漆物品 | Allow to get a spray item (/sprays getitem)
   CustomSprays.nocd:
     default: op
     description: 没有上传和喷涂的冷却 | No cooling for spraying and uploading
   CustomSprays.nodisable:
     default: op
-    description: 允许在 配置disabled_world,disabled_region 中禁止的地方喷漆 | Allow spraying from the world or region that in the config disabled_world, disabled_region
+    description: 允许在 配置 disabled_world, disabled_region 中禁止的地方喷漆 | Allow spraying from the world or region that in the config disabled_world, disabled_region

@@ -5,6 +5,7 @@ import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
 import fun.LSDog.CustomSprays.commands.CommandSpray;
 import fun.LSDog.CustomSprays.manager.CoolDownManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
+import fun.LSDog.CustomSprays.utils.MapColors;
 import fun.LSDog.CustomSprays.utils.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -29,14 +30,98 @@ public class CustomSprays extends JavaPlugin {
 
     public static String latestVersion = null;
 
+    /**
+     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家 <br>
+     * <b>务必使用 runTaskAsynchronously 异步执行, 否则可能造成卡顿！！</b>
+     * @param player 喷漆玩家
+     * @param isBigSpray 是否为大型喷漆
+     */
+    public static void spray(Player player, boolean isBigSpray) {
+
+        // 检测喷漆权限
+        if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
+            return;
+        }
+        // 检测禁止的世界
+        if (!player.hasPermission("CustomSprays.nodisable") && DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
+            return;
+        }
+        // 检测CD
+        if (!player.hasPermission("CustomSprays.nocd") && CoolDownManager.isSprayCooling(player)) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCD(player)+")");
+            return;
+        }
+
+
+        try {
+            // 如果 [不是大喷漆  或者  (是大喷漆却)没有大喷漆权限]
+            if (!isBigSpray || (player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray"))) {
+
+                // 小喷漆
+                byte[] bytes = DataManager.get128pxImageBytes(player);
+                if (bytes == null) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+                    return;
+                }
+                Spray spray = new Spray(player, bytes, Bukkit.getOnlinePlayers());
+                if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.setSprayCooldown(player,1);
+                    CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ());
+                }
+
+            } else {
+
+                // 大喷漆
+                int length = CustomSprays.instant.getConfig().getInt("big_size");
+                byte[] bytes;
+                if (length == 3) {
+                    bytes = DataManager.get384pxImageBytes(player);
+                } else if (length == 5) {
+                    bytes = DataManager.getSizedImageBytes(player, 640, 640);
+                } else {
+                    return;
+                }
+                if (bytes == null) {
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
+                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
+                    return;
+                }
+
+                Spray spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
+                if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
+                    CoolDownManager.setSprayCooldown(player, CustomSprays.instant.getConfig().getDouble("big_spray_cooldown_multiple"));
+                    CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        try { // ↓ SpraysManager.removeAllSpray();
+            Class.forName("fun.LSDog.CustomSprays.manager.SpraysManager").getMethod("removeAllSpray").invoke(null);
+        } catch (Exception ignored) { }
+        // cancel async tasks
+        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
+            if (bukkitWorker.getOwner().getName().equals("CustomSprays")) bukkitWorker.getThread().interrupt();
+        });
+        log("CustomSprays disabled.");
+    }
+
     @Override
     public void onEnable() {
 
         if (!config.exists()) {
             saveDefaultConfig();
         } else {
-            /*每次更迭版本的时候别忘了改这里！！*/
-            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.5) {
+            //TODO 每次更迭配置版本的时候别忘了改这里！！
+            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < 1.6) {
                 log("\n\n\n\n\n\n\n=====================\n");
                 log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
                 log("| Unsupported config detected! please delete config.yml and re-config me! \n");
@@ -66,13 +151,10 @@ public class CustomSprays extends JavaPlugin {
             log("§8[F_spray] enabled.");
         }
 
-        // 1.13 及以上 支持int
+        // 1.13 及以上 MapView 支持int
         if (getSubVer() >= 13) {
-            MapViewId.setNumbers(-2047483645,-2047483047);
+            MapViewId.setNumbers(-2048_000_000,-2048_000_999);
         }
-
-        // In progress
-        // Bukkit.getPluginManager().registerEvents(new SwapListener(), this);
 
         // 信息统计
         // https://bstats.org/plugin/bukkit/CustomSprays/13633
@@ -86,83 +168,18 @@ public class CustomSprays extends JavaPlugin {
            latestVersion = lVersion;
         });
 
-        log("§eCustomSprays§r Enabled! plugin by §b§lLSDog§r."+" §8(Running on "+getMcVer()+")");
-    }
-
-    @Override
-    public void onDisable() {
-        try { // ↓ SpraysManager.removeAllSpray();
-            Class.forName("fun.LSDog.CustomSprays.manager.SpraysManager").getMethod("removeAllSpray").invoke(null);
-        } catch (Exception ignored) { }
-        // cancel async tasks
-        Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
-            if (bukkitWorker.getOwner().getName().equals("CustomSprays")) bukkitWorker.getThread().interrupt();
-        });
-        log("CustomSprays disabled.");
-    }
-
-
-    /**
-     * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家 <br>
-     * <b>务必使用 runTaskAsynchronously 异步执行, 否则可能造成卡顿！！</b>
-     * @param player 喷漆玩家
-     * @param isBigSpray 是否为大型喷漆
-     */
-    public static void spray(Player player, boolean isBigSpray) {
-
-        // 检测喷漆权限
-        if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
-            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
-            return;
-        }
-        // 检测禁止的世界
-        if (!player.hasPermission("CustomSprays.nodisable") && DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
-            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
-            return;
-        }
-        // 检测CD
-        if (!player.hasPermission("CustomSprays.nocd") && CoolDownManager.isSprayCooling(player)) {
-            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+CoolDownManager.getSprayCool(player)+")");
-            return;
-        }
-
-
-        try {
-            // 如果 [不是大喷漆  或者  (是大喷漆却)没有大喷漆权限]
-            if (!isBigSpray || (player.isPermissionSet("CustomSprays.bigspray") && !player.hasPermission("CustomSprays.bigspray"))) {
-
-                // 小喷漆
-                byte[] bytes = DataManager.get128pxImageBytes(player);
-                if (bytes == null) {
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
-                    return;
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            if (!MapColors.isColorPaletteAvailable()) {
+                log("Loading Color Palette");
+                if (!MapColors.loadColorPalette()) {
+                    MapColors.calculateColorPalette();
+                } else {
+                    log("Color Palette Loaded! :" + MapColors.isColorPaletteAvailable());
                 }
-                Spray spray = new Spray(player, bytes, Bukkit.getOnlinePlayers());
-                if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
-                    CoolDownManager.setSprayCooldown(player,1);
-                    CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ());
-                }
-
-            } else {
-
-                // 大喷漆
-                byte[] bytes = DataManager.get384pxImageBytes(player);
-                if (bytes == null) {
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
-                    return;
-                }
-                Spray spray = new BigSpray(player, bytes, Bukkit.getOnlinePlayers());
-                if (spray.create((long) (CustomSprays.instant.getConfig().getDouble("destroy")*20L))) {
-                    CoolDownManager.setSprayCooldown(player, CustomSprays.instant.getConfig().getDouble("big_spray_cooldown_multiple"));
-                    CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
-                }
-
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+
+        log("§eCustomSprays§r Enabled! plugin by §b§lLSDog§r."+" §8(Running on "+getMcVer()+")");
     }
 
     /**

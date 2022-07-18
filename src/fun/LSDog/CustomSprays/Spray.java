@@ -3,17 +3,18 @@ package fun.LSDog.CustomSprays;
 import fun.LSDog.CustomSprays.Data.DataManager;
 import fun.LSDog.CustomSprays.manager.SpraysManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
-import fun.LSDog.CustomSprays.utils.BlockUtil;
 import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.RayTracer;
 import fun.LSDog.CustomSprays.utils.RegionChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,11 +38,12 @@ public class Spray {
     private int itemFrameId;
     protected boolean valid = true;
 
+    protected Constructor<?> cPacketPlayOutEntityDestroy;
+
     /**
-     * The constructor of Spray <br>
-     * <b>pixels must be 128*128</b>
+     * 喷漆的构造器
      * @param player The sprayer
-     * @param pixels Byte color array
+     * @param pixels Byte color array <b>必为 128*128</b>
      * @param showTo The players who can see this spray (in spraying).
      */
     public Spray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
@@ -52,13 +54,29 @@ public class Spray {
     }
 
     /**
+     * 向某个玩家播放喷漆音效
+     */
+    public static void playSpraySound(Player player) {
+        String sound = CustomSprays.instant.getConfig().getString("spray_sound");
+        if (sound == null || "default".equals(sound)) {
+            if (CustomSprays.getSubVer() == 8) player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F);
+            else player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F);
+        } else {
+            String[] strings = sound.split("-");
+            if (strings.length == 3) {
+                player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2]));
+            }
+        }
+    }
+
+    /**
      * @param removeTick 自动移除时长, 负数将不会自动移除
      */
     public boolean create(long removeTick) {
 
         Location eyeLocation = player.getEyeLocation();
         RayTracer.BlockRayTraceResult targetBlock =
-                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(BlockUtil::isSpraySurfaceBlock);
+                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(SpraysManager::isSpraySurfaceBlock);
         if (targetBlock == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆
@@ -105,18 +123,21 @@ public class Spray {
         Object mapPacket = SprayFactory.getMapPacket(mapViewId, pixels);
         Object itemFrame = SprayFactory.getItemFrame(mcMap, location, blockFace, playerLocation);
         Object spawnPacket = SprayFactory.getSpawnPacket(itemFrame, intDirection);
+
         // itemFrameId
         if (SprayFactory.itemFrame_getId == null) {
             SprayFactory.itemFrame_getId = NMS.getMcEntityItemFrameClass().getMethod(CustomSprays.getSubVer()<18?"getId":"ae");
             SprayFactory.itemFrame_getId.setAccessible(true);
         }
         itemFrameId = (int) SprayFactory.itemFrame_getId.invoke(itemFrame);
+
         // dataWatcher
         if (SprayFactory.itemFrame_getDataWatcher == null) {
             SprayFactory.itemFrame_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod(CustomSprays.getSubVer()<18?"getDataWatcher":"ai");
             SprayFactory.itemFrame_getDataWatcher.setAccessible(true);
         }
         Object dataWatcher = SprayFactory.itemFrame_getDataWatcher.invoke(itemFrame);
+
         // dataPacket
         if (SprayFactory.cPacketPlayOutEntityMetadata == null) {
             SprayFactory.cPacketPlayOutEntityMetadata = NMS.getPacketClass("PacketPlayOutEntityMetadata").getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class);
@@ -132,12 +153,12 @@ public class Spray {
         }
 
         for (Player p : $playersShowTo) {
-            NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
-            NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
-            NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
+            NMS.sendPacket(p, spawnPacket);  // 生成带地图的展示框
+            NMS.sendPacket(p, dataPacket);  // 为展示框添加 dataWatcher
+            NMS.sendPacket(p, mapPacket);  // 刷新 mapView (也就是"画图")
         }
 
-        if (playSound) SoundEffects.spray(player);
+        if (playSound) playSpraySound(player);
 
     }
 
@@ -146,7 +167,7 @@ public class Spray {
      * @param tick 延迟Tick后自毁
      */
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SpraysManager.removeSpray(this), tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, this::remove, tick);
     }
 
     /**
@@ -154,10 +175,18 @@ public class Spray {
      */
     public void remove() {
         if (!valid) return;
+        valid = false;
+        SpraysManager.removeSpray(this);
+        if (cPacketPlayOutEntityDestroy == null) {
+            try {
+                cPacketPlayOutEntityDestroy = NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             for (Player p : playersShown) {
-                if (!p.isOnline()) continue;
-                NMS.sendPacket(p, NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class).newInstance( new Object[]{new int[]{itemFrameId}} ));
+                NMS.sendPacket(p, cPacketPlayOutEntityDestroy.newInstance( new Object[]{new int[]{itemFrameId}} ));
             }
             valid = false;
         } catch (Exception e) {

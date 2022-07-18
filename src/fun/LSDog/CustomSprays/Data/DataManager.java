@@ -1,11 +1,15 @@
 package fun.LSDog.CustomSprays.Data;
 
 import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.utils.ImageUtil;
+import fun.LSDog.CustomSprays.utils.MapColors;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +47,42 @@ public class DataManager {
             return getMsg((Player) sender, path);
         }
         return CustomSprays.instant.getConfig().getString("Messages."+path);
+    }
+
+    public static byte[] getSizedImageBytes(Player player, int width, int hight) {
+
+        byte[] bytes384 = data.getImageBytes(player);
+        if (bytes384 == null || bytes384.length != 147456) {
+            if (defaultImage != null) {
+                bytes384 = defaultImage;
+            } else {
+                return null;
+            }
+        }
+
+        BufferedImage image384 = new BufferedImage(384, 384, BufferedImage.TYPE_INT_ARGB_PRE);
+        Color[] mcColors = MapColors.getMcColors();
+        int[] intColorArray = new int[384*384];
+        for (int i = 0; i < bytes384.length; i++) {
+            int index = bytes384[i];
+            intColorArray[i] = mcColors[ index >= 0 ? index : index + 256 ].getRGB();
+        }
+        image384.setRGB(0, 0, 384, 384, intColorArray, 0, 384);
+
+        BufferedImage imageSized = new BufferedImage(width, hight, BufferedImage.TYPE_INT_ARGB_PRE);
+        Graphics2D graphics2D = imageSized.createGraphics();
+        graphics2D.drawImage(image384, 0, 0, width, hight, null);
+        graphics2D.dispose();
+
+        byte[] bytes;
+        try {
+            bytes = ImageUtil.getMcColorBytes(imageSized);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return bytes;
     }
 
     public static byte[] get384pxImageBytes(Player player) {
@@ -117,22 +157,7 @@ public class DataManager {
         } else defaultImage = null;
     }
 
-    public enum StorageMethod {
-        YML, MYSQL;
-        public static StorageMethod getValue(String name) {
-            try {
-                return StorageMethod.valueOf(name);
-            } catch (IllegalArgumentException | NullPointerException e) {
-                CustomSprays.log("§c| 我们无从得知你的存储方法！设置为yml存储！");
-                CustomSprays.log("§c| We couldn't find out your storage method, so we choose YML!");
-                return YML;
-            }
-        }
-    }
-
-
-
-    public static byte[] compressBytes(byte[] bytes) {
+    static byte[] compressBytes(byte[] bytes) {
         if (bytes == null) return null;
         byte[] result = new byte[0];
         Deflater deflater = new Deflater();
@@ -152,7 +177,7 @@ public class DataManager {
         return result;
     }
 
-    public static byte[] decompressBytes(byte[] bytes) {
+    static byte[] decompressBytes(byte[] bytes) {
         if (bytes == null) return null;
         byte[] result = new byte[0];
         Inflater inflater = new Inflater();
@@ -170,6 +195,19 @@ public class DataManager {
         }
         inflater.end();
         return result;
+    }
+
+    enum StorageMethod {
+        YML, MYSQL;
+        public static StorageMethod getValue(String name) {
+            try {
+                return StorageMethod.valueOf(name);
+            } catch (IllegalArgumentException | NullPointerException e) {
+                CustomSprays.log("§c| 我们无从得知你的存储方法！设置为yml存储！");
+                CustomSprays.log("§c| We couldn't find out your storage method, so use YML as default!");
+                return YML;
+            }
+        }
     }
 
 }

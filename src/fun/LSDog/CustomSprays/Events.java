@@ -11,8 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -54,13 +54,7 @@ public class Events implements Listener {
                 DataMySQL.addAccountIfNotExist(e.getPlayer());
             }
         }, 10L);
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> SpraysManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
-            try {
-                spray.spawn(Collections.singletonList(e.getPlayer()), false);
-            } catch (ReflectiveOperationException exception) {
-                exception.printStackTrace();
-            }
-        })), 20L);
+        SpraysManager.sendExistSprays(e.getPlayer());
         if (CustomSprays.latestVersion != null && e.getPlayer().isOp()) {
             e.getPlayer().sendMessage(CustomSprays.prefix + " §6§l嘿, 管理! CustomSprays 有个更新~~ §7-> §b§l" + CustomSprays.latestVersion);
             e.getPlayer().sendMessage(CustomSprays.prefix + " §6§lHey, OP! CustomSprays has an update~~ §7-> §b§l" + CustomSprays.latestVersion);
@@ -71,7 +65,20 @@ public class Events implements Listener {
 
     @EventHandler
     public void onUse(PlayerInteractEvent e) {
-        if (e.getAction().name().contains("RIGHT") && e.hasItem() && e.getMaterial().name().equalsIgnoreCase(CustomSprays.instant.getConfig().getString("spray_item"))) {
+        if (
+                e.getAction().name().contains("RIGHT")
+                        && e.hasItem()
+                        && e.getMaterial().name().equalsIgnoreCase(CustomSprays.instant.getConfig().getString("spray_item"))
+        ) {
+            if (e.isCancelled()) return;
+            String lore = CustomSprays.instant.getConfig().getString("spray_item_lore");
+            if ( lore!=null && !lore.isEmpty()) {
+                ItemStack item = e.getItem();
+                if (!item.hasItemMeta()
+                        || !item.getItemMeta().hasLore()
+                        || !item.getItemMeta().getLore().contains(lore)
+                ) return;
+            }
             CustomSprays.spray(e.getPlayer(), e.getPlayer().isSneaking());
         }
     }

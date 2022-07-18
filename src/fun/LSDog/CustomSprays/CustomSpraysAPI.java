@@ -54,7 +54,7 @@ public class CustomSpraysAPI {
      */
     public static void setPlayerImage(Player player, BufferedImage image) {
         try {
-            setPlayerImage(player, ImageUtil.getPxMapBytes(ImageUtil.resizeImage(image, 384, 384)));
+            setPlayerImage(player, ImageUtil.getMcColorBytes(ImageUtil.resizeImage(image, 384, 384)));
         } catch (IOException e) {
             e.printStackTrace();
         }
