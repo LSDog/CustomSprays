@@ -1,5 +1,6 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.spray;
 
+import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;

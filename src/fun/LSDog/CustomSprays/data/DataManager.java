@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.Data;
+package fun.LSDog.CustomSprays.data;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.utils.ImageUtil;

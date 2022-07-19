@@ -1,7 +1,7 @@
 package fun.LSDog.CustomSprays.utils;
 
-import fun.LSDog.CustomSprays.Spray;
-import fun.LSDog.CustomSprays.manager.SpraysManager;
+import fun.LSDog.CustomSprays.spray.SpraySmall;
+import fun.LSDog.CustomSprays.spray.SpraysManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
@@ -25,7 +25,7 @@ public class SprayRayTracer extends RayTracer {
      * 检测视线中的喷漆
      * @param blockChecker 算遮挡方块
      */
-    public Spray rayTraceSpray(Predicate<Block> blockChecker) {
+    public SpraySmall rayTraceSpray(Predicate<Block> blockChecker) {
 
         // 循环向前查找方块
         while (distance <= max) {
@@ -62,8 +62,8 @@ public class SprayRayTracer extends RayTracer {
             // 循环探测中取到的方块
             Block block = world.getBlockAt(bx, by, bz); // 获取目标点的方块
 
-            Spray spray = SpraysManager.getSpray(block.getRelative(face), face); // 获取指向的可能存在的喷漆
-            Spray backSpray = SpraysManager.getSpray(block, face.getOppositeFace()); // 获取指向的可能存在的背对着视线的喷漆
+            SpraySmall spray = SpraysManager.getSpray(block.getRelative(face), face); // 获取指向的可能存在的喷漆
+            SpraySmall backSpray = SpraysManager.getSpray(block, face.getOppositeFace()); // 获取指向的可能存在的背对着视线的喷漆
             if (backSpray != null) return backSpray; // 背向视线的喷漆总是先被"指向"
             if (spray != null) return spray; // 如果没有就看看背向视角的
             if (blockChecker.test(block)) return null; // 如果是遮挡方块则返回null

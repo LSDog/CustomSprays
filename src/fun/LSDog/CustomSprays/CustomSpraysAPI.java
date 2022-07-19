@@ -1,6 +1,7 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.Data.DataManager;
+import fun.LSDog.CustomSprays.data.DataManager;
+import fun.LSDog.CustomSprays.spray.Spray;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -23,9 +24,9 @@ public class CustomSpraysAPI {
 
     /**
      * Get the manager of sprays
-     * @see fun.LSDog.CustomSprays.manager.SpraysManager
+     * @see fun.LSDog.CustomSprays.spray.SpraysManager
      */
-    public static class SpraysManager extends fun.LSDog.CustomSprays.manager.SpraysManager {
+    public static class SpraysManager extends fun.LSDog.CustomSprays.spray.SpraysManager {
     }
 
     /**
@@ -39,7 +40,7 @@ public class CustomSpraysAPI {
      * Let player spray his/her image
      */
     public static void spray(Player player, boolean isBigSpray) {
-        CustomSprays.spray(player, isBigSpray);
+        Spray.spray(player, isBigSpray);
     }
 
     /**

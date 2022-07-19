@@ -1,8 +1,9 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.Data.DataManager;
-import fun.LSDog.CustomSprays.Data.DataMySQL;
-import fun.LSDog.CustomSprays.manager.SpraysManager;
+import fun.LSDog.CustomSprays.data.DataManager;
+import fun.LSDog.CustomSprays.data.DataMySQL;
+import fun.LSDog.CustomSprays.spray.Spray;
+import fun.LSDog.CustomSprays.spray.SpraysManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,9 +39,9 @@ public class Events implements Listener {
             } else {
                 timeMap.remove(uuid);
                 if (!player.isSneaking()) { // 小喷漆
-                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> CustomSprays.spray(player, false));
+                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> Spray.spray(player, false));
                 } else { // 大喷漆
-                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> CustomSprays.spray(player, true));
+                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> Spray.spray(player, true));
                 }
             }
         });
@@ -79,7 +80,7 @@ public class Events implements Listener {
                         || !item.getItemMeta().getLore().contains(lore)
                 ) return;
             }
-            CustomSprays.spray(e.getPlayer(), e.getPlayer().isSneaking());
+            Spray.spray(e.getPlayer(), e.getPlayer().isSneaking());
         }
     }
 

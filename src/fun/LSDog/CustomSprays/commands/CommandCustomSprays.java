@@ -1,11 +1,11 @@
 package fun.LSDog.CustomSprays.commands;
 
+import fun.LSDog.CustomSprays.CoolDown;
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.Data.DataManager;
-import fun.LSDog.CustomSprays.Spray;
-import fun.LSDog.CustomSprays.SprayFactory;
-import fun.LSDog.CustomSprays.manager.CoolDownManager;
-import fun.LSDog.CustomSprays.manager.SpraysManager;
+import fun.LSDog.CustomSprays.data.DataManager;
+import fun.LSDog.CustomSprays.spray.SprayFactory;
+import fun.LSDog.CustomSprays.spray.SpraySmall;
+import fun.LSDog.CustomSprays.spray.SpraysManager;
 import fun.LSDog.CustomSprays.utils.ImageDownloader;
 import fun.LSDog.CustomSprays.utils.ImageUtil;
 import fun.LSDog.CustomSprays.utils.NMS;
@@ -70,7 +70,7 @@ public class CommandCustomSprays implements TabExecutor {
                 SpraysManager.removeAllSpray();
                 CustomSprays.instant.reloadConfig();
                 DataManager.initialize(CustomSprays.instant.getConfig().getString("storage"));
-                CoolDownManager.reset();
+                CoolDown.reset();
                 RegionChecker.reload();
                 Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
                     if (bukkitWorker.getOwner().getName().equals("CustomSprays")) //noinspection deprecation
@@ -90,14 +90,14 @@ public class CommandCustomSprays implements TabExecutor {
                             player.sendMessage(CustomSprays.prefix + ". . . . . .");
                             return;
                         }
-                        if ( !player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player) ) {
-                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
+                        if ( !player.hasPermission("CustomSprays.noCD") && CoolDown.isUploadCooling(player) ) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+ CoolDown.getUploadCool(player)+")");
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
 
                         uploadingSet.add(player.getUniqueId());
                         /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
-                        CoolDownManager.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("upload_failed_cooldown_multiple"));
+                        CoolDown.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("upload_failed_cooldown_multiple"));
 
                         if (args.length == 1) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));
@@ -137,7 +137,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }
                         int size = DataManager.saveImageBytes(player, imgBytes);
                         /* 上传成功了就用原冷却时间，所谓人性化是也~~ */
-                        CoolDownManager.setUploadCooldown(player, 1);
+                        CoolDown.setUploadCooldown(player, 1);
                         CustomSprays.debug("§f§l" + player.getName() + "§b upload §7->§r (§e§l"+ imageDownloader.size+"k§7>>§e§l"+size/1024+"k§r) " + url);
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageDownloader.close();
@@ -182,8 +182,8 @@ public class CommandCustomSprays implements TabExecutor {
                                     player.sendMessage(CustomSprays.prefix + target.getName() + DataManager.getMsg(player, "COMMAND_COPY.NOT_ALLOW"));
                                     return;
                                 }
-                                if ( !player.hasPermission("CustomSprays.noCD") && CoolDownManager.isUploadCooling(player) ) {
-                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+CoolDownManager.getUploadCool(player)+")");
+                                if ( !player.hasPermission("CustomSprays.noCD") && CoolDown.isUploadCooling(player) ) {
+                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+ CoolDown.getUploadCool(player)+")");
                                     uploadingSet.remove(player.getUniqueId()); return;
                                 }
                                 byte[] data = DataManager.data.getImageBytes(target);
@@ -192,7 +192,7 @@ public class CommandCustomSprays implements TabExecutor {
                                     return;
                                 }
                                 DataManager.saveImageBytes(player, data);
-                                CoolDownManager.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("copy_cooldown_multiple"));
+                                CoolDown.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("copy_cooldown_multiple"));
                                 sender.sendMessage(CustomSprays.prefix + "OK!" + (player.isOp()&&!allow?" §7§l(OP-bypass)":"") );
                             }
                         }
@@ -274,7 +274,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        Spray spray = SpraysManager.getSprayInSight(player);
+                        SpraySmall spray = SpraysManager.getSprayInSight(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
@@ -293,7 +293,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        Spray spray = SpraysManager.getSprayInSight(player);
+                        SpraySmall spray = SpraysManager.getSprayInSight(player);
                         if (spray != null) {
                             player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                             spray.remove();

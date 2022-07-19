@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.Data;
+package fun.LSDog.CustomSprays.data;
 
 import org.bukkit.entity.Player;
 

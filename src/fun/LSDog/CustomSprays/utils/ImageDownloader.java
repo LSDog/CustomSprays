@@ -1,7 +1,7 @@
 package fun.LSDog.CustomSprays.utils;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.Data.DataManager;
+import fun.LSDog.CustomSprays.data.DataManager;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;

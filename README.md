@@ -15,7 +15,7 @@ ___
 > |:---:|---|
 > |名字 <br> Name    |CustomSprays ~ 花样喷漆|
 > |作者 <br> Author  |LSDog|
-> |版本 <br> Version |1.5.6|
+> |版本 <br> Version |1.6.0|
 > |支持 <br> Support | Bukkit \ Spigot \ Paper **1.8 ~ 1.19** |
 > |介绍 <br> Description |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
 > |指令 <br> Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|

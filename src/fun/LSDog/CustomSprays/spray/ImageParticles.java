@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.utils;
+package fun.LSDog.CustomSprays.spray;
 
 import org.bukkit.Color;
 import org.bukkit.Location;

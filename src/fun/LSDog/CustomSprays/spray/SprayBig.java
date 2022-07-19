@@ -1,6 +1,6 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.spray;
 
-import fun.LSDog.CustomSprays.manager.SpraysManager;
+import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Bukkit;
@@ -14,7 +14,7 @@ import java.util.Collection;
 /**
  * 3*3或5*5大喷漆
  */
-public class SprayBig extends Spray {
+public class SprayBig extends SpraySmall {
 
     private final int length;
     private final int[] itemFrameIds; // 九宫格展示框ID (0 ~ length*length)
@@ -23,8 +23,8 @@ public class SprayBig extends Spray {
     /**
      * BigSpray 的构造器 <br>
      *
-     * @see fun.LSDog.CustomSprays.Data.DataManager#get384pxImageBytes(Player)
-     * @see fun.LSDog.CustomSprays.Data.DataManager#getSizedImageBytes(Player, int, int)
+     * @see fun.LSDog.CustomSprays.data.DataManager#get384pxImageBytes(Player)
+     * @see fun.LSDog.CustomSprays.data.DataManager#getSizedImageBytes(Player, int, int)
      * @param player 喷漆的玩家
      * @param pixels Byte color array <b>必为 384*384 或 640*640</b>
      * @param showTo 能看到这个喷漆的玩家
@@ -108,7 +108,7 @@ public class SprayBig extends Spray {
 
         }
 
-        if (playSound) Spray.playSpraySound(player);
+        if (playSound) SpraySmall.playSpraySound(player);
 
     }
 

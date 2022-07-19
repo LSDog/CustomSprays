@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.metrics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;

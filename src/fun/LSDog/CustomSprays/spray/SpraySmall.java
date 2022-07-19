@@ -1,7 +1,7 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.spray;
 
-import fun.LSDog.CustomSprays.Data.DataManager;
-import fun.LSDog.CustomSprays.manager.SpraysManager;
+import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.RayTracer;
@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * 喷漆本体，包括所有的反射发包方法
  */
-public class Spray {
+public class SpraySmall {
 
     public final Player player;
     protected final World world;
@@ -46,7 +46,7 @@ public class Spray {
      * @param pixels Byte color array <b>必为 128*128</b>
      * @param showTo The players who can see this spray (in spraying).
      */
-    public Spray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
+    public SpraySmall(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         this.player = player;
         this.world = player.getWorld();
         this.pixels = pixels;

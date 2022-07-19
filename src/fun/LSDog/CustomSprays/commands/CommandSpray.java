@@ -1,7 +1,8 @@
 package fun.LSDog.CustomSprays.commands;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.Data.DataManager;
+import fun.LSDog.CustomSprays.data.DataManager;
+import fun.LSDog.CustomSprays.spray.Spray;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -21,17 +22,17 @@ public class CommandSpray implements TabExecutor {
             if (args.length != 0) {
                 // 大喷漆
                 if (args[0].equalsIgnoreCase("big")) {
-                    CustomSprays.spray(player, true);
+                    Spray.spray(player, true);
                     return;
                 } else if (args[0].equalsIgnoreCase("small")) {
-                    CustomSprays.spray(player, false);
+                    Spray.spray(player, false);
                     return;
                 }
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.TOO_MANY_ARGUMENTS"));
                 return;
             }
             // 小喷漆
-            CustomSprays.spray(player, false);
+            Spray.spray(player, false);
         });
         return true;
     }

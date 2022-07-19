@@ -1,13 +1,12 @@
-package fun.LSDog.CustomSprays.manager;
+package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.CustomSprays;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CoolDownManager {
+public class CoolDown {
 
     private static final Map<UUID, Long> sprayCooldown = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> uploadCooldown = new ConcurrentHashMap<>();
