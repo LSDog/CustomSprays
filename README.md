@@ -11,19 +11,20 @@
 ## 📢 介绍 | Introduce
 ___
 >
-> |*Name*|*Content*|
-> |:---:|---|
-> |名字 <br> Name    |CustomSprays ~ 花样喷漆|
-> |作者 <br> Author  |LSDog|
-> |版本 <br> Version |1.6.0|
-> |支持 <br> Support | Bukkit \ Spigot \ Paper **1.8 ~ 1.19** |
-> |介绍 <br> Description |让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server!|
-> |指令 <br> Cmd     |`/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆|
-> |权限 <br> Perm    |请见 / see "config.yml"|
+> |*Name*|                             *Content*                              |
+> |:------------------------------------------------------------------:|---|
+> |名字 <br> Name    |                        CustomSprays ~ 花样喷漆                         |
+> |作者 <br> Author  |                               LSDog                                |
+> |版本 <br> Version |                               1.5.6                                |
+> |支持 <br> Support |               Bukkit \ Spigot \ Paper **1.8 ~ 1.19**               |
+> |介绍 <br> Description | 让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server! |
+> |指令 <br> Cmd     |    `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆    |
+> |权限 <br> Perm    |                       请见 / see "config.yml"                        |
 > 
-> Mcbbs >> https://www.mcbbs.net/thread-1289391-1-1.html
->
-> Spigot >> https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/
+> Links:
+> - [Mcbbs](https://www.mcbbs.net/thread-1289391-1-1.html)
+> - [Spigot](https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/)
+> - [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
 
 ## ⏬ **下载 | Download**: [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
 ### [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !! [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
@@ -71,9 +72,9 @@ ___
 
 > 📏 支持的"领域"插件:  
 > 📏 Supported "region" plugins:
->    * Residence - [ *x* ~ 5.0.1.3+ ]
->    * WorldGuard - [ 6.*x* ~ 7.*x* ]
->    * GriefDefender - [ *x* ~ 2.1.4+ ]
+>    * Residence - [ *?* ~ 5.0.1.3+ ]
+>    * WorldGuard - [ 6.*?* ~ 7.*x* ]
+>    * GriefDefender - [ *?* ~ 2.1.4+ ]
 > 
 > (理论上能支持更新的版本 | newer versions should be ok)
 
@@ -105,7 +106,11 @@ ___
 
 
 - 🔗 玩家上传图片链接 >> 文本存储图片 (image->base64) >> 喷漆后自动消失   
-- 🔗Player uploads link >> Storage image (image->base64) >> spray auto disappear 
+- 🔗 Player uploads link >> Storage image (image->base64) >> spray auto disappear 
+
+
+- 💴 或者使用 Vault 经济花钱喷漆！
+- 💴 Or use Vault cost money for spraying！
 
 
 ## ⚡ 注意事项
@@ -132,11 +137,11 @@ ___
 
 ## 💖 & DONATE
 ___
-本项目由 [PixelMC](http://pixelmc.cn/) 团队提供长期支持与维护
-
-![logo](banner_logo.png)
-
 
 ### 爱发电 | Aifadian  https://afdian.net/@LSDog
 
 ![who use? I use!](https://bstats.org/signatures/bukkit/CustomSprays.svg)
+
+本项目由 [PixelMC](http://pixelmc.cn/) 团队提供长期支持与维护
+
+![logo](banner_logo.png)

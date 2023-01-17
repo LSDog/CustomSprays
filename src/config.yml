@@ -21,6 +21,8 @@
 #
 #  CustomSprays.nodisable: op: 允许在 配置 [disabled_world], [disabled_region] 的地方喷漆 | Allow spraying at world or region that in the config [disabled_world], [disabled_region]
 #
+#  CustomSprays.nomoney:   op: 不花钱就能喷漆 | No money cost for spraying
+#
 # # # # # # # # # # # # # # # # # # # # # # # #
 
 
