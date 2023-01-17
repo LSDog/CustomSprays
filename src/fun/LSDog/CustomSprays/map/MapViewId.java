@@ -1,6 +1,6 @@
 package fun.LSDog.CustomSprays.map;
 
-import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.utils.NMS;
 
 /**
  * 获取一个 用作标识的 MapviewID <br>
@@ -18,7 +18,7 @@ public class MapViewId {
     }
 
     public static void setNumbers(int max, int min) {
-        if (CustomSprays.getSubVer() < 13) {
+        if (NMS.getSubVer() < 13) {
             if (max > 32767 || max < -32768 || min > 32767 || min < -32768) return;
         }
         MAX = Math.max(max, min);

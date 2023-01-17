@@ -6,6 +6,7 @@ import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.NMS;
 import fun.LSDog.CustomSprays.utils.RayTracer;
 import fun.LSDog.CustomSprays.utils.RegionChecker;
+import fun.LSDog.CustomSprays.utils.VaultChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -14,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * 喷漆本体，包括所有的反射发包方法
  */
-public class SpraySmall {
+public class SprayBase {
 
     public final Player player;
     protected final World world;
@@ -38,15 +38,13 @@ public class SpraySmall {
     private int itemFrameId;
     protected boolean valid = true;
 
-    protected Constructor<?> cPacketPlayOutEntityDestroy;
-
     /**
      * 喷漆的构造器
      * @param player The sprayer
      * @param pixels Byte color array <b>必为 128*128</b>
      * @param showTo The players who can see this spray (in spraying).
      */
-    public SpraySmall(Player player, byte[] pixels, Collection<? extends Player> showTo) {
+    public SprayBase(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         this.player = player;
         this.world = player.getWorld();
         this.pixels = pixels;
@@ -57,9 +55,9 @@ public class SpraySmall {
      * 向某个玩家播放喷漆音效
      */
     public static void playSpraySound(Player player) {
-        String sound = CustomSprays.instant.getConfig().getString("spray_sound");
+        String sound = CustomSprays.instance.getConfig().getString("spray_sound");
         if (sound == null || "default".equals(sound)) {
-            if (CustomSprays.getSubVer() == 8) player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F);
+            if (NMS.getSubVer() == 8) player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F);
             else player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F);
         } else {
             String[] strings = sound.split("-");
@@ -76,25 +74,34 @@ public class SpraySmall {
 
         Location eyeLocation = player.getEyeLocation();
         RayTracer.BlockRayTraceResult targetBlock =
-                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instant.getConfig().getDouble("distance")).rayTraceBlock(SpraysManager::isSpraySurfaceBlock);
+                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instance.getConfig().getDouble("distance")).rayTraceBlock(SprayManager::isSpraySurfaceBlock);
         if (targetBlock == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆
-        if (targetBlock.isUpOrDown() && ( CustomSprays.getSubVer() < 13 || !CustomSprays.instant.getConfig().getBoolean("spray_on_ground") )) return false;
+        if (targetBlock.isUpOrDown() && ( NMS.getSubVer() < 13 || !CustomSprays.instance.getConfig().getBoolean("spray_on_ground") )) return false;
 
         this.block = targetBlock.getRelativeBlock();
         this.location = block.getLocation();
         this.blockFace = targetBlock.blockFace;
         this.playerLocation = player.getLocation();
-        this.intDirection = SprayFactory.blockFaceToIntDirection(blockFace);
+        this.intDirection = MapFrameFactory.blockFaceToIntDirection(blockFace);
 
         // ↓喷漆占用就取消
-        if (SpraysManager.getSpray(targetBlock.getRelativeBlock(), blockFace) != null) return false;
+        if (SprayManager.getSpray(targetBlock.getRelativeBlock(), blockFace) != null) return false;
 
         // 喷漆在禁止区域就取消
         if (!player.hasPermission("CustomSprays.nodisable") && RegionChecker.isLocInDisabledRegion(location)) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_REGION"));
             return false;
+        }
+
+        double cost = CustomSprays.instance.getConfig().getDouble((this instanceof SprayBig) ? "spray_big_cost" : "spray_cost");
+        if (cost != 0 && !player.hasPermission("CustomSprays.nomoney") && VaultChecker.isVaultEnabled()) {
+            if (VaultChecker.costMoney(player, 5)) {
+                player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.COST").replace("%cost%", cost+""));
+            } else {
+                player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_MONEY").replace("%cost%", cost+""));
+            }
         }
 
         try {
@@ -103,7 +110,7 @@ public class SpraySmall {
             e.printStackTrace();
             return false;
         }
-        SpraysManager.addSpray(this);
+        SprayManager.addSpray(this);
         if (removeTick >= 0) autoRemove(removeTick);
 
         return true;
@@ -119,31 +126,13 @@ public class SpraySmall {
 
         int mapViewId = MapViewId.getId();
 
-        Object mcMap = SprayFactory.getMcMap(mapViewId);
-        Object mapPacket = SprayFactory.getMapPacket(mapViewId, pixels);
-        Object itemFrame = SprayFactory.getItemFrame(mcMap, location, blockFace, playerLocation);
-        Object spawnPacket = SprayFactory.getSpawnPacket(itemFrame, intDirection);
+        Object mcMap = MapFrameFactory.getMcMap(mapViewId);
+        Object mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
+        Object itemFrame = MapFrameFactory.getItemFrame(mcMap, location, blockFace, playerLocation);
+        Object spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
 
-        // itemFrameId
-        if (SprayFactory.itemFrame_getId == null) {
-            SprayFactory.itemFrame_getId = NMS.getMcEntityItemFrameClass().getMethod(CustomSprays.getSubVer()<18?"getId":"ae");
-            SprayFactory.itemFrame_getId.setAccessible(true);
-        }
-        itemFrameId = (int) SprayFactory.itemFrame_getId.invoke(itemFrame);
-
-        // dataWatcher
-        if (SprayFactory.itemFrame_getDataWatcher == null) {
-            SprayFactory.itemFrame_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod(CustomSprays.getSubVer()<18?"getDataWatcher":"ai");
-            SprayFactory.itemFrame_getDataWatcher.setAccessible(true);
-        }
-        Object dataWatcher = SprayFactory.itemFrame_getDataWatcher.invoke(itemFrame);
-
-        // dataPacket
-        if (SprayFactory.cPacketPlayOutEntityMetadata == null) {
-            SprayFactory.cPacketPlayOutEntityMetadata = NMS.getPacketClass("PacketPlayOutEntityMetadata").getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class);
-            SprayFactory.cPacketPlayOutEntityMetadata.setAccessible(true);
-        }
-        Object dataPacket = SprayFactory.cPacketPlayOutEntityMetadata.newInstance(itemFrameId, dataWatcher, false);
+        itemFrameId = NMS.getMcEntityId(itemFrame);
+        Object dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
 
         Collection<? extends Player> $playersShowTo = playersShown;
 
@@ -167,7 +156,7 @@ public class SpraySmall {
      * @param tick 延迟Tick后自毁
      */
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, this::remove, tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, this::remove, tick);
     }
 
     /**
@@ -176,22 +165,8 @@ public class SpraySmall {
     public void remove() {
         if (!valid) return;
         valid = false;
-        SpraysManager.removeSpray(this);
-        if (cPacketPlayOutEntityDestroy == null) {
-            try {
-                cPacketPlayOutEntityDestroy = NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            for (Player p : playersShown) {
-                NMS.sendPacket(p, cPacketPlayOutEntityDestroy.newInstance( new Object[]{new int[]{itemFrameId}} ));
-            }
-            valid = false;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SprayManager.removeSpray(this);
+        NMS.sendDestroyEntities(new int[]{itemFrameId}, playersShown);
     }
 
 }

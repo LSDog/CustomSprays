@@ -1,17 +1,14 @@
 package fun.LSDog.CustomSprays.commands;
 
-import fun.LSDog.CustomSprays.CoolDown;
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
-import fun.LSDog.CustomSprays.spray.SprayFactory;
-import fun.LSDog.CustomSprays.spray.SpraySmall;
-import fun.LSDog.CustomSprays.spray.SpraysManager;
-import fun.LSDog.CustomSprays.utils.ImageDownloader;
-import fun.LSDog.CustomSprays.utils.ImageUtil;
-import fun.LSDog.CustomSprays.utils.NMS;
-import fun.LSDog.CustomSprays.utils.RegionChecker;
+import fun.LSDog.CustomSprays.spray.MapFrameFactory;
+import fun.LSDog.CustomSprays.spray.SprayBase;
+import fun.LSDog.CustomSprays.spray.SprayManager;
+import fun.LSDog.CustomSprays.utils.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -44,9 +41,9 @@ public class CommandCustomSprays implements TabExecutor {
     @Override
     @SuppressWarnings({"deprecation"})
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        FileConfiguration config = CustomSprays.instant.getConfig();
+        FileConfiguration config = CustomSprays.instance.getConfig();
         if (args.length == 0) {
-            sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.instant.getDescription().getVersion() + "§r" +
+            sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.instance.getDescription().getVersion() + "§r" +
                     "\n    §b/sprays§r §3upload§l <url> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.UPLOAD") +
                     (sender.hasPermission("CustomSprays.copy") ? "\n    §b/sprays§r §3copy§l <player> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.COPY") : "") +
                     (sender.hasPermission("CustomSprays.view") ? "\n    §b/sprays§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") : "") +
@@ -67,11 +64,12 @@ public class CommandCustomSprays implements TabExecutor {
                     sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(sender, "NO_PERMISSION"));
                     return true;
                 }
-                SpraysManager.removeAllSpray();
-                CustomSprays.instant.reloadConfig();
-                DataManager.initialize(CustomSprays.instant.getConfig().getString("storage"));
+                SprayManager.removeAllSpray();
+                CustomSprays.instance.reloadConfig();
+                DataManager.initialize(CustomSprays.instance.getConfig().getString("storage"));
                 CoolDown.reset();
                 RegionChecker.reload();
+                VaultChecker.reload();
                 Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
                     if (bukkitWorker.getOwner().getName().equals("CustomSprays")) //noinspection deprecation
                         bukkitWorker.getThread().stop();
@@ -97,7 +95,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                         uploadingSet.add(player.getUniqueId());
                         /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
-                        CoolDown.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("upload_failed_cooldown_multiple"));
+                        CoolDown.setUploadCooldown(player, CustomSprays.instance.getConfig().getDouble("upload_failed_cooldown_multiple"));
 
                         if (args.length == 1) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));
@@ -143,7 +141,7 @@ public class CommandCustomSprays implements TabExecutor {
                         imageDownloader.close();
                         uploadingSet.remove(player.getUniqueId());
                     }
-                }.runTaskAsynchronously(CustomSprays.instant);
+                }.runTaskAsynchronously(CustomSprays.instance);
                 break;
 
 
@@ -192,12 +190,12 @@ public class CommandCustomSprays implements TabExecutor {
                                     return;
                                 }
                                 DataManager.saveImageBytes(player, data);
-                                CoolDown.setUploadCooldown(player, CustomSprays.instant.getConfig().getDouble("copy_cooldown_multiple"));
+                                CoolDown.setUploadCooldown(player, CustomSprays.instance.getConfig().getDouble("copy_cooldown_multiple"));
                                 sender.sendMessage(CustomSprays.prefix + "OK!" + (player.isOp()&&!allow?" §7§l(OP-bypass)":"") );
                             }
                         }
                     }
-                }.runTaskAsynchronously(CustomSprays.instant);
+                }.runTaskAsynchronously(CustomSprays.instance);
                 break;
 
             case "view":
@@ -214,7 +212,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }
 
                         Player targetPlayer;
-                        if (args.length <= 1) {
+                        if (args.length == 1) {
                             targetPlayer = player;
                         } else {
                             targetPlayer = Bukkit.getPlayerExact(args[1]);
@@ -230,28 +228,29 @@ public class CommandCustomSprays implements TabExecutor {
                         if (targetPlayer == null) {
                             sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.NO_PLAYER")); return;
                         }
-                        if (DataManager.get128pxImageBytes(targetPlayer) == null) {
+                        byte[] imageBytes = DataManager.get128pxImageBytes(targetPlayer);
+                        if (imageBytes == null) {
                             targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " " + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
                         // check image by showing item
                         short id = 0;
                         try {
-                            if (CustomSprays.getSubVer() < 17) {
+                            if (NMS.getSubVer() < 17) {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
                                         .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
-                                        .newInstance(0,36+player.getInventory().getHeldItemSlot(), SprayFactory.getMcMap(id)));
+                                        .newInstance(0,36+player.getInventory().getHeldItemSlot(), MapFrameFactory.getMcMap(id)));
                             } else {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
                                         .getConstructor(int.class, int.class, int.class, NMS.getMcItemStackClass())
-                                        .newInstance(0,0,36+player.getInventory().getHeldItemSlot(), SprayFactory.getMcMap(id)));
+                                        .newInstance(0,0,36+player.getInventory().getHeldItemSlot(), MapFrameFactory.getMcMap(id)));
                             }
-                            NMS.sendPacket(player, SprayFactory.getMapPacket(id, DataManager.get128pxImageBytes(player)));
+                            NMS.sendPacket(player, MapFrameFactory.getMapPacket(id, imageBytes));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        Bukkit.getScheduler().runTaskLater(CustomSprays.instant, () -> {
+                        Bukkit.getScheduler().runTaskLater(CustomSprays.instance, () -> {
                             player.updateInventory();
-                            MapView mapView = CustomSprays.getSubVer() > 12 ? Bukkit.getMap(id) : null;
+                            MapView mapView = NMS.getSubVer() > 12 ? Bukkit.getMap(id) : null;
                             if (mapView == null) {
                                 mapView = Bukkit.createMap(player.getWorld());
                             }
@@ -259,7 +258,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }, 30);
                         sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
                     }
-                }.runTask(CustomSprays.instant);
+                }.runTask(CustomSprays.instance);
                 break;
 
             case "check":
@@ -274,11 +273,11 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        SpraySmall spray = SpraysManager.getSprayInSight(player);
+                        SprayBase spray = SprayManager.getSprayInSight(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
-                }.runTaskAsynchronously(CustomSprays.instant);
+                }.runTaskAsynchronously(CustomSprays.instance);
                 break;
 
             case "delete":
@@ -293,24 +292,24 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        SpraySmall spray = SpraysManager.getSprayInSight(player);
+                        SprayBase spray = SprayManager.getSprayInSight(player);
                         if (spray != null) {
                             player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                             spray.remove();
                         }
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
-                }.runTaskAsynchronously(CustomSprays.instant);
+                }.runTaskAsynchronously(CustomSprays.instance);
                 break;
 
             case "getitem":
                 if (!sender.isOp()) return true;
                 if (player != null) {
-                    ItemStack item = new ItemStack(Material.matchMaterial(CustomSprays.instant.getConfig().getString("spray_item")));
+                    ItemStack item = new ItemStack(Material.matchMaterial(CustomSprays.instance.getConfig().getString("spray_item")));
                     ItemMeta itemMeta = item.getItemMeta();
-                    String lore = CustomSprays.instant.getConfig().getString("spray_item_lore");
-                    if (lore != null) itemMeta.setLore(Collections.singletonList(lore));
-                    itemMeta.setDisplayName("§f\u2743"); //It's ❃
+                    String lore = CustomSprays.instance.getConfig().getString("spray_item_lore");
+                    if (lore != null) itemMeta.setLore(Collections.singletonList( ChatColor.translateAlternateColorCodes('&', lore) ));
+                    itemMeta.setDisplayName("§f❃");
                     item.setItemMeta(itemMeta);
                     player.getInventory().addItem(item);
                 }

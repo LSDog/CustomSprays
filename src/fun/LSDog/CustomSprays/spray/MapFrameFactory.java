@@ -1,6 +1,5 @@
 package fun.LSDog.CustomSprays.spray;
 
-import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
@@ -13,11 +12,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SprayFactory {
+public class MapFrameFactory {
 
-    static Constructor<?> cPacketPlayOutEntityMetadata;
-    static Method itemFrame_getId;
-    static Method itemFrame_getDataWatcher;
     static Constructor<?> cItemFrame;
     static Method ItemFrame_setInvisible;
     static Method ItemFrame_setSilent;
@@ -41,57 +37,57 @@ public class SprayFactory {
      * @return NMS ItemFrame
      */
     protected static Object getItemFrame(Object mcMap, Location location, BlockFace blockFace, Location playerLocation) throws ReflectiveOperationException {
-        int subVer = CustomSprays.getSubVer();
+        int subVer = NMS.getSubVer();
         Object itemFrame;
-        if (SprayFactory.cItemFrame == null) {
-            SprayFactory.cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass());
-            SprayFactory.cItemFrame.setAccessible(true);
+        if (cItemFrame == null) {
+            cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass());
+            cItemFrame.setAccessible(true);
         }
-        itemFrame = SprayFactory.cItemFrame.newInstance(NMS.getMcWorld(location.getWorld()), NMS.getMcBlockPosition(location), SprayFactory.blockFaceToEnumDirection(blockFace));
+        itemFrame = cItemFrame.newInstance(NMS.getMcWorld(location.getWorld()), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
 
         // 设为隐形（展示框、1.16以上为真隐形）
-        if (SprayFactory.ItemFrame_setInvisible == null)
+        if (ItemFrame_setInvisible == null)
             if (subVer <= 17) {
-                SprayFactory.ItemFrame_setInvisible = NMS.getMcEntityItemFrameClass().getMethod("setInvisible", boolean.class);
-                SprayFactory.ItemFrame_setInvisible.setAccessible(true);
+                ItemFrame_setInvisible = NMS.getMcEntityItemFrameClass().getMethod("setInvisible", boolean.class);
+                ItemFrame_setInvisible.setAccessible(true);
             } else {
-                SprayFactory.ItemFrame_setInvisible = NMS.getMcEntityItemFrameClass().getMethod("j", boolean.class);
-                SprayFactory.ItemFrame_setInvisible.setAccessible(true);
+                ItemFrame_setInvisible = NMS.getMcEntityItemFrameClass().getMethod("j", boolean.class);
+                ItemFrame_setInvisible.setAccessible(true);
             }
-        SprayFactory.ItemFrame_setInvisible.invoke(itemFrame, true);
+        ItemFrame_setInvisible.invoke(itemFrame, true);
 
         // 设为静音（展示框）
-        if (SprayFactory.ItemFrame_setSilent == null) switch (subVer) {
-            case 8: SprayFactory.ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("b", boolean.class); SprayFactory.ItemFrame_setSilent.setAccessible(true); break;
-            case 9: SprayFactory.ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("c", boolean.class); SprayFactory.ItemFrame_setSilent.setAccessible(true); break;
+        if (ItemFrame_setSilent == null) switch (subVer) {
+            case 8: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("b", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
+            case 9: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("c", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
             case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17:
-                SprayFactory.ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("setSilent", boolean.class); SprayFactory.ItemFrame_setSilent.setAccessible(true); break;
-            default: SprayFactory.ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("d", boolean.class); SprayFactory.ItemFrame_setSilent.setAccessible(true); break;
+                ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("setSilent", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
+            default: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("d", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
         }
-        SprayFactory.ItemFrame_setSilent.invoke(itemFrame, true);
+        ItemFrame_setSilent.invoke(itemFrame, true);
 
         // 设置物品
         if (subVer <= 17) {
-            if (SprayFactory.ItemFrame_setItem == null) {
-                SprayFactory.ItemFrame_setItem = NMS.getMcEntityItemFrameClass().getMethod("setItem", NMS.getMcItemStackClass());
-                SprayFactory.ItemFrame_setItem.setAccessible(true);
+            if (ItemFrame_setItem == null) {
+                ItemFrame_setItem = NMS.getMcEntityItemFrameClass().getMethod("setItem", NMS.getMcItemStackClass());
+                ItemFrame_setItem.setAccessible(true);
             }
-            SprayFactory.ItemFrame_setItem.invoke(itemFrame, mcMap);
+            ItemFrame_setItem.invoke(itemFrame, mcMap);
         } else {
-            if (SprayFactory.ItemFrame_setItem == null) {
-                SprayFactory.ItemFrame_setItem = NMS.getMcEntityItemFrameClass().getMethod("setItem", NMS.getMcItemStackClass(), boolean.class, boolean.class);
-                SprayFactory.ItemFrame_setItem.setAccessible(true);
+            if (ItemFrame_setItem == null) {
+                ItemFrame_setItem = NMS.getMcEntityItemFrameClass().getMethod("setItem", NMS.getMcItemStackClass(), boolean.class, boolean.class);
+                ItemFrame_setItem.setAccessible(true);
             }
-            SprayFactory.ItemFrame_setItem.invoke(itemFrame, mcMap, false, false);
+            ItemFrame_setItem.invoke(itemFrame, mcMap, false, false);
         }
 
         // 设置旋转
         if (blockFace == BlockFace.DOWN || blockFace == BlockFace.UP) {
-            if (SprayFactory.ItemFrame_setRotation == null) {
-                SprayFactory.ItemFrame_setRotation = itemFrame.getClass().getDeclaredMethod( subVer<=17 ? "setRotation" : "a", int.class, boolean.class);
-                SprayFactory.ItemFrame_setRotation.setAccessible(true);
+            if (ItemFrame_setRotation == null) {
+                ItemFrame_setRotation = itemFrame.getClass().getDeclaredMethod( subVer<=17 ? "setRotation" : "a", int.class, boolean.class);
+                ItemFrame_setRotation.setAccessible(true);
             }
-            SprayFactory.ItemFrame_setRotation.invoke(itemFrame, SprayFactory.getItemFrameRotate(playerLocation, blockFace), false);
+            ItemFrame_setRotation.invoke(itemFrame, getItemFrameRotate(playerLocation, blockFace), false);
         }
         return itemFrame;
     }
@@ -101,7 +97,7 @@ public class SprayFactory {
      * 获取生成 ItemFrame 的包
      */
     protected static Object getSpawnPacket(Object itemFrame, int intDirection) throws ReflectiveOperationException {
-        int subVer = CustomSprays.getSubVer();
+        int subVer = NMS.getSubVer();
         if (subVer <= 13) {
             /* ItemFrame, ItemFrameID:71, Data:Facing(int) */
             return NMS.getPacketClass("PacketPlayOutSpawnEntity")
@@ -119,7 +115,7 @@ public class SprayFactory {
      * 获取 NMS map
      */
     public static Object getMcMap(int mapViewId) throws ReflectiveOperationException {
-        int subVer = CustomSprays.getSubVer();
+        int subVer = NMS.getSubVer();
         Object mcMap;
         if (subVer <= 12) {
             // MAP
@@ -134,8 +130,10 @@ public class SprayFactory {
                 itemFieldName = "FILLED_MAP";
             } else if (subVer <= 18) {
                 itemFieldName = "pp";
-            } else {
+            } else if (subVer == 19 && NMS.getSubRVer() ==1) {
                 itemFieldName = "qc";
+            } else {
+                itemFieldName = "qE";
             }
             // MAP
             if (cItem == null) {
@@ -190,7 +188,7 @@ public class SprayFactory {
      * @return 发送Map图案的包
      */
     public static Object getMapPacket(int mapViewId, byte[] pixels) throws ReflectiveOperationException {
-        int subVer = CustomSprays.getSubVer();
+        int subVer = NMS.getSubVer();
         Object mapPacket;
         if (subVer == 8) {
             if (cPacketPlayOutMap == null) {
@@ -247,7 +245,7 @@ public class SprayFactory {
 
     protected static int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
-        if (CustomSprays.getSubVer() <= 12) {
+        if (NMS.getSubVer() <= 12) {
             switch (face) {
                 case SOUTH: return 0;
                 case WEST: return 1;
@@ -272,7 +270,7 @@ public class SprayFactory {
      * 根据玩家朝向和方块的上下面计算展示框的旋转
      */
     protected static int getItemFrameRotate(Location location, BlockFace face) {
-        if (CustomSprays.getSubVer() <= 16) {
+        if (NMS.getSubVer() <= 16) {
             float yaw = location.getYaw() % 360;
             if (135 < yaw && yaw <= 225) return 0;
             else if (225 < yaw && yaw <= 315) return face==BlockFace.DOWN ? 3 : 1;
@@ -282,7 +280,8 @@ public class SprayFactory {
             float yaw = location.getYaw() % 360;
             if (135 < yaw || yaw <= -135) return 0;
             else if (-135 < yaw && yaw <= -45) return face==BlockFace.DOWN ? 3 : 1;
-            else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
+            else if (45 < yaw) return face==BlockFace.DOWN ? 1 : 3;
+            //else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
             else return 2;
         }
     }
@@ -295,7 +294,6 @@ public class SprayFactory {
         if (length % 2 == 0) return new Location[0];
         boolean isUpOrDown = (face == BlockFace.UP) || (face == BlockFace.DOWN);
         int modX = face.getModX();
-        int modY = face.getModY();
         int modZ = face.getModZ();
         int count = length * length;
         int half = (length - 1) / 2;
@@ -312,7 +310,7 @@ public class SprayFactory {
                 locs[i] = center.clone().add(flatX * modZ, flatY, flatX * modX);
             }
         } else {
-            int rotation = SprayFactory.getItemFrameRotate(playerLocation, face);
+            int rotation = getItemFrameRotate(playerLocation, face);
             boolean isNS = rotation % 2 == 0;
             int mulX;
             int mulY;

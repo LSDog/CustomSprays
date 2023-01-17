@@ -18,8 +18,8 @@ import java.util.Base64;
 public class DataYml implements IData {
 
     public DataYml() throws IOException {
-        if (!CustomSprays.instant.playerDataFolder.exists()) {
-            if (!CustomSprays.instant.playerDataFolder.mkdirs()) {
+        if (!CustomSprays.instance.playerDataFolder.exists()) {
+            if (!CustomSprays.instance.playerDataFolder.mkdirs()) {
                 throw new IOException("CustomSprays: can not create data folder!");
             }
         }
@@ -119,7 +119,7 @@ public class DataYml implements IData {
     }
 
     public static String getDataPath(Player player) {
-        return CustomSprays.instant.playerDataFolder.getAbsolutePath() + File.separator + player.getUniqueId() + ".yml";
+        return CustomSprays.instance.playerDataFolder.getAbsolutePath() + File.separator + player.getUniqueId() + ".yml";
     }
 
     private static File getOrCreateData(Player player) throws IOException {

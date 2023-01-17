@@ -16,7 +16,7 @@ import java.util.function.Predicate;
  *     new RayTracer(player.getEyeLocation.getDirection(), player.getEyeLocation(), 4.5).rayTraceBlock(block -> {return block.getType()!=Material.AIR});
  * </p>
  * <br>
- * 另带一提: 这个 RayTracer 和 BlockIterator 的耗时之比在 1.5倍 左右，我觉得还是挺快的了，你看咱这个还能获取到方块面和交点呢 ε=ε=ε=(~￣▽￣)~
+ * 另带一提: 这个 RayTracer 和 BlockIterator 的耗时就差了 0.3毫秒 左右，我觉得还是挺快的了，你看咱这个还能获取到方块面和交点呢 ε=ε=ε=(~￣▽￣)~
  */
 public class RayTracer {
 
@@ -32,8 +32,6 @@ public class RayTracer {
     boolean isMultiCross = false;           // 代表一次前进是否跨越了多于一个的面
     BlockFace face;                         // 循环探测中指向的方块面
     final BlockFace[] faces;                // 可能的方块面, 众所周知在现实生活中最多能看到方块的3个面，除非你带了什么魔镜
-
-    private BlockRayTraceResult result;     // 方块追踪结果
 
     static final double STEP_LONG = 1;      // 理论在(0,1]可用, 数字越大越快, 但是数字越小也不见得会越精准, 我的建议是不要改
     static final double ACC = 0.00001;       // 还是不要乱动为好呢... (取值准确度, 过于准确会导致究极死亡无限glitch)
@@ -75,7 +73,7 @@ public class RayTracer {
      */
     public BlockRayTraceResult rayTraceBlock(Predicate<Block> blockChecker) {
 
-        if (result != null) return result; // 如果有人闲的没事复用的话...
+        // if (result != null) return result; // 复用时直接返回结果
 
         // 循环向前查找方块
         while (distance <= max) {
@@ -123,8 +121,8 @@ public class RayTracer {
                     distance = length;
                     x -= stepX * m; y -= stepY * m; z -= stepZ * m;
                 }
-                this.result = new BlockRayTraceResult(new Vector(x, y, z), block, face, distance);
-                return result;
+                // 方块追踪结果
+                return new BlockRayTraceResult(new Vector(x, y, z), block, face, distance);
             }
         }
 

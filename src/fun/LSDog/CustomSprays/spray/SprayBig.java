@@ -14,7 +14,7 @@ import java.util.Collection;
 /**
  * 3*3或5*5大喷漆
  */
-public class SprayBig extends SpraySmall {
+public class SprayBig extends SprayBase {
 
     private final int length;
     private final int[] itemFrameIds; // 九宫格展示框ID (0 ~ length*length)
@@ -41,7 +41,7 @@ public class SprayBig extends SpraySmall {
 
         if (!valid) return;
 
-        Location[] locs = SprayFactory.getBigSprayLocations(length, location, playerLocation, blockFace);
+        Location[] locs = MapFrameFactory.getBigSprayLocations(length, location, playerLocation, blockFace);
 
         BlockFace opposite = blockFace.getOppositeFace();
 
@@ -53,7 +53,7 @@ public class SprayBig extends SpraySmall {
         }
 
         int big_mode;
-        big_mode = CustomSprays.instant.getConfig().getInt("big_mode");
+        big_mode = CustomSprays.instance.getConfig().getInt("big_mode");
         if (big_mode < 0 || big_mode > 2) big_mode = 1;
 
         for (int i = 0; i < length * length; i++) {
@@ -89,16 +89,12 @@ public class SprayBig extends SpraySmall {
 
             int mapViewId = MapViewId.getId();
 
-            Object mcMap = SprayFactory.getMcMap(mapViewId);
-            Object mapPacket = SprayFactory.getMapPacket(mapViewId, pixelPieces[i]);
-            Object itemFrame = SprayFactory.getItemFrame(mcMap, locs[i], blockFace, playerLocation);
-            Object spawnPacket = SprayFactory.getSpawnPacket(itemFrame, intDirection);
-            itemFrameIds[i] = (int) itemFrame.getClass().getMethod(CustomSprays.getSubVer() < 18 ? "getId" : "ae").invoke(itemFrame);
-            Object dataWatcher = itemFrame.getClass().getMethod(CustomSprays.getSubVer() < 18 ? "getDataWatcher" : "ai").invoke(itemFrame);
-            Object dataPacket = NMS.getPacketClass("PacketPlayOutEntityMetadata")
-                    .getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class)
-                    .newInstance(itemFrameIds[i], dataWatcher, false);
-
+            Object mcMap = MapFrameFactory.getMcMap(mapViewId);
+            Object mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);
+            Object itemFrame = MapFrameFactory.getItemFrame(mcMap, locs[i], blockFace, playerLocation);
+            Object spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+            itemFrameIds[i] = NMS.getMcEntityId(itemFrame);
+            Object dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
 
             for (Player p : $playersShowTo) {
                 NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
@@ -108,35 +104,21 @@ public class SprayBig extends SpraySmall {
 
         }
 
-        if (playSound) SpraySmall.playSpraySound(player);
+        if (playSound) SprayBase.playSpraySound(player);
 
     }
 
     @Override
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, this::remove, tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, this::remove, tick);
     }
 
     @Override
     public void remove() {
         if (!valid) return;
         valid = false;
-        SpraysManager.removeSpray(this);
-        if (cPacketPlayOutEntityDestroy == null) {
-            try {
-                cPacketPlayOutEntityDestroy = NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.isOnline()) continue;
-                NMS.sendPacket(p, cPacketPlayOutEntityDestroy.newInstance( new Object[]{itemFrameIds} ));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SprayManager.removeSpray(this);
+        NMS.sendDestroyEntities(itemFrameIds, playersShown);
     }
 
     /**

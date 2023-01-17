@@ -123,7 +123,7 @@ public class DataMySQL implements IData {
      * 获取MySQL连接
      */
     private static Connection getConnection() {
-        ConfigurationSection config = CustomSprays.instant.getConfig();
+        ConfigurationSection config = CustomSprays.instance.getConfig();
         Connection connection;
         String url = "jdbc:mysql://" + config.getString("MySQL.host") + ":" + config.getString("MySQL.port") + "/" + config.getString("MySQL.database") + "?useSSL=false&rewriteBatchedStatements=true";
         try {

@@ -2,9 +2,9 @@ package fun.LSDog.CustomSprays;
 
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.data.DataMySQL;
-import fun.LSDog.CustomSprays.spray.Spray;
-import fun.LSDog.CustomSprays.spray.SpraysManager;
+import fun.LSDog.CustomSprays.spray.SprayManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,11 +26,11 @@ public class Events implements Listener {
     private static final Map<UUID, Long> timeMap = new HashMap<>();
 
     private static final int CD = 350;
-    // double click in 350 ms
+    // double-click in 350 ms
 
     @EventHandler (priority = EventPriority.MONITOR)
     public void onToggleF(PlayerSwapHandItemsEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> {
             Player player = e.getPlayer();
             UUID uuid = player.getUniqueId();
             Long t = timeMap.get(uuid);
@@ -39,9 +39,9 @@ public class Events implements Listener {
             } else {
                 timeMap.remove(uuid);
                 if (!player.isSneaking()) { // 小喷漆
-                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> Spray.spray(player, false));
+                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> SprayManager.spray(player, false));
                 } else { // 大喷漆
-                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instant, () -> Spray.spray(player, true));
+                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> SprayManager.spray(player, true));
                 }
             }
         });
@@ -50,12 +50,12 @@ public class Events implements Listener {
     @EventHandler (priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
         // 初始化账户
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instant, () -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, () -> {
             if (e.getPlayer().isOnline() && DataManager.data instanceof DataMySQL) {
                 DataMySQL.addAccountIfNotExist(e.getPlayer());
             }
         }, 10L);
-        SpraysManager.sendExistSprays(e.getPlayer());
+        SprayManager.sendExistSprays(e.getPlayer());
         if (CustomSprays.latestVersion != null && e.getPlayer().isOp()) {
             e.getPlayer().sendMessage(CustomSprays.prefix + " §6§l嘿, 管理! CustomSprays 有个更新~~ §7-> §b§l" + CustomSprays.latestVersion);
             e.getPlayer().sendMessage(CustomSprays.prefix + " §6§lHey, OP! CustomSprays has an update~~ §7-> §b§l" + CustomSprays.latestVersion);
@@ -69,18 +69,18 @@ public class Events implements Listener {
         if (
                 e.getAction().name().contains("RIGHT")
                         && e.hasItem()
-                        && e.getMaterial().name().equalsIgnoreCase(CustomSprays.instant.getConfig().getString("spray_item"))
+                        && e.getMaterial().name().equalsIgnoreCase(CustomSprays.instance.getConfig().getString("spray_item"))
         ) {
             if (e.isCancelled()) return;
-            String lore = CustomSprays.instant.getConfig().getString("spray_item_lore");
+            String lore = CustomSprays.instance.getConfig().getString("spray_item_lore");
             if ( lore!=null && !lore.isEmpty()) {
                 ItemStack item = e.getItem();
                 if (!item.hasItemMeta()
                         || !item.getItemMeta().hasLore()
-                        || !item.getItemMeta().getLore().contains(lore)
+                        || !item.getItemMeta().getLore().contains( ChatColor.translateAlternateColorCodes('&', lore) )
                 ) return;
             }
-            Spray.spray(e.getPlayer(), e.getPlayer().isSneaking());
+            SprayManager.spray(e.getPlayer(), e.getPlayer().isSneaking());
         }
     }
 

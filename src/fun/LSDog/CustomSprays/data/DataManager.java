@@ -5,6 +5,7 @@ import fun.LSDog.CustomSprays.utils.ImageUtil;
 import fun.LSDog.CustomSprays.utils.MapColors;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,12 +31,11 @@ public class DataManager {
     public static String urlRegex = "^https?://.*";
     public static List<String> disableWorlds = null;
     private static byte[] defaultImage = null;
-    private static final File defaultImageFile = new File(CustomSprays.instant.getDataFolder() + File.separator + "default.yml");
+    private static final File defaultImageFile = new File(CustomSprays.instance.getDataFolder() + File.separator + "default.yml");
 
     public static String getMsg(Player player, String path) {
 
-        String msg = CustomSprays.instant.getConfig().getString("Messages."+path);
-        if (msg == null) return msg;
+        String msg = ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("Messages."+path));
         if (usePapi) {
             return PlaceholderAPI.setPlaceholders(player, msg);
         } else return msg;
@@ -46,7 +46,7 @@ public class DataManager {
         if (sender instanceof Player) {
             return getMsg((Player) sender, path);
         }
-        return CustomSprays.instant.getConfig().getString("Messages."+path);
+        return ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("Messages."+path));
     }
 
     public static byte[] getSizedImageBytes(Player player, int width, int hight) {
@@ -122,12 +122,12 @@ public class DataManager {
 
     public static void initialize(String method) {
         if (method == null) method = "YML";
-        debug = CustomSprays.instant.getConfig().getBoolean("debug");
-        downloadLimit = CustomSprays.instant.getConfig().getInt("download_limit");
-        urlRegex = CustomSprays.instant.getConfig().getString("url_regex");
+        debug = CustomSprays.instance.getConfig().getBoolean("debug");
+        downloadLimit = CustomSprays.instance.getConfig().getInt("download_limit");
+        urlRegex = CustomSprays.instance.getConfig().getString("url_regex");
         usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
-        disableWorlds = CustomSprays.instant.getConfig().getStringList("disabled_world");
-        CustomSprays.prefix = CustomSprays.instant.getConfig().getString("msg_prefix");
+        disableWorlds = CustomSprays.instance.getConfig().getStringList("disabled_world");
+        CustomSprays.prefix = ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("msg_prefix"));
         switch (StorageMethod.getValue(method.toUpperCase())) {
             case MYSQL:
                 CustomSprays.log("§8use [MYSQL]");
@@ -147,7 +147,7 @@ public class DataManager {
             try {
                 defaultImage = DataManager.decompressBytes(Base64.getDecoder().decode(
                         Files.readAllLines(
-                                Paths.get(CustomSprays.instant.getDataFolder() + File.separator + "default.yml")
+                                Paths.get(CustomSprays.instance.getDataFolder() + File.separator + "default.yml")
                         ).get(0)
                 ));
                 CustomSprays.log("§7Default image loaded!");
