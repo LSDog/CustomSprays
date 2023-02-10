@@ -26,11 +26,11 @@ ___
 > - [Spigot](https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/)
 > - [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
 
-## ⏬ **下载 | Download**: [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
-### [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !! [Releases](https://gitee.com/pixelmc/CustomSprays/releases) !!
+## ⏬ **下载 | Download**: [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
+### [发布页](https://github.com/LSDogX/CustomSprays/releases) !! [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
 
 
-**⭐ [Spray音效资源包](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ！ [Spray sound resource pack](https://gitee.com/pixelmc/CustomSprays/raw/master/spray_sound_pack.zip) ! ⭐**
+**⭐ [Spray音效资源包](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ！ [Spray sound resource pack](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
 
 **⭐ English message config is also in config.yml (commented out by #) ⭐**
 
