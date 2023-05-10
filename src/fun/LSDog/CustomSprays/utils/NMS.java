@@ -222,17 +222,24 @@ public class NMS {
 
     public static int getMcEntityId(Object mcEntity) throws ReflectiveOperationException {
         int subVer = getSubVer();
+        int subRVer = getSubRVer();
         if (Entity_getId == null) {
-            if (subVer <= 17) {
-                Entity_getId = NMS.getMcEntityItemFrameClass().getMethod("getId");
-            } else {
-                if ((subVer == 19 && getSubRVer() >= 2) || (subVer > 19)) {
-                    // 天杀的 mojang 在 1_19_R2 的时候改了 Entity.class, 导致获取id的方法名字变了
-                    Entity_getId = NMS.getMcEntityItemFrameClass().getMethod("ah");
-                } else {
-                    Entity_getId = NMS.getMcEntityItemFrameClass().getMethod("ae");
-                }
+            String methodName = "getId";
+            switch (subVer) {
+                case 18:
+                    methodName = "ae";
+                    break;
+                case 19:
+                    switch (subRVer) {
+                        case 1: methodName = "ae"; break;
+                        case 2: methodName = "ah"; break;
+                        // 天杀的 mojang 在 1_19_R2 的时候改了 Entity.class, 导致获取id的方法名字变了
+                        case 3: methodName = "af"; break;
+                        // 真牛逼他又改了 1_19_R3
+                    }
+                    break;
             }
+            Entity_getId = NMS.getMcEntityItemFrameClass().getMethod(methodName);
             Entity_getId.setAccessible(true);
         }
         return (int) Entity_getId.invoke(mcEntity);
@@ -241,16 +248,28 @@ public class NMS {
     public static Object getDataWatcher(Object entity) throws ReflectiveOperationException {
         int subVer = getSubVer();
         if (Entity_getDataWatcher == null) {
-            if (subVer < 19 || (subVer == 19 && getSubRVer() ==1))
-                Entity_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod(subVer <= 17 ? "getDataWatcher" : "ai");
-            else Entity_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod("al");
+            String methodName = "getDataWatcher";
+            switch (subVer) {
+                case 18:
+                    methodName = "ai";
+                    break;
+                case 19:
+                    switch (subRVer) {
+                        case 1: methodName = "ai"; break;
+                        case 2: methodName = "al"; break;
+                        case 3: methodName = "aj"; break;
+                    }
+                    break;
+            }
+            Entity_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod(methodName);
             Entity_getDataWatcher.setAccessible(true);
         }
         return Entity_getDataWatcher.invoke(entity);
     }
 
     public static Object getPacketPlayOutEntityMetadata(Object entity) throws ReflectiveOperationException {
-        if (getSubVer() < 19 || (getSubVer() == 19 && getSubRVer() ==1)) {
+        if (getSubVer() < 19 || (getSubVer() == 19 && getSubRVer() == 1)) {
+            /* <= 1_19_R1 */
             if (cPacketPlayOutEntityMetadata == null) {
                 cPacketPlayOutEntityMetadata = NMS.getPacketClass("PacketPlayOutEntityMetadata").getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class);
                 cPacketPlayOutEntityMetadata.setAccessible(true);

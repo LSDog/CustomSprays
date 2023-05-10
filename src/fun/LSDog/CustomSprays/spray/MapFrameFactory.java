@@ -125,15 +125,18 @@ public class MapFrameFactory {
             }
             mcMap = cItem.newInstance(NMS.getMcItemsClass().getField("FILLED_MAP").get(null), 1, (short) mapViewId);
         } else {
-            String itemFieldName;
+            String itemFieldName = "FILLED_MAP";
             if (subVer <= 16) {
                 itemFieldName = "FILLED_MAP";
             } else if (subVer <= 18) {
                 itemFieldName = "pp";
-            } else if (subVer == 19 && NMS.getSubRVer() ==1) {
-                itemFieldName = "qc";
-            } else {
-                itemFieldName = "qE";
+            } else if (subVer == 19) {
+                switch (NMS.getSubRVer()) {
+                    case 1: itemFieldName = "qc"; break;
+                    case 2: itemFieldName = "qE"; break;
+                    default:
+                    case 3: itemFieldName = "rb"; break;
+                }
             }
             // MAP
             if (cItem == null) {
