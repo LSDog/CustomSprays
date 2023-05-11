@@ -1,5 +1,6 @@
 package fun.LSDog.CustomSprays;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -12,8 +13,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,6 +28,8 @@ import java.util.zip.GZIPOutputStream;
 public class Metrics {
 
     private final Plugin plugin;
+
+    private final MetricsBase metricsBase;
 
     /**
      * Creates a new Metrics instance.
@@ -67,20 +71,35 @@ public class Metrics {
         boolean logErrors = config.getBoolean("logFailedRequests", false);
         boolean logSentData = config.getBoolean("logSentData", false);
         boolean logResponseStatusText = config.getBoolean("logResponseStatusText", false);
-        new MetricsBase(
-                "bukkit",
-                serverUUID,
-                serviceId,
-                enabled,
-                this::appendPlatformData,
-                this::appendServiceData,
-                submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
-                plugin::isEnabled,
-                (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),
-                (message) -> this.plugin.getLogger().log(Level.INFO, message),
-                logErrors,
-                logSentData,
-                logResponseStatusText);
+        metricsBase =
+                new MetricsBase(
+                        "bukkit",
+                        serverUUID,
+                        serviceId,
+                        enabled,
+                        this::appendPlatformData,
+                        this::appendServiceData,
+                        submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
+                        plugin::isEnabled,
+                        (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),
+                        (message) -> this.plugin.getLogger().log(Level.INFO, message),
+                        logErrors,
+                        logSentData,
+                        logResponseStatusText);
+    }
+
+    /** Shuts down the underlying scheduler service. */
+    public void shutdown() {
+        metricsBase.shutdown();
+    }
+
+    /**
+     * Adds a custom chart.
+     *
+     * @param chart The chart to add.
+     */
+    public void addCustomChart(CustomChart chart) {
+        metricsBase.addCustomChart(chart);
     }
 
     private void appendPlatformData(JsonObjectBuilder builder) {
@@ -117,12 +136,11 @@ public class Metrics {
     public static class MetricsBase {
 
         /** The version of the Metrics class. */
-        public static final String METRICS_VERSION = "2.2.1";
-
-        private static final ScheduledExecutorService scheduler =
-                Executors.newScheduledThreadPool(1, task -> new Thread(task, "bStats-Metrics"));
+        public static final String METRICS_VERSION = "3.0.2";
 
         private static final String REPORT_URL = "https://bStats.org/api/v2/data/%s";
+
+        private final ScheduledExecutorService scheduler;
 
         private final String platform;
 
@@ -187,6 +205,14 @@ public class Metrics {
                 boolean logErrors,
                 boolean logSentData,
                 boolean logResponseStatusText) {
+            ScheduledThreadPoolExecutor scheduler =
+                    new ScheduledThreadPoolExecutor(1, task -> new Thread(task, "bStats-Metrics"));
+            // We want delayed tasks (non-periodic) that will execute in the future to be
+            // cancelled when the scheduler is shutdown.
+            // Otherwise, we risk preventing the server from shutting down even when
+            // MetricsBase#shutdown() is called
+            scheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+            this.scheduler = scheduler;
             this.platform = platform;
             this.serverUuid = serverUuid;
             this.serviceId = serviceId;
@@ -202,8 +228,18 @@ public class Metrics {
             this.logResponseStatusText = logResponseStatusText;
             checkRelocation();
             if (enabled) {
+                // WARNING: Removing the option to opt-out will get your plugin banned from
+                // bStats
                 startSubmitting();
             }
+        }
+
+        public void addCustomChart(CustomChart chart) {
+            this.customCharts.add(chart);
+        }
+
+        public void shutdown() {
+            scheduler.shutdown();
         }
 
         private void startSubmitting() {
@@ -220,13 +256,14 @@ public class Metrics {
                             this.submitData();
                         }
                     };
-            // Many servers tend to restart at a fixed time at xx:00 which causes an uneven distribution
-            // of requests on the
-            // bStats backend. To circumvent this problem, we introduce some randomness into the initial
-            // and second delay.
-            // WARNING: You must not modify and part of this Metrics class, including the submit delay or
-            // frequency!
-            // WARNING: Modifying this code will get your plugin banned on bStats. Just don't do it!
+            // Many servers tend to restart at a fixed time at xx:00 which causes an uneven
+            // distribution of requests on the
+            // bStats backend. To circumvent this problem, we introduce some randomness into
+            // the initial and second delay.
+            // WARNING: You must not modify and part of this Metrics class, including the
+            // submit delay or frequency!
+            // WARNING: Modifying this code will get your plugin banned on bStats. Just
+            // don't do it!
             long initialDelay = (long) (1000 * 60 * (3 + Math.random() * 3));
             long secondDelay = (long) (1000 * 60 * (Math.random() * 30));
             scheduler.schedule(submitTask, initialDelay, TimeUnit.MILLISECONDS);
@@ -301,14 +338,14 @@ public class Metrics {
             // You can use the property to disable the check in your test environment
             if (System.getProperty("bstats.relocatecheck") == null
                     || !System.getProperty("bstats.relocatecheck").equals("false")) {
-                // Maven's Relocate is clever and changes strings, too. So we have to use this little
-                // "trick" ... :D
+                // Maven's Relocate is clever and changes strings, too. So we have to use this
+                // little "trick" ... :D
                 final String defaultPackage =
                         new String(new byte[] {'o', 'r', 'g', '.', 'b', 's', 't', 'a', 't', 's'});
                 final String examplePackage =
                         new String(new byte[] {'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
-                // We want to make sure no one just copy & pastes the example and uses the wrong package
-                // names
+                // We want to make sure no one just copy & pastes the example and uses the wrong
+                // package names
                 if (MetricsBase.class.getPackage().getName().startsWith(defaultPackage)
                         || MetricsBase.class.getPackage().getName().startsWith(examplePackage)) {
                     throw new IllegalStateException("bStats Metrics class has not been relocated correctly!");
@@ -331,6 +368,226 @@ public class Metrics {
                 gzip.write(str.getBytes(StandardCharsets.UTF_8));
             }
             return outputStream.toByteArray();
+        }
+    }
+
+    public static class SimplePie extends CustomChart {
+
+        private final Callable<String> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public SimplePie(String chartId, Callable<String> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            String value = callable.call();
+            if (value == null || value.isEmpty()) {
+                // Null = skip the chart
+                return null;
+            }
+            return new JsonObjectBuilder().appendField("value", value).build();
+        }
+    }
+
+    public static class MultiLineChart extends CustomChart {
+
+        private final Callable<Map<String, Integer>> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public MultiLineChart(String chartId, Callable<Map<String, Integer>> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
+            Map<String, Integer> map = callable.call();
+            if (map == null || map.isEmpty()) {
+                // Null = skip the chart
+                return null;
+            }
+            boolean allSkipped = true;
+            for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                if (entry.getValue() == 0) {
+                    // Skip this invalid
+                    continue;
+                }
+                allSkipped = false;
+                valuesBuilder.appendField(entry.getKey(), entry.getValue());
+            }
+            if (allSkipped) {
+                // Null = skip the chart
+                return null;
+            }
+            return new JsonObjectBuilder().appendField("values", valuesBuilder.build()).build();
+        }
+    }
+
+    public static class AdvancedPie extends CustomChart {
+
+        private final Callable<Map<String, Integer>> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public AdvancedPie(String chartId, Callable<Map<String, Integer>> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
+            Map<String, Integer> map = callable.call();
+            if (map == null || map.isEmpty()) {
+                // Null = skip the chart
+                return null;
+            }
+            boolean allSkipped = true;
+            for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                if (entry.getValue() == 0) {
+                    // Skip this invalid
+                    continue;
+                }
+                allSkipped = false;
+                valuesBuilder.appendField(entry.getKey(), entry.getValue());
+            }
+            if (allSkipped) {
+                // Null = skip the chart
+                return null;
+            }
+            return new JsonObjectBuilder().appendField("values", valuesBuilder.build()).build();
+        }
+    }
+
+    public static class SimpleBarChart extends CustomChart {
+
+        private final Callable<Map<String, Integer>> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public SimpleBarChart(String chartId, Callable<Map<String, Integer>> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
+            Map<String, Integer> map = callable.call();
+            if (map == null || map.isEmpty()) {
+                // Null = skip the chart
+                return null;
+            }
+            for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                valuesBuilder.appendField(entry.getKey(), new int[] {entry.getValue()});
+            }
+            return new JsonObjectBuilder().appendField("values", valuesBuilder.build()).build();
+        }
+    }
+
+    public static class AdvancedBarChart extends CustomChart {
+
+        private final Callable<Map<String, int[]>> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public AdvancedBarChart(String chartId, Callable<Map<String, int[]>> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
+            Map<String, int[]> map = callable.call();
+            if (map == null || map.isEmpty()) {
+                // Null = skip the chart
+                return null;
+            }
+            boolean allSkipped = true;
+            for (Map.Entry<String, int[]> entry : map.entrySet()) {
+                if (entry.getValue().length == 0) {
+                    // Skip this invalid
+                    continue;
+                }
+                allSkipped = false;
+                valuesBuilder.appendField(entry.getKey(), entry.getValue());
+            }
+            if (allSkipped) {
+                // Null = skip the chart
+                return null;
+            }
+            return new JsonObjectBuilder().appendField("values", valuesBuilder.build()).build();
+        }
+    }
+
+    public static class DrilldownPie extends CustomChart {
+
+        private final Callable<Map<String, Map<String, Integer>>> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public DrilldownPie(String chartId, Callable<Map<String, Map<String, Integer>>> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        public JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            JsonObjectBuilder valuesBuilder = new JsonObjectBuilder();
+            Map<String, Map<String, Integer>> map = callable.call();
+            if (map == null || map.isEmpty()) {
+                // Null = skip the chart
+                return null;
+            }
+            boolean reallyAllSkipped = true;
+            for (Map.Entry<String, Map<String, Integer>> entryValues : map.entrySet()) {
+                JsonObjectBuilder valueBuilder = new JsonObjectBuilder();
+                boolean allSkipped = true;
+                for (Map.Entry<String, Integer> valueEntry : map.get(entryValues.getKey()).entrySet()) {
+                    valueBuilder.appendField(valueEntry.getKey(), valueEntry.getValue());
+                    allSkipped = false;
+                }
+                if (!allSkipped) {
+                    reallyAllSkipped = false;
+                    valuesBuilder.appendField(entryValues.getKey(), valueBuilder.build());
+                }
+            }
+            if (reallyAllSkipped) {
+                // Null = skip the chart
+                return null;
+            }
+            return new JsonObjectBuilder().appendField("values", valuesBuilder.build()).build();
         }
     }
 
@@ -368,6 +625,32 @@ public class Metrics {
         protected abstract JsonObjectBuilder.JsonObject getChartData() throws Exception;
     }
 
+    public static class SingleLineChart extends CustomChart {
+
+        private final Callable<Integer> callable;
+
+        /**
+         * Class constructor.
+         *
+         * @param chartId The id of the chart.
+         * @param callable The callable which is used to request the chart data.
+         */
+        public SingleLineChart(String chartId, Callable<Integer> callable) {
+            super(chartId);
+            this.callable = callable;
+        }
+
+        @Override
+        protected JsonObjectBuilder.JsonObject getChartData() throws Exception {
+            int value = callable.call();
+            if (value == 0) {
+                // Null = skip the chart
+                return null;
+            }
+            return new JsonObjectBuilder().appendField("value", value).build();
+        }
+    }
+
     /**
      * An extremely simple JSON builder.
      *
@@ -385,16 +668,29 @@ public class Metrics {
         }
 
         /**
+         * Appends a null field to the JSON.
+         *
+         * @param key The key of the field.
+         * @return A reference to this object.
+         */
+        public JsonObjectBuilder appendNull(String key) {
+            appendFieldUnescaped(key, "null");
+            return this;
+        }
+
+        /**
          * Appends a string field to the JSON.
          *
          * @param key The key of the field.
          * @param value The value of the field.
+         * @return A reference to this object.
          */
-        public void appendField(String key, String value) {
+        public JsonObjectBuilder appendField(String key, String value) {
             if (value == null) {
                 throw new IllegalArgumentException("JSON value must not be null");
             }
             appendFieldUnescaped(key, "\"" + escape(value) + "\"");
+            return this;
         }
 
         /**
@@ -402,9 +698,11 @@ public class Metrics {
          *
          * @param key The key of the field.
          * @param value The value of the field.
+         * @return A reference to this object.
          */
-        public void appendField(String key, int value) {
+        public JsonObjectBuilder appendField(String key, int value) {
             appendFieldUnescaped(key, String.valueOf(value));
+            return this;
         }
 
         /**
@@ -423,18 +721,56 @@ public class Metrics {
         }
 
         /**
+         * Appends a string array to the JSON.
+         *
+         * @param key The key of the field.
+         * @param values The string array.
+         * @return A reference to this object.
+         */
+        public JsonObjectBuilder appendField(String key, String[] values) {
+            if (values == null) {
+                throw new IllegalArgumentException("JSON values must not be null");
+            }
+            String escapedValues =
+                    Arrays.stream(values)
+                            .map(value -> "\"" + escape(value) + "\"")
+                            .collect(Collectors.joining(","));
+            appendFieldUnescaped(key, "[" + escapedValues + "]");
+            return this;
+        }
+
+        /**
+         * Appends an integer array to the JSON.
+         *
+         * @param key The key of the field.
+         * @param values The integer array.
+         * @return A reference to this object.
+         */
+        public JsonObjectBuilder appendField(String key, int[] values) {
+            if (values == null) {
+                throw new IllegalArgumentException("JSON values must not be null");
+            }
+            String escapedValues =
+                    Arrays.stream(values).mapToObj(String::valueOf).collect(Collectors.joining(","));
+            appendFieldUnescaped(key, "[" + escapedValues + "]");
+            return this;
+        }
+
+        /**
          * Appends an object array to the JSON.
          *
          * @param key The key of the field.
          * @param values The integer array.
+         * @return A reference to this object.
          */
-        public void appendField(String key, JsonObject[] values) {
+        public JsonObjectBuilder appendField(String key, JsonObject[] values) {
             if (values == null) {
                 throw new IllegalArgumentException("JSON values must not be null");
             }
             String escapedValues =
                     Arrays.stream(values).map(JsonObject::toString).collect(Collectors.joining(","));
             appendFieldUnescaped(key, "[" + escapedValues + "]");
+            return this;
         }
 
         /**
