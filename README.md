@@ -2,24 +2,24 @@
 
 # **CustomSprays** | 花样喷漆 🎉
 
-> ![logo](logo64.png)👈这事Logo 👇**大概是一些用法** 👉这是右手
+> 👇**大概是一些用法 | bla bla usages**
 > ![use](https://s1.ax1x.com/2022/04/18/Ldo6SK.gif)
 
-- ***" 就像起源游戏的喷漆一样！ "***
-- ***" Just like source games' spraying! "***
+## （＾∀＾●）ﾉｼ
+![Visits](https://count.getloli.com/get/@CustomSprays)  
+*[~ 这是一个猫猫计数器 ^ↀᴥↀ^ **MoeCounter** !](https://moe-counter.glitch.me/)*
 
 ## 📢 介绍 | Introduce
 ___
 
-|*Name*|                             *Content*                              |
-|:------------------------------------------------------------------:|---|
-|名字 <br> Name    |                        CustomSprays ~ 花样喷漆                         |
-|作者 <br> Author  |                               LSDog                                |
-|版本 <br> Version |                               1.5.7                                |
-|支持 <br> Support |               Bukkit \ Spigot \ Paper **1.8 ~ 1.19**               |
-|介绍 <br> Description | 让玩家在服务器"喷涂"自定义图片！<br>Let players spray theirs image in the server! |
-|指令 <br> Cmd     |    `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆    |
-|权限 <br> Perm    |                       请见 / see "config.yml"                        |
+|       *Name*        | *Content*                                                    |
+|:-------------------:|--------------------------------------------------------------|
+| ![logo](logo64.png) | CustomSprays <br> 花样喷漆                                       |
+|   作者 <br> Author    | LSDog                                                        |
+|   版本 <br> Version   | 1.5.7                                                        |
+|   支持 <br> Support   | **1.8 ~ 1.19** (Bukkit Spigot Paper CatServer Mohist...)     |
+|     指令 <br> Cmd     | `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
+|    权限 <br> Perm     | 请见 "config.yml" / see "config.yml"                           |
 > 
 > Links:
 > [Mcbbs](https://www.mcbbs.net/thread-1289391-1-1.html)
@@ -27,10 +27,10 @@ ___
 > | [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
 
 ## ⏬ **下载 | Download**:
-### [发布页](https://github.com/LSDogX/CustomSprays/releases) !! [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
+### [发布页](https://github.com/LSDogX/CustomSprays/releases) / [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
 
 
-**⭐ [Spray音效资源包](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ！ [Spray sound resource pack](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
+**⭐ [喷漆音效资源包](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) / [Spray sound resource pack](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
 
 **⭐ English message config is also in config.yml (commented out by #) ⭐**
 
@@ -62,17 +62,16 @@ ___
 
 
 
-### 💻 更多指令发送 "/cspray" |  Send "/cspray" for more commands  
+### 💻 更多指令发送 "/sprays" |  Send "/sprays" for more commands  
 
-### 💻 更多设置请见 "config.yml" | See "config.yml" for more configuration
+### 💻 更多设置请见 "config.yml" | See "config.yml" for more configurations
 
 
 ## 🎮 版本支持 | Version Support
 ___
-> ⭕ **1.8 ~ 1.19.4**
+> 🔷 **1.8 ~ 1.19.4**
 
-> 📏 支持的 **"领域"** 插件:  
-> 📏 Supported **"region"** plugins:
+> 📏 支持的 **"领域"** 插件 | Supported **"region"** plugins:
 > - [x] Residence .......... [ *?* ~ 5.0.1.3+ ]
 > - [x] WorldGuard ......... [ 6.*?* ~ 7.*x* ]
 > - [x] GriefDefender ...... [ *?* ~ 2.1.4+ ]
@@ -86,7 +85,7 @@ ___
 - 🙅‍ NO Bungeecord-side plugin，all the data storage in MySQL / yml  
 
 
-- 📦 纯发包实现喷漆【玩家无法交互 | 不生成垃圾】    
+- 📦 纯发包实现喷漆【避免交互 | 不生成垃圾】    
 - 📦 100% use packets【no interact with spray | no junk generated】  
 
 
@@ -107,39 +106,36 @@ ___
 
 
 - 🔗 玩家上传图片链接 >> 压缩存储图片 >> 喷漆后自动消失   
-- 🔗 Player uploads link >> Zip & save image >> spray self-destruct 
+- 🔗 Player uploads link >> Zip & save image >> Spray self-destruct 
 
 
 - 💴 或者使用 Vault 经济花钱喷漆！
-- 💴 Or use Vault cost money for spraying！
+- 💴 Or use Vault cost players money for spraying！
 
 
 ## ⚡ 注意事项 | Warning
 ___
 
-> 已知问题 ***[仅限版本1.8~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换
+> 🔺 已知问题 ***[仅限版本1.8~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换  
+> 🔺 Known problem ***[Only in version 1.8~1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
 >
->> **原因:** 这些版本中插件使用 id [32467~32767] 对地图图案(MapView)进行标识，在喷漆时可能会被发包上色
-
-
-> Known problems ***[Only in version 1.8~1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
->
->> **Reason:** In these versions the plugin uses id [32467~32767] to target the Mapview ...So map with that id will be replaced.
+>> **原因:** 这些版本中插件使用 id [32467~32767] 对地图图案(MapView)进行标识，喷漆时对图案会被替换  
+>> **Reason:** In these versions plugin uses id [32467~32767] to target the Mapview, so map with that id will be replaced.
 
 
 
 ## ✍ TODO
 ___
-- SQLite 支持
-- 有时间做一个商店版的... 就是需要买预制的喷漆的那种插件
-- 喷漆仓库，实际上跟上面这个设想有相通的地方，问题是如果单个玩家仓库过大加载单个玩家yaml时间会很长，所以应该要搞成分文件的，直接把384*384转成的bytearray存到奇怪后缀的文件里，sql就不管了，该扩展扩展
+- [ ] SQLite 支持
+- [ ] 有时间做一个商店版的... 就是需要买预制的喷漆的那种插件
+- [ ] 喷漆仓库，实际上跟上面这个设想有相通的地方，问题是如果单个玩家仓库过大加载单个玩家yaml时间会很长，所以应该要搞成分文件的，直接把384*384转成的bytearray存到奇怪后缀的文件里，sql就不管了，该扩展扩展
 
 
 
-## 💖 & DONATE | 喜欢我就给我发电！！
+##  💖 DONATE ME 💖 喜欢我就给我发电！！
 ___
 
-### 爱发电 | Aifadian  https://afdian.net/@LSDog
+### 打赏 | Donate: [爱发电 | Aifadian](https://afdian.net/@LSDog)
 
 ![who use? I use!](https://bstats.org/signatures/bukkit/CustomSprays.svg)
 
