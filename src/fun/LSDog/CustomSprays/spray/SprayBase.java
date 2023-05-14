@@ -97,10 +97,11 @@ public class SprayBase {
 
         double cost = CustomSprays.instance.getConfig().getDouble((this instanceof SprayBig) ? "spray_big_cost" : "spray_cost");
         if (cost != 0 && !player.hasPermission("CustomSprays.nomoney") && VaultChecker.isVaultEnabled()) {
-            if (VaultChecker.costMoney(player, 5)) {
+            if (VaultChecker.costMoney(player, cost)) {
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.COST").replace("%cost%", cost+""));
             } else {
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_MONEY").replace("%cost%", cost+""));
+                return false;
             }
         }
 

@@ -27,22 +27,24 @@ public class SprayManager {
      * @param player 喷漆玩家
      * @param isBigSpray 是否为大型喷漆
      */
-    public static void spray(Player player, boolean isBigSpray) {
+    public static boolean spray(Player player, boolean isBigSpray) {
+
+        boolean result = false;
 
         // 检测喷漆权限
         if (player.isPermissionSet("CustomSprays.spray") && !player.hasPermission("CustomSprays.spray")) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
-            return;
+            return false;
         }
         // 检测禁止的世界
         if (!player.hasPermission("CustomSprays.nodisable") && DataManager.disableWorlds != null && DataManager.disableWorlds.contains(player.getWorld().getName())) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.DISABLED_WORLD"));
-            return;
+            return false;
         }
         // 检测CD
         if (!player.hasPermission("CustomSprays.nocd") && CoolDown.isSprayCooling(player)) {
             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+ CoolDown.getSprayCD(player)+")");
-            return;
+            return false;
         }
 
 
@@ -55,10 +57,11 @@ public class SprayManager {
                 if (bytes == null) {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
-                    return;
+                    return false;
                 }
                 SprayBase spray = new SprayBase(player, bytes, Bukkit.getOnlinePlayers());
-                if (spray.create((long) (CustomSprays.instance.getConfig().getDouble("destroy")*20L))) {
+                result = spray.create((long) (CustomSprays.instance.getConfig().getDouble("destroy") * 20L));
+                if (result) {
                     CoolDown.setSprayCooldown(player,1);
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ());
                 }
@@ -73,16 +76,17 @@ public class SprayManager {
                 } else if (length == 5) {
                     bytes = DataManager.getSizedImageBytes(player, 640, 640);
                 } else {
-                    return;
+                    return false;
                 }
                 if (bytes == null) {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE"));
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
-                    return;
+                    return false;
                 }
 
                 SprayBase spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
-                if (spray.create((long) (CustomSprays.instance.getConfig().getDouble("destroy")*20L))) {
+                result = spray.create((long) (CustomSprays.instance.getConfig().getDouble("destroy")*20L));
+                if (result) {
                     CoolDown.setSprayCooldown(player, CustomSprays.instance.getConfig().getDouble("big_spray_cooldown_multiple"));
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
                 }
@@ -91,6 +95,7 @@ public class SprayManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return result;
     }
 
     /**

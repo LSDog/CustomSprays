@@ -171,6 +171,10 @@ better_color: true
 # |Makes colors more accurate, needs time to calculate color palette on first startup
 # 默认|Default: true
 
+destroy_if_exhausted: true
+# |使用次数用完后物品自动销毁
+# |Items are automatically destroyed when the number of uses is exhausted
+# 默认|Default: true
 
 # 如果你想禁用大喷漆, 请设置权限 "CustomSprays.bigspray" 为 false
 # If you want to disable bigspray, please set permission "CustomSprays.bigspray" to false
@@ -192,10 +196,20 @@ spray_item: "GOLDEN_HORSE_ARMOR"
 # (1.13→): https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java
 # (←1.12): https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java?until=7eb6b52fb21699805eab4b074599030861227e64&untilPath=src%2Fmain%2Fjava%2Forg%2Fbukkit%2FMaterial.java
 
-spray_item_lore: "&e&lRight Click To Spray!"
+spray_item_name: "§f❃&6&l 喷漆罐 | Spray can"
+# |喷漆物品的名字
+# |The name of spray item
+# 默认|Default: "§f❃&6&l 喷漆罐 | Spray can"
+
+spray_item_lore: "§f右键喷漆 | Right click To Spray!"
 # |喷漆物品需要包含的一行lore, 也可以删掉这项来忽略lore
-# |A line of lore that needs to be included in the spray item, you can also delete this to ignore
+# |A line in lore that needs to be included in the spray item, you can also delete this to ignore
 # 默认|Default: "&e&lRight Click To Spray!"
+
+spray_item_lore_times_use: "&e&l剩余使用 | Remaining use: &e&l"
+# |喷漆物品的使用次数的一行lore
+# |A line in lore tells remaining use times
+# 默认|Default: "&e&l剩余使用 | Remaining use: &e&l"
 
 spray_sound: "default"
 # 喷漆音效 | Spray sound
@@ -235,14 +249,18 @@ Messages:
   NO_PERMISSION: "&c无权限！"
   IN_COOLING: "&c冷却中!"
 
+  # 请注意更改后所现存的无限次数的喷漆灌将会失效
+  INFINITE: "无限"
+
   SPRAY:
     TOO_MANY_ARGUMENTS: "此为喷漆指令 查看帮助请使用 &b/sprays&r 哦！"
     NO_IMAGE: "笨蛋！ 你还没有上传图片呢！！！"
     NO_IMAGE_TIP: "使用 &b/sprays&r &3upload&l <url>&r 来上传图片！"
     DISABLED_WORLD: "&7这里... 不可以的哟...❤ (此世界被禁用)"
     DISABLED_REGION: "&7这.. 这里不可以呀啊！！ (此区域被禁用)"
-    NO_MONEY: "喂！傻瓜，你根本没带够钱来喷漆！！ 这需要 %cost% 元！"
-    COST: "- %cost%￥ &7(喷漆)"
+    NO_MONEY: "喂！傻瓜，你根本没带够钱来喷漆！！ 这需要 ￥%cost%！"
+    COST: "&7- ￥%cost% (喷漆)"
+    ITEM_USE: "§7剩余使用次数: %use%"
 
   COMMAND_HELP:
     UPLOAD: "上传图片链接 (尺寸&c建议为384*384px&r)"
@@ -251,7 +269,7 @@ Messages:
     CHECK: "检查喷漆者"
     DELETE: "删除指向的喷漆"
     RELOAD: "重载插件"
-    GETITEM: "获取一个喷漆物品"
+    GETITEM: "获取一个喷漆罐 追加数字设定使用次数"
     TIP: "\n&7TIP: &7&l\"在线图床 和 在线修改图片 很有用哦~\"\n  &7&l使用 &e&l/spray &b&l(big)&7 或在 &e&l1.9+版本&b&l(蹲下)&e&l双击F &7来&e&l喷漆&b&l(大)&7！ "
 
   COMMAND_UPLOAD:
@@ -266,11 +284,6 @@ Messages:
     FAILED_GET_IMAGE: "获取文件失败！ 可恶！！！"
     OK: "喷图图案保存成功！\n"
 
-  COMMAND_VIEW:
-    NO_PLAYER: "查无此人啦..."
-    PLAYER_NO_IMAGE: " 还没有上传图片呢！"
-    WARN: "&7注意: 这是个假物品"
-
   COMMAND_COPY:
     HELP: "\n | /&7sprays copy&r&l <Player> &r&7- 复制某个玩家的喷漆\n | /&7sprays copy&r&l x &r&7- 禁止他人复制你的图片\n | /&7sprays copy&r&l o &r&7- 允许他人复制你的图片"
     NO_PLAYER: "查无此人啦..."
@@ -279,6 +292,13 @@ Messages:
     PLAYER_NO_IMAGE: " 还没有上传图片呢！"
     OK: "喷图图案复制成功！嘿嘿~\n"
 
+  COMMAND_VIEW:
+    NO_PLAYER: "查无此人啦..."
+    PLAYER_NO_IMAGE: " 还没有上传图片呢！"
+    WARN: "&7注意: 这是个假物品"
+
+  COMMAND_GETITEM:
+    BAD_NUM: "§c错误！你输入的不是正整数！"
 
 # 如果你想翻译，请到 [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] 向我投稿！
 # If you want to translate, find me in [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] ！
@@ -296,14 +316,18 @@ Messages:
 #  NO_PERMISSION: "&cNo permission!"
 #  IN_COOLING: "&cCooling!"
 #
+#  # Please note that the infinite spray item after changing this will be invalid.
+#  INFINITE: "Infinite"
+#
 #  SPRAY:
 #    TOO_MANY_ARGUMENTS: "This command is for spraying. Please use the &b/sprays&r !"
 #    NO_IMAGE: "Sorry! You haven't uploaded the image yet."
 #    NO_IMAGE_TIP: "Please use &b/sprays&r &3upload&l <url>&r to upload your image!"
 #    DISABLED_WORLD: "&7Sorry! This world has been disabled!"
 #    DISABLED_REGION: "&7Sorry! This region has been disabled!"
-#    NO_MONEY: "Hey！You don't have enough money! It costs %cost%$ !"
-#    COST: "- %cost%$ &7(spray)"
+#    NO_MONEY: "Hey！You don't have enough money! It costs $%cost% !"
+#    COST: "&7- $%cost% (spray)"
+#    ITEM_USE: "§7Number of uses remaining: %use%"
 #
 #  COMMAND_HELP:
 #    UPLOAD: "Upload image link (Size:&cBetter be 384*384px&r)"
@@ -312,7 +336,7 @@ Messages:
 #    CHECK: "Check the sprayer."
 #    DELETE: "Delete the spray you point at."
 #    RELOAD: "Reload the plugin."
-#    GETITEM: "Get a spray item."
+#    GETITEM: "Get a spray item, append a number to set the number of uses."
 #    TIP: "\n&7TIP: &7&l\"Image Hosting Website and Online Pictures Modifying are useful~\"\n  &7&lUse &e&l/spray &b&l(big)&7 or Double click 'F' &b&l(in snaking) in &e&l1.9+ &7to &e&lspray &b&l(big)&7!"
 #
 #  COMMAND_UPLOAD:
@@ -320,7 +344,7 @@ Messages:
 #    NO_URL: "Hey! You forgot to write the image url!"
 #    NOT_URL: "Sorry! The url is invalid!"
 #    CONNECT_FAILED: "oops, an error occurred while linking the image!"
-#    CONNECT_HTTPS_FAILED: "If your are using the URL that starts with &e&l https&r ,please try &e&l http&r!"
+#    CONNECT_HTTPS_FAILED: "If the URL starts with &e&l https&r ,please try to use &e&l http&r!"
 #    FILE_TOO_BIG: "The size of image is too big! Its {size}K! &7(Up to &f&l{limit}k&r&7 can be uploaded!)"
 #    CANT_GET_SIZE: "We couldn't get the size of the image!\n          Please change the URL that ending in &7(.png/.jpg/.jpeg)&r......"
 #    UPLOADING: "&7Loading... Please wait for a while..."
@@ -339,6 +363,9 @@ Messages:
 #    NOT_ALLOW: " doesn't allow copying the image!"
 #    PLAYER_NO_IMAGE: " haven't uploaded the image yet!"
 #    OK: "Image has been copied! ho~ ho~\n"
+#
+#  COMMAND_GETITEM:
+#    BAD_NUM: "§cOops! the number is not a positive integer!"
 
 
 

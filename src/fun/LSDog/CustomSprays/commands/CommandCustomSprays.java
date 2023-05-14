@@ -305,11 +305,35 @@ public class CommandCustomSprays implements TabExecutor {
             case "getitem":
                 if (!sender.isOp()) return true;
                 if (player != null) {
-                    ItemStack item = new ItemStack(Material.matchMaterial(CustomSprays.instance.getConfig().getString("spray_item")));
+                    int useTime = 0;
+                    if (args.length >= 2) {
+                        try {
+                            useTime = Integer.parseInt(args[1]);
+                        } catch (NumberFormatException e) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_GETITEM.BAD_NUM"));
+                            return true;
+                        }
+                        if (useTime <= 0) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_GETITEM.BAD_NUM"));
+                            return true;
+                        }
+                    }
+                    Material material = Material.matchMaterial(CustomSprays.instance.getConfig().getString("spray_item"));
+                    ItemStack item = new ItemStack(material);
                     ItemMeta itemMeta = item.getItemMeta();
-                    String lore = CustomSprays.instance.getConfig().getString("spray_item_lore");
-                    if (lore != null) itemMeta.setLore(Collections.singletonList( ChatColor.translateAlternateColorCodes('&', lore) ));
-                    itemMeta.setDisplayName("§f❃");
+                    String loreText = CustomSprays.instance.getConfig().getString("spray_item_lore");
+                    String loreTimesUse = CustomSprays.instance.getConfig().getString("spray_item_lore_times_use");
+                    List<String> lore = new ArrayList<>();
+                    if (loreText != null) {
+                        lore.add(ChatColor.translateAlternateColorCodes('&', loreText));
+                        lore.add("");
+                    }
+                    if (loreTimesUse != null) lore.add(
+                            ChatColor.translateAlternateColorCodes('&', loreTimesUse) +
+                            (useTime > 0 ? useTime : DataManager.getMsg(player, "INFINITE"))
+                    );
+                    itemMeta.setLore(lore);
+                    itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("spray_item_name")));
                     item.setItemMeta(itemMeta);
                     player.getInventory().addItem(item);
                 }
