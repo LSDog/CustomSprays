@@ -9,7 +9,7 @@
 #
 #  CustomSprays.copy:      default: 允许复制他人图像 | Allow copying other player's spray (/sprays copy)
 #
-#  CustomSprays.view:      op: 允许查看其他玩家的图像 | Can get a image(map) view from any player (/sprays view <player>)
+#  CustomSprays.view:      op: 允许查看其他玩家的图像 | Can get an image(map) view from any player (/sprays view <player>)
 #
 #  CustomSprays.check:     op: 允许检测喷漆者 | Allow detection of sprayers from a spray (/sprays check)
 #
@@ -87,52 +87,52 @@ big_mode: 1
 # Big spray mode: Allows 0,1,2
 # 0: Ignore surrounding walls, even if the spray will be floating
 # 1: Only spray on the flat surface
-# 2: Sprays onto nearby surfaces when there's a block
+# 2: Sprays onto nearby surfaces if there's a block covering
 # 默认|Default: 1
 
 distance: 4.5
 # |玩家喷漆到方块的最大距离 (格)
-# |Biggest distance from player to block (Block)
+# |Max distance from player to block (Block)
 # 默认|Default: 4.5
 
 destroy: 40
 # |玩家喷漆自动消失时间 (秒)
-# |Spray self remove time (Second)
+# |Spray self destruct time (Second)
 # 默认|Default: 40
 
 spray_cooldown: 30
-# |玩家喷漆的时间间隔 (秒)
-# |Cool down between player spray (Second)
+# |喷漆的冷却时间 (秒)
+# |Cooldown of spraying (Second)
 # 默认|Default: 30
 
 big_spray_cooldown_multiple: 1.5
 # big_spray_cooldown == spray_cooldown * big_spray_cooldown_multiple
-# |玩家使用大喷漆的时间间隔倍数 (倍数)
-# |Multiple of cool down between player use big spray (Multiple number)
+# |大喷漆的冷却时间倍数 (upload_cooldown的倍数)
+# |Multiple number of big spray cooldown (Multiple of upload_cooldown)
 # 默认|Default: 1.5
 
 
 upload_cooldown: 60
-# |玩家上传图片的时间间隔 (秒)
-# |Cool down between player upload a new image (Second)
+# |上传图片的冷却时间 (秒)
+# |Cooldown between uploading an image (Second)
 # 默认|Default: 60
 
 upload_failed_cooldown_multiple: 0.2
 # upload_failed_cooldown == upload_cooldown * upload_failed_cooldown_multiple
-# |玩家上传图片失败的时间间隔倍数 (倍数)
-# |Multiple of cool down when player failed upload an image (Multiple number)
+# |上传图片失败时的冷却时间倍数 (upload_cooldown的倍数)
+# |Multiple number of cooldown when failed to upload an image (Multiple of upload_cooldown)
 # 默认|Default: 0.2
 
 copy_cooldown_multiple: 0.3
 # copy_cooldown == upload_cooldown * copy_cooldown_multiple
-# |玩家复制另一个玩家图片的时间间隔倍数 (倍数)
-# |Multiple of cool down when player copy an image from a player (Multiple number)
+# |玩家复制另一个玩家图片的冷却时间倍数 (upload_cooldown的倍数)
+# |Multiple of cooldown when player copy an image from another player (Multiple of upload_cooldown)
 # 默认|Default: 0.3
 
 
 file_size_limit: 1024
-# |玩家提供的链接图片大小限制 (kb), 图片会被保存到 384*384px 大小以节省空间
-# |Max size of the image from link (kb), the image are saved to 384*384px to save space
+# |玩家提供的图片文件大小限制 (kb), 图片会被保存到 384*384px 大小以节省空间
+# |Max file size of image (kb), the image are saved in size 384*384px to save space
 # 默认|Default: 1024
 
 download_limit: 3
@@ -158,12 +158,12 @@ spray_big_cost: 0
 
 F_spray: true
 # |启用 双击"F"喷漆, 仅在1.9+有效
-# |Enable double click "F" to spray, only support version 1.9+
+# |Enable double click "F" spray, only support version 1.9+
 # 默认|Default: true
 
 spray_on_ground: true
 # |允许在方块上下面喷涂, 仅在1.13+有效
-# |Allow spray on the upper and lower surfaces of the block, only support version 1.13+
+# |Allow spraying on the top and bottom surfaces of the block, only support version 1.13+
 # 默认|Default: true
 
 better_color: true
@@ -280,8 +280,8 @@ Messages:
     OK: "喷图图案复制成功！嘿嘿~\n"
 
 
-# 如果你想翻译，请到 [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] 向我投稿！
-# If you want to translate, find me in [mcbbs:笑天犬 | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] ！
+# 如果你想翻译，请到 [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] 向我投稿！
+# If you want to translate, find me in [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] ！
 
 #####################
 #  ENGLISH VERSION  #
