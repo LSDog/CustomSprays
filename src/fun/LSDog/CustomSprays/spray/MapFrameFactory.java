@@ -137,6 +137,8 @@ public class MapFrameFactory {
                     default:
                     case 3: itemFieldName = "rb"; break;
                 }
+            } else if (subVer == 20) {
+                itemFieldName = "rf";
             }
             // MAP
             if (cItem == null) {

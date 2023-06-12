@@ -16,8 +16,8 @@ ___
 |:-------------------:|--------------------------------------------------------------|
 | ![logo](logo64.png) | CustomSprays <br> 花样喷漆                                       |
 |   作者 <br> Author    | LSDog                                                        |
-|   版本 <br> Version   | 1.5.7                                                        |
-|   支持 <br> Support   | **1.8 ~ 1.19** (Bukkit Spigot Paper CatServer Mohist...)     |
+|   版本 <br> Version   | 1.5.8                                                        |
+|   支持 <br> Support   | **1.8 ~ 1.20** (Bukkit Spigot Paper CatServer Mohist...)     |
 |     指令 <br> Cmd     | `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
 |    权限 <br> Perm     | 请见 "config.yml" / see "config.yml"                           |
 > 
@@ -26,8 +26,8 @@ ___
 > | [Spigot](https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/)
 > | [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
 
-## ⏬ **下载 | Download**:
-### [发布页](https://github.com/LSDogX/CustomSprays/releases) / [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
+## ⏬ **下载 | Download** → [发布页](https://github.com/LSDogX/CustomSprays/releases) | [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
+(上面Github打不开? → [Gitee发布页](https://gitee.com/pixelmc/CustomSprays/releases))
 
 
 **⭐ [喷漆音效资源包](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) / [Spray sound resource pack](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
@@ -69,7 +69,7 @@ ___
 
 ## 🎮 版本支持 | Version Support
 ___
-> 🔷 **1.8 ~ 1.19.4**
+> 🔷 **1.8 ~ 1.20**
 
 > 📏 支持的 **"领域"** 插件 | Supported **"region"** plugins:
 > - [x] Residence .......... [ *?* ~ 5.0.1.3+ ]

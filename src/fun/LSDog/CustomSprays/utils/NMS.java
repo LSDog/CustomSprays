@@ -216,8 +216,17 @@ public class NMS {
     }
     
     public static Object getMcPlayerConnection(Player player) throws ReflectiveOperationException {
-        if (getSubVer() < 17) return getMcEntityPlayerClass().getField("playerConnection").get(getMcEntityPlayer(player));
-        else return getMcEntityPlayerClass().getField("b").get(getMcEntityPlayer(player));
+        int subVer = getSubVer();
+        String fieldName = "playerConnection";
+        if (subVer >= 18) switch (subVer) {
+            case 18:
+            case 19:
+                fieldName = "b"; break;
+            case 20:
+            default:
+                fieldName = "c"; break;
+        }
+        return getMcEntityPlayerClass().getField(fieldName).get(getMcEntityPlayer(player));
     }
 
     public static int getMcEntityId(Object mcEntity) throws ReflectiveOperationException {
@@ -225,7 +234,7 @@ public class NMS {
         int subRVer = getSubRVer();
         if (Entity_getId == null) {
             String methodName = "getId";
-            switch (subVer) {
+            if (subVer >= 18) switch (subVer) {
                 case 18:
                     methodName = "ae";
                     break;
@@ -238,8 +247,11 @@ public class NMS {
                         // 真牛逼他又改了 1_19_R3
                     }
                     break;
+                case 20:
+                default:
+                    methodName = "af"; break;
             }
-            Entity_getId = NMS.getMcEntityItemFrameClass().getMethod(methodName);
+            Entity_getId = NMS.getMcEntityClass().getMethod(methodName);
             Entity_getId.setAccessible(true);
         }
         return (int) Entity_getId.invoke(mcEntity);
@@ -249,7 +261,7 @@ public class NMS {
         int subVer = getSubVer();
         if (Entity_getDataWatcher == null) {
             String methodName = "getDataWatcher";
-            switch (subVer) {
+            if (subVer >= 18) switch (subVer) {
                 case 18:
                     methodName = "ai";
                     break;
@@ -260,6 +272,9 @@ public class NMS {
                         case 3: methodName = "aj"; break;
                     }
                     break;
+                case 20:
+                default:
+                    methodName = "aj"; break;
             }
             Entity_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod(methodName);
             Entity_getDataWatcher.setAccessible(true);

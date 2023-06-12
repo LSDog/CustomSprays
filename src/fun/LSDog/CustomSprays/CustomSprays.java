@@ -87,11 +87,12 @@ public class CustomSprays extends JavaPlugin {
         new Metrics(this, 13633);
 
         if (getConfig().getBoolean("check_update")) Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-           String nVersion = CustomSprays.instance.getDescription().getVersion();
-           String lVersion = UpdateChecker.check();
-           if (lVersion == null) return;
-           if (nVersion.equals(lVersion)) return;
-           latestVersion = lVersion;
+           String pluginVersion = CustomSprays.instance.getDescription().getVersion();
+           String latestVersion = UpdateChecker.checkGithub();
+           if (latestVersion == null) latestVersion = UpdateChecker.checkGitee();
+           if (latestVersion == null) return;
+           if (pluginVersion.equals(latestVersion)) return;
+           CustomSprays.latestVersion = latestVersion;
         });
 
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {

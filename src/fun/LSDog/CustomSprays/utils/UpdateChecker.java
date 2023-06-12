@@ -4,36 +4,63 @@ import fun.LSDog.CustomSprays.CustomSprays;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 public class UpdateChecker {
 
 
-    public static String check() {
+    public static String checkGithub() {
 
         try {
-            URL url = new URL("https://gitee.com/api/v5/repos/PixelMC/CustomSprays/releases/latest");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setUseCaches(false);
-            conn.setConnectTimeout(10000);
-            conn.connect();
-            try (InputStream in = conn.getInputStream()) {
-                byte[] bytes = new byte[in.available()];
-                int read = in.read(bytes);
-                if (read == -1) return null;
-                JSONObject jsonObject = (JSONObject) JSONValue.parse(new String(bytes, StandardCharsets.UTF_8));
-                CustomSprays.log("found new version: " + jsonObject.get("tag_name"));
-                return (String) jsonObject.get("tag_name");
-            }
+            URL url = new URL("https://api.github.com/repos/LSDogX/CustomSprays/releases/latest");
+            return getVersionFromUrlApi(url);
         } catch (Exception e) {
             CustomSprays.log("failed to check version...");
+            CustomSprays.log(e);
         }
         return null;
     }
 
+    public static String checkGitee() {
+
+        try {
+            URL url = new URL("https://gitee.com/api/v5/repos/PixelMC/CustomSprays/releases/latest");
+            return getVersionFromUrlApi(url);
+        } catch (Exception e) {
+            CustomSprays.log("failed to check version...");
+            CustomSprays.log(e);
+        }
+        return null;
+    }
+
+
+    private static String getVersionFromUrlApi(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setUseCaches(false);
+        conn.setConnectTimeout(10000);
+        conn.connect();
+        try (InputStream in = conn.getInputStream()) {
+            String string = inputStreamToString(in);
+            JSONObject jsonObject = (JSONObject) JSONValue.parse(string);
+            CustomSprays.log("found new version: " + jsonObject.get("tag_name"));
+            return (String) jsonObject.get("tag_name");
+        }
+    }
+
+
+    public static String inputStreamToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+        return result.toString("UTF-8");
+    }
 
 }

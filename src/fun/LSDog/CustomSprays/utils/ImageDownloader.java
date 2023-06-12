@@ -6,7 +6,6 @@ import fun.LSDog.CustomSprays.data.DataManager;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,16 +56,6 @@ public class ImageDownloader implements Closeable {
             conn.setRequestProperty("Referer", "https://www.pixiv.net/");
         conn.setRequestProperty("Accept-Encoding", "gzip, deflate, br");
         conn.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7");
-    }
-
-    public static String inputStreamToString(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = inputStream.read(buffer)) != -1) {
-            result.write(buffer, 0, length);
-        }
-        return result.toString("UTF-8");
     }
 
     @Override
