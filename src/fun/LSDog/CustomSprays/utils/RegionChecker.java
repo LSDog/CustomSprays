@@ -140,7 +140,7 @@ public class RegionChecker {
         // GriefDefender
         if (GriefDefenderAPI_core != null) {
             try {
-                Object claim = GriefDefenderAPI_Core_getClaimAt.invoke(loc, GriefDefenderAPI_core);
+                Object claim = GriefDefenderAPI_Core_getClaimAt.invoke(GriefDefenderAPI_core, loc);
                 // GriefDefender.getCore().getClaimAt(loc).getDisplayName();
                 nameList.add((String) GriefDefenderAPI_Claim_getDisplayName.invoke(claim));
                 // GriefDefender.getCore().getClaimAt(loc).getParents(true);
