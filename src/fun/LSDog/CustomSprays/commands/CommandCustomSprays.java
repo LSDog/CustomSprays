@@ -79,9 +79,9 @@ public class CommandCustomSprays implements TabExecutor {
 
 
             case "upload":
+                if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
                 new BukkitRunnable() {
                     public void run() {
-                        if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!"); return; }
 
                         Player player = (Player) sender;
                         if (uploadingSet.contains(player.getUniqueId())) {
@@ -144,11 +144,10 @@ public class CommandCustomSprays implements TabExecutor {
                 }.runTaskAsynchronously(CustomSprays.instance);
                 break;
 
-
             case "copy":
+                if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
                 new BukkitRunnable() {
                     public void run() {
-                        if (!(sender instanceof Player)) { sender.sendMessage(CustomSprays.prefix + "player only!"); return; }
 
                         Player player = (Player) sender;
                         if (args.length < 2) {
@@ -199,17 +198,10 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             case "view":
-                if (!(sender instanceof Player)) {
-                    sender.sendMessage(CustomSprays.prefix + "player only!");
-                    return true;
-                }
+                if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
+                if (!player.hasPermission("CustomSprays.view")) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION")); return true; }
                 new BukkitRunnable() {
                     public void run() {
-                        Player player = (Player) sender;
-                        if (!player.hasPermission("CustomSprays.view")) {
-                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
-                            return;
-                        }
 
                         Player targetPlayer;
                         if (args.length == 1) {
@@ -262,14 +254,8 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             case "check":
-                if (player == null) {
-                    sender.sendMessage(CustomSprays.prefix + "player only!");
-                    return true;
-                }
-                if (!player.hasPermission("CustomSprays.check")) {
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
-                    return true;
-                }
+                if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
+                if (!player.hasPermission("CustomSprays.check")) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION")); return true; }
 
                 new BukkitRunnable() {
                     public void run() {
@@ -281,14 +267,8 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             case "delete":
-                if (player == null) {
-                    sender.sendMessage(CustomSprays.prefix + "player only!");
-                    return true;
-                }
-                if (!player.hasPermission("CustomSprays.delete")) {
-                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION"));
-                    return true;
-                }
+                if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
+                if (!player.hasPermission("CustomSprays.delete")) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION")); return true; }
 
                 new BukkitRunnable() {
                     public void run() {
@@ -303,40 +283,40 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             case "getitem":
-                if (!sender.isOp()) return true;
-                if (player != null) {
-                    int useTime = 0;
-                    if (args.length >= 2) {
-                        try {
-                            useTime = Integer.parseInt(args[1]);
-                        } catch (NumberFormatException e) {
-                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_GETITEM.BAD_NUM"));
-                            return true;
-                        }
-                        if (useTime <= 0) {
-                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_GETITEM.BAD_NUM"));
-                            return true;
-                        }
+                if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
+                if (!player.hasPermission("CustomSprays.check")) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION")); return true; }
+
+                int useTime = 0;
+                if (args.length >= 2) {
+                    try {
+                        useTime = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException e) {
+                        player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_GETITEM.BAD_NUM"));
+                        return true;
                     }
-                    Material material = Material.matchMaterial(CustomSprays.instance.getConfig().getString("spray_item"));
-                    ItemStack item = new ItemStack(material);
-                    ItemMeta itemMeta = item.getItemMeta();
-                    String loreText = CustomSprays.instance.getConfig().getString("spray_item_lore");
-                    String loreTimesUse = CustomSprays.instance.getConfig().getString("spray_item_lore_times_use");
-                    List<String> lore = new ArrayList<>();
-                    if (loreText != null) {
-                        lore.add(ChatColor.translateAlternateColorCodes('&', loreText));
-                        lore.add("");
+                    if (useTime <= 0) {
+                        player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_GETITEM.BAD_NUM"));
+                        return true;
                     }
-                    if (loreTimesUse != null) lore.add(
-                            ChatColor.translateAlternateColorCodes('&', loreTimesUse) +
-                            (useTime > 0 ? useTime : DataManager.getMsg(player, "INFINITE"))
-                    );
-                    itemMeta.setLore(lore);
-                    itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("spray_item_name")));
-                    item.setItemMeta(itemMeta);
-                    player.getInventory().addItem(item);
                 }
+                Material material = Material.matchMaterial(CustomSprays.instance.getConfig().getString("spray_item"));
+                ItemStack item = new ItemStack(material);
+                ItemMeta itemMeta = item.getItemMeta();
+                String loreText = CustomSprays.instance.getConfig().getString("spray_item_lore");
+                String loreTimesUse = CustomSprays.instance.getConfig().getString("spray_item_lore_times_use");
+                List<String> lore = new ArrayList<>();
+                if (loreText != null) {
+                    lore.add(ChatColor.translateAlternateColorCodes('&', loreText));
+                    lore.add("");
+                }
+                if (loreTimesUse != null) lore.add(
+                        ChatColor.translateAlternateColorCodes('&', loreTimesUse) +
+                                (useTime > 0 ? useTime : DataManager.getMsg(player, "INFINITE"))
+                );
+                itemMeta.setLore(lore);
+                itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("spray_item_name")));
+                item.setItemMeta(itemMeta);
+                player.getInventory().addItem(item);
                 break;
 
             default:
