@@ -102,6 +102,7 @@ public class Events implements Listener {
             if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
                 ItemMeta itemMeta = item.getItemMeta();
                 List<String> lore = itemMeta.getLore();
+                boolean isInfinite = false;
                 int useTime = 0;
                 int useTimeLineIndex = -1;
                 for (int i = 0; i < lore.size(); i++) {
@@ -115,7 +116,9 @@ public class Events implements Listener {
                     if (useTimeLineIndex == -1 && line.startsWith(loreTimesUse)) {
                         useTimeLineIndex = i;
                         String useTimeString = line.substring(loreTimesUse.length());
-                        if (!useTimeString.equals(DataManager.getMsg(e.getPlayer(), "INFINITE"))) {
+                        if (useTimeString.equals(DataManager.getMsg(e.getPlayer(), "INFINITE"))) {
+                            isInfinite = true;
+                        } else {
                             try {
                                 useTime = Integer.parseInt(line.substring(loreTimesUse.length()));
                             } catch (Exception ex) {
@@ -124,6 +127,11 @@ public class Events implements Listener {
                             }
                         }
                     }
+                }
+
+                if (isInfinite) {
+                    SprayManager.spray(e.getPlayer(), e.getPlayer().isSneaking());
+                    return;
                 }
 
                 if (useTime >= 1 && SprayManager.spray(e.getPlayer(), e.getPlayer().isSneaking())) {
@@ -142,7 +150,6 @@ public class Events implements Listener {
                             e.getPlayer().getInventory().setItemInOffHand(item);
                             break;
                     }
-                    e.getPlayer().sendMessage(itemMeta.getLore().toString());
                 }
             } else {
                 SprayManager.spray(e.getPlayer(), e.getPlayer().isSneaking());
