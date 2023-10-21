@@ -2,6 +2,7 @@ package fun.LSDog.CustomSprays.commands;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
+import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.spray.MapFrameFactory;
 import fun.LSDog.CustomSprays.spray.SprayBase;
 import fun.LSDog.CustomSprays.spray.SprayManager;
@@ -23,6 +24,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -30,12 +33,33 @@ public class CommandCustomSprays implements TabExecutor {
 
     private static final Set<UUID> uploadingSet = new HashSet<>();
 
+    private Method methodGetMap;
+
     public static List<String> getTabs(String input, List<String> tabs) {
-        if (input == null || "".equals(input)) return tabs;
+        if (input == null || input.isEmpty()) return tabs;
         ArrayList<String> list = new ArrayList<>();
         for (String s : tabs)
             if (s.toLowerCase(Locale.ENGLISH).startsWith(input.toLowerCase(Locale.ENGLISH))) list.add(s);
         return list;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            List<String> argList = new ArrayList<>();
+            argList.add("upload");
+            if (sender.hasPermission("CustomSprays.copy")) argList.add("copy");
+            if (sender.hasPermission("CustomSprays.view")) argList.add("view");
+            if (sender.hasPermission("CustomSprays.check")) argList.add("check");
+            if (sender.hasPermission("CustomSprays.delete")) argList.add("delete");
+            if (sender.hasPermission("CustomSprays.getitem")) argList.add("getitem");
+            if (sender.isOp()) argList.add("reload");
+            return getTabs(args[0], argList);
+        } else {
+            List<String> list = new ArrayList<>();
+            Bukkit.getOnlinePlayers().forEach(p -> list.add(p.getName()));
+            return getTabs(args[1], list);
+        }
     }
 
     @Override
@@ -225,7 +249,7 @@ public class CommandCustomSprays implements TabExecutor {
                             targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " " + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
                         // check image by showing item
-                        short id = 0;
+                        int id = MapViewId.shortViewId;
                         try {
                             if (NMS.getSubVer() < 17) {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
@@ -240,13 +264,13 @@ public class CommandCustomSprays implements TabExecutor {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        // Send original mapview back
                         Bukkit.getScheduler().runTaskLater(CustomSprays.instance, () -> {
                             player.updateInventory();
-                            MapView mapView = NMS.getSubVer() > 12 ? Bukkit.getMap(id) : null;
-                            if (mapView == null) {
-                                mapView = Bukkit.createMap(player.getWorld());
+                            if (NMS.getSubVer() < 13) {
+                                MapView mapView = getMapView(id);
+                                if (mapView != null) player.sendMap(mapView);
                             }
-                            player.sendMap(mapView);
                         }, 30);
                         sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
                     }
@@ -325,22 +349,19 @@ public class CommandCustomSprays implements TabExecutor {
         return true;
     }
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
-        if (args.length == 1) {
-            List<String> argList = new ArrayList<>();
-            argList.add("upload");
-            if (sender.hasPermission("CustomSprays.copy")) argList.add("copy");
-            if (sender.hasPermission("CustomSprays.view")) argList.add("view");
-            if (sender.hasPermission("CustomSprays.check")) argList.add("check");
-            if (sender.hasPermission("CustomSprays.delete")) argList.add("delete");
-            if (sender.hasPermission("CustomSprays.getitem")) argList.add("getitem");
-            if (sender.isOp()) argList.add("reload");
-            return getTabs(args[0], argList);
-        } else {
-            List<String> list = new ArrayList<>();
-            Bukkit.getOnlinePlayers().forEach(p -> list.add(p.getName()));
-            return getTabs(args[1], list);
+    private MapView getMapView(int id) {
+        Class<?> fieldClass = NMS.getSubVer() < 13 ? short.class : int.class;
+        if (methodGetMap == null) {
+            try {
+                methodGetMap = Bukkit.class.getMethod("getMap", fieldClass);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            return (MapView) methodGetMap.invoke(null, NMS.getSubVer() < 13 ? (short) id : id);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
     }
 

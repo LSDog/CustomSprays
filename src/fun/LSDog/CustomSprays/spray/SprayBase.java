@@ -87,7 +87,7 @@ public class SprayBase {
         this.intDirection = MapFrameFactory.blockFaceToIntDirection(blockFace);
 
         // ↓喷漆占用就取消
-        if (SprayManager.getSpray(targetBlock.getRelativeBlock(), blockFace) != null) return false;
+        if (SprayManager.hasSpray(targetBlock.getRelativeBlock(), blockFace)) return false;
 
         // 喷漆在禁止区域就取消
         if (!player.hasPermission("CustomSprays.nodisable") && RegionChecker.isLocInDisabledRegion(location)) {

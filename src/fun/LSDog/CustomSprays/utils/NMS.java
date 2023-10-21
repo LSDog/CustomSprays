@@ -105,8 +105,9 @@ public class NMS {
 
     public static void sendPacket(Player player, Object packet) throws ReflectiveOperationException {
         if (PlayerConnection_SendPacket == null) {
-            if (getSubVer() < 18) PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass());
-            else PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("a", getPacketClass());
+            if (getSubVer() <= 17) PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass());
+            else if (getSubVer() < 20 || (getSubVer() == 20 && getSubRVer() <= 1)) PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("a", getPacketClass());
+            else PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("b", getPacketClass()); // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
         }
         PlayerConnection_SendPacket.invoke(getMcPlayerConnection(player), packet);
     }
@@ -248,8 +249,9 @@ public class NMS {
                     }
                     break;
                 case 20:
+                    methodName = subRVer <= 1 ? "af" : "ah"; break;
                 default:
-                    methodName = "af"; break;
+                    methodName = "ah"; break;
             }
             Entity_getId = NMS.getMcEntityClass().getMethod(methodName);
             Entity_getId.setAccessible(true);
@@ -273,10 +275,11 @@ public class NMS {
                     }
                     break;
                 case 20:
+                    methodName = subRVer <= 1 ? "aj" : "al"; break;
                 default:
                     methodName = "aj"; break;
             }
-            Entity_getDataWatcher = NMS.getMcEntityItemFrameClass().getMethod(methodName);
+            Entity_getDataWatcher = NMS.getMcEntityClass().getMethod(methodName);
             Entity_getDataWatcher.setAccessible(true);
         }
         return Entity_getDataWatcher.invoke(entity);

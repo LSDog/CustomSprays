@@ -13,11 +13,16 @@ public class MapViewId {
     private static int MAX = 32765;
     private static int MIN = 32467;
 
+    /**
+     * /sprays view 所使用的id
+     */
+    public static int shortViewId = 0;
+
     public static int getId() {
         return (++id > MAX || id < MIN) ? (id = MIN) : id;
     }
 
-    public static void setNumbers(int max, int min) {
+    public static void setIdRange(int max, int min) {
         if (NMS.getSubVer() < 13) {
             if (max > 32767 || max < -32768 || min > 32767 || min < -32768) return;
         }

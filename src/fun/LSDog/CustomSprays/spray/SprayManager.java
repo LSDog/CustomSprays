@@ -137,6 +137,25 @@ public class SprayManager {
     }
 
     /**
+     * 检查特定方块的特定面上有没有喷漆
+     * @param block 喷漆<b>所在的方块</b>, 而不是依附着的方块
+     * @param blockFace 喷漆朝向
+     * @return 有无喷漆
+     */
+    public static boolean hasSpray(Block block, BlockFace blockFace) {
+
+        if (block == null || blockFace == null) return false;
+
+        List<SprayBase> list = locationSprayMap.get(block);
+        
+        if (list != null) for (SprayBase spray : list) {
+            if (blockFace == spray.blockFace) return true;
+        }
+
+        return false;
+    }
+
+    /**
      * 获取特定方块的特定面上的喷漆
      * @param block 喷漆<b>所在的方块</b>, 而不是依附着的方块
      * @param blockFace 喷漆朝向

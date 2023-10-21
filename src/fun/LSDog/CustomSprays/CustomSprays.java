@@ -79,7 +79,8 @@ public class CustomSprays extends JavaPlugin {
 
         // 1.13 及以上 MapView 支持int
         if (NMS.getSubVer() >= 13) {
-            MapViewId.setNumbers(-2048_000_000,-2048_000_999);
+            MapViewId.setIdRange(-2048_000_000,-2048_000_999);
+            MapViewId.shortViewId = -2048_001_000;
         }
 
         // 信息统计
