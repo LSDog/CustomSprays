@@ -1,4 +1,4 @@
-![CustomSprays](banner.png)
+![CustomSprays](media/banner.png)
 
 # **CustomSprays** | 花样喷漆 🎉
 
@@ -14,7 +14,7 @@ ___
 
 |       *Name*        | *Content*                                                    |
 |:-------------------:|--------------------------------------------------------------|
-| ![logo](logo64.png) | CustomSprays <br> 花样喷漆                                       |
+| ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                       |
 |   作者 <br> Author    | LSDog                                                        |
 |   版本 <br> Version   | 1.5.8                                                        |
 |   支持 <br> Support   | **1.8 ~ 1.20** (Bukkit Spigot Paper CatServer Mohist...)     |
@@ -62,7 +62,7 @@ ___
 
 
 
-### 💻 更多指令发送 "/sprays" |  Send "/sprays" for more commands  
+### 💻 更多指令发送 "/sprays" | Send "/sprays" for more commands  
 
 ### 💻 更多设置请见 "config.yml" | See "config.yml" for more configurations
 
@@ -141,4 +141,4 @@ ___
 
 本项目由 [PixelMC](http://pixelmc.cn/) 团队提供长期支持与维护
 
-![logo](banner_logo.png)
+![logo](media/banner_logo.png)
