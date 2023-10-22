@@ -62,6 +62,27 @@ public class CommandCustomSprays implements TabExecutor {
         }
     }
 
+    public static String getSprayItemMaterialName() {
+        String name = CustomSprays.instance.getConfig().getString("spray_item");
+        if (NMS.getSubVer() <= 12 && "GOLDEN_HORSE_ARMOR".equals(name)) name = "GOLD_BARDING";
+        return name;
+    }
+
+    private MapView getMapView(int id) {
+        if (methodGetMap == null) try {
+            methodGetMap = Bukkit.class.getMethod("getMap", (NMS.getSubVer() <= 12) ? short.class : int.class);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            if (NMS.getSubVer() <= 12) {
+                return (MapView) methodGetMap.invoke(null, (short) id);
+            } else return (MapView) methodGetMap.invoke(null, id);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     @SuppressWarnings({"deprecation"})
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -328,7 +349,7 @@ public class CommandCustomSprays implements TabExecutor {
                         return true;
                     }
                 }
-                Material material = Material.matchMaterial(CustomSprays.instance.getConfig().getString("spray_item"));
+                Material material = Material.matchMaterial(getSprayItemMaterialName());
                 ItemStack item = new ItemStack(material);
                 ItemMeta itemMeta = item.getItemMeta();
                 String loreText = CustomSprays.instance.getConfig().getString("spray_item_lore");
@@ -352,21 +373,6 @@ public class CommandCustomSprays implements TabExecutor {
                 sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(sender, "UNKNOWN_COMMAND"));
         }
         return true;
-    }
-
-    private MapView getMapView(int id) {
-        if (methodGetMap == null) try {
-            methodGetMap = Bukkit.class.getMethod("getMap", (NMS.getSubVer() <= 12) ? short.class : int.class);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            if (NMS.getSubVer() <= 12) {
-                return (MapView) methodGetMap.invoke(null, (short) id);
-            } else return (MapView) methodGetMap.invoke(null, id);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

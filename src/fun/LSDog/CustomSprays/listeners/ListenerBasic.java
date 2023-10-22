@@ -1,6 +1,7 @@
 package fun.LSDog.CustomSprays.listeners;
 
 import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.data.DataMySQL;
 import fun.LSDog.CustomSprays.spray.SprayManager;
@@ -53,7 +54,7 @@ public class ListenerBasic implements Listener {
         if (
                 e.getAction().name().contains("RIGHT")
                         && e.hasItem()
-                        && e.getMaterial().name().equalsIgnoreCase(CustomSprays.instance.getConfig().getString("spray_item"))
+                        && e.getMaterial().name().equalsIgnoreCase(CommandCustomSprays.getSprayItemMaterialName())
         ) {
             if (e.isCancelled()) return;
 
@@ -106,7 +107,7 @@ public class ListenerBasic implements Listener {
                     lore.set(useTimeLineIndex, loreTimesUse + useTime);
                     itemMeta.setLore(lore);
                     item.setItemMeta(itemMeta);
-                    if (NMS.getSubVer() <= 7) {
+                    if (NMS.getSubVer() <= 8) {
                         //noinspection deprecation
                         e.getPlayer().setItemInHand(item);
                     } else {
