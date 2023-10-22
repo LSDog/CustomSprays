@@ -57,7 +57,7 @@ public class SprayBase {
     public static void playSpraySound(Player player) {
         String sound = CustomSprays.instance.getConfig().getString("spray_sound");
         if (sound == null || "default".equals(sound)) {
-            if (NMS.getSubVer() == 8) player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F);
+            if (NMS.getSubVer() <= 8) player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F);
             else player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F);
         } else {
             String[] strings = sound.split("-");
@@ -73,21 +73,21 @@ public class SprayBase {
     public boolean create(long removeTick) {
 
         Location eyeLocation = player.getEyeLocation();
-        RayTracer.BlockRayTraceResult targetBlock =
+        RayTracer.BlockRayTraceResult ray =
                 new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instance.getConfig().getDouble("distance")).rayTraceBlock(SprayManager::isSpraySurfaceBlock);
-        if (targetBlock == null) return false;
+        if (ray == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆
-        if (targetBlock.isUpOrDown() && ( NMS.getSubVer() < 13 || !CustomSprays.instance.getConfig().getBoolean("spray_on_ground") )) return false;
+        if (ray.isUpOrDown() && ( NMS.getSubVer() < 13 || !CustomSprays.instance.getConfig().getBoolean("spray_on_ground") )) return false;
 
-        this.block = targetBlock.getRelativeBlock();
+        this.block = ray.getRelativeBlock();
         this.location = block.getLocation();
-        this.blockFace = targetBlock.blockFace;
+        this.blockFace = ray.blockFace;
         this.playerLocation = player.getLocation();
         this.intDirection = MapFrameFactory.blockFaceToIntDirection(blockFace);
 
         // ↓喷漆占用就取消
-        if (SprayManager.hasSpray(targetBlock.getRelativeBlock(), blockFace)) return false;
+        if (SprayManager.hasSpray(ray.getRelativeBlock(), blockFace)) return false;
 
         // 喷漆在禁止区域就取消
         if (!player.hasPermission("CustomSprays.nodisable") && RegionChecker.isLocInDisabledRegion(location)) {
@@ -128,9 +128,12 @@ public class SprayBase {
         int mapViewId = MapViewId.getId();
 
         Object mcMap = MapFrameFactory.getMcMap(mapViewId);
-        Object mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
         Object itemFrame = MapFrameFactory.getItemFrame(mcMap, location, blockFace, playerLocation);
         Object spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+        Object mapPacket = null;
+        Object[] mapPackets_7 = new Object[0];
+        if (NMS.getSubVer() >= 8) mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
+        else mapPackets_7 = MapFrameFactory.getMapPackets_7((short) mapViewId, pixels);
 
         itemFrameId = NMS.getMcEntityId(itemFrame);
         Object dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
@@ -145,7 +148,9 @@ public class SprayBase {
         for (Player p : $playersShowTo) {
             NMS.sendPacket(p, spawnPacket);  // 生成带地图的展示框
             NMS.sendPacket(p, dataPacket);  // 为展示框添加 dataWatcher
-            NMS.sendPacket(p, mapPacket);  // 刷新 mapView (也就是"画图")
+            // 刷新 mapView (也就是"画图")
+            if (NMS.getSubVer() >= 8) NMS.sendPacket(p, mapPacket);
+            else for (Object packet : mapPackets_7) NMS.sendPacket(p, packet);
         }
 
         if (playSound) playSpraySound(player);
@@ -168,6 +173,19 @@ public class SprayBase {
         valid = false;
         SprayManager.removeSpray(this);
         NMS.sendDestroyEntities(new int[]{itemFrameId}, playersShown);
+    }
+
+    protected Location getFixedPointLoc(Location location) {
+        location = location.clone();
+        location.setX(getFixedPoint(location.getX()));
+        location.setY(getFixedPoint(location.getY()));
+        location.setZ(getFixedPoint(location.getZ()));
+        return location;
+    }
+
+    private double getFixedPoint(double num) {
+        return Math.floor(num);
+        //return ((int) num * 32.0D) / 32.0D;
     }
 
 }

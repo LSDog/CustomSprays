@@ -167,8 +167,8 @@ spray_on_ground: true
 # 默认|Default: true
 
 better_color: true
-# |让颜色更准确, 首次启动时需要耗费时间计算颜色表
-# |Makes colors more accurate, needs time to calculate color palette on first startup
+# |让颜色更准确, 首次启动时需要耗费时间计算颜色表。1.7.10及以下不适用
+# |Makes colors more accurate, needs time to calculate color palette on first startup. 1.7.10 and below are not available.
 # 默认|Default: true
 
 destroy_if_exhausted: true

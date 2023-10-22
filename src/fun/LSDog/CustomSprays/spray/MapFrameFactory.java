@@ -29,6 +29,16 @@ public class MapFrameFactory {
     private static Constructor<?> cMapData;
     private static Map<String, Object> enumDirectionMap = null;
 
+    private static boolean usingSpigot = false;
+
+    static {
+        try {
+            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass("org.bukkit.Server$Spigot");
+            if (clazz != null) usingSpigot = true;
+        } catch (ClassNotFoundException e) {
+            usingSpigot = false;
+        }
+    }
 
     /**
      * 获取 NMS ItemFrame
@@ -39,11 +49,21 @@ public class MapFrameFactory {
     protected static Object getItemFrame(Object mcMap, Location location, BlockFace blockFace, Location playerLocation) throws ReflectiveOperationException {
         int subVer = NMS.getSubVer();
         Object itemFrame;
-        if (cItemFrame == null) {
-            cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass());
-            cItemFrame.setAccessible(true);
+        if (subVer <= 7) {
+            if (cItemFrame == null) {
+                cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), int.class, int.class, int.class, int.class);
+                cItemFrame.setAccessible(true);
+            }
+
+            itemFrame = cItemFrame.newInstance(
+                    NMS.getMcWorld(location.getWorld()), location.getBlockX(), location.getBlockY(), location.getBlockZ(), blockFaceToIntDirection(blockFace));
+        } else {
+            if (cItemFrame == null) {
+                cItemFrame = NMS.getMcEntityItemFrameClass().getConstructor(NMS.getMcWorldClass(), NMS.getMcBlockPositionClass(), NMS.getMcEnumDirectionClass());
+                cItemFrame.setAccessible(true);
+            }
+            itemFrame = cItemFrame.newInstance(NMS.getMcWorld(location.getWorld()), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
         }
-        itemFrame = cItemFrame.newInstance(NMS.getMcWorld(location.getWorld()), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
 
         // 设为隐形（展示框、1.16以上为真隐形）
         if (ItemFrame_setInvisible == null)
@@ -57,12 +77,18 @@ public class MapFrameFactory {
         ItemFrame_setInvisible.invoke(itemFrame, true);
 
         // 设为静音（展示框）
-        if (ItemFrame_setSilent == null) switch (subVer) {
-            case 8: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("b", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
-            case 9: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("c", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
-            case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17:
-                ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("setSilent", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
-            default: ItemFrame_setSilent = NMS.getMcEntityClass().getMethod("d", boolean.class); ItemFrame_setSilent.setAccessible(true); break;
+        if (ItemFrame_setSilent == null) {
+            String methodName;
+            switch (subVer) {
+                case 7: methodName = "e"; break;
+                case 8: methodName = "b"; break;
+                case 9: methodName = "c"; break;
+                case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17:
+                    methodName = "setSilent"; break;
+                default: methodName = "d"; break;
+            }
+            ItemFrame_setSilent = NMS.getMcEntityClass().getMethod(methodName, boolean.class);
+            ItemFrame_setSilent.setAccessible(true);
         }
         ItemFrame_setSilent.invoke(itemFrame, true);
 
@@ -117,7 +143,13 @@ public class MapFrameFactory {
     public static Object getMcMap(int mapViewId) throws ReflectiveOperationException {
         int subVer = NMS.getSubVer();
         Object mcMap;
-        if (subVer <= 12) {
+        if (subVer <= 7) {
+            if (cItem == null) {
+                cItem = NMS.getMcItemStackClass().getConstructor(NMS.getMcItemClass(), int.class, int.class);
+                cItem.setAccessible(true);
+            }
+            mcMap = cItem.newInstance(NMS.getMcItemsClass().getField("MAP").get(null), 1, (short) mapViewId);
+        } else if (subVer <= 12) {
             // MAP
             if (cItem == null) {
                 cItem = NMS.getMcItemStackClass().getConstructor(NMS.getMcItemClass(), int.class, int.class);
@@ -227,6 +259,48 @@ public class MapFrameFactory {
             mapPacket = cPacketPlayOutMap.newInstance(mapViewId, (byte) 3, false, Collections.emptyList(), mapData);
         }
         return mapPacket;
+    }
+
+    /**
+     * 获取 1.7.10 发送 Map图案的包 <br>
+     * 1.7.10及以前的地图图案是按行发送的，一次128个颜色 <br>
+     * [包类型(0表示颜色数组), 起始 x, 起始 y, ...颜色数组] <br>
+     * 详见 <a href="https://wiki.vg/index.php?title=Protocol&oldid=6003#Maps">wiki.vg</a> 以及客户端源码 1.7.10.jar ayi#a(byte[] byArray) 方法
+     * @param mapViewId mapView的id (short)
+     * @param pixels 像素数据
+     * @return 发送Map图案的包
+     */
+    public static Object[] getMapPackets_7(short mapViewId, byte[] pixels) throws ReflectiveOperationException {
+        Object[] mapPackets = new Object[128];
+        if (cPacketPlayOutMap == null) {
+            // Spigot version has 3rd parameter byte, just use 0.
+            if (usingSpigot) cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class, byte.class);
+            else cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class);
+            cPacketPlayOutMap.setAccessible(true);
+        }
+        for (byte x = 0; x != -128; x++) {
+            byte[] bytes = new byte[131];
+            bytes[1] = x;
+            for (int y = 0; y < 128; ++y) {
+                bytes[y + 3] = pixels[y * 128 + x];
+            }
+            if (usingSpigot) mapPackets[x] = cPacketPlayOutMap.newInstance(mapViewId, bytes, (byte) 0);
+            else mapPackets[x] = cPacketPlayOutMap.newInstance(mapViewId, bytes);
+        }
+        return mapPackets;
+    }
+
+    public static Object getMapScalePacket_7(short mapViewId, byte scale) throws ReflectiveOperationException {
+        byte[] bytes = new byte[]{2,scale};
+        if (cPacketPlayOutMap == null) {
+            // Spigot version has 3rd parameter byte, just use 0.
+            if (usingSpigot) cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class, byte.class);
+            else cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class);
+            cPacketPlayOutMap.setAccessible(true);
+        }
+
+        if (usingSpigot) return cPacketPlayOutMap.newInstance(mapViewId, bytes, (byte) 0);
+        return cPacketPlayOutMap.newInstance(mapViewId, bytes);
     }
 
     protected static Object blockFaceToEnumDirection(BlockFace blockFace) {

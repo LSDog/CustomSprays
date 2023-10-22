@@ -3,6 +3,8 @@ package fun.LSDog.CustomSprays;
 import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
 import fun.LSDog.CustomSprays.commands.CommandSpray;
 import fun.LSDog.CustomSprays.data.DataManager;
+import fun.LSDog.CustomSprays.listeners.ListenerBasic;
+import fun.LSDog.CustomSprays.listeners.ListenerBasicNew;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.utils.MapColors;
 import fun.LSDog.CustomSprays.utils.NMS;
@@ -71,9 +73,11 @@ public class CustomSprays extends JavaPlugin {
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());
 
+        Bukkit.getPluginManager().registerEvents(new ListenerBasic(), this);
+
         // 检测条件并启用 双击F 喷漆
         if (NMS.getSubVer() >= 9 && getConfig().getBoolean("F_spray")) {
-            Bukkit.getPluginManager().registerEvents(new Events(), this);
+            Bukkit.getPluginManager().registerEvents(new ListenerBasicNew(), this);
             log("§8[F_spray] enabled.");
         }
 
@@ -96,16 +100,16 @@ public class CustomSprays extends JavaPlugin {
            CustomSprays.latestVersion = latestVersion;
         });
 
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            if (!MapColors.isColorPaletteAvailable()) {
+        if (getConfig().getBoolean("better_color") && NMS.getSubVer() >= 8) {
+            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 log("Loading Color Palette");
                 if (!MapColors.loadColorPalette()) {
                     MapColors.calculateColorPalette();
                 } else {
                     log("Color Palette Loaded! current state: " + MapColors.isColorPaletteAvailable());
                 }
-            }
-        });
+            });
+        }
 
         log("§eCustomSprays§r Enabled! plugin by §b§lLSDog§r."+" §8(Running on "+ NMS.getMcVer()+")");
     }

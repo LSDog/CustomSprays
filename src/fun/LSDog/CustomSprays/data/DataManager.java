@@ -3,7 +3,6 @@ package fun.LSDog.CustomSprays.data;
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.utils.ImageUtil;
 import fun.LSDog.CustomSprays.utils.MapColors;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -14,6 +13,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -33,11 +34,24 @@ public class DataManager {
     private static byte[] defaultImage = null;
     private static final File defaultImageFile = new File(CustomSprays.instance.getDataFolder() + File.separator + "default.yml");
 
+    private static Method PlaceholderAPI_setPlaceholders = null;
+
+    static {
+        try {
+            Class<?> classPlaceholder = Class.forName("me.clip.placeholderapi.PlaceholderAPI");
+            PlaceholderAPI_setPlaceholders = classPlaceholder.getMethod("setPlaceholders", Player.class, String.class);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) { }
+    }
+
     public static String getMsg(Player player, String path) {
 
         String msg = ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("Messages."+path));
-        if (usePapi) {
-            return PlaceholderAPI.setPlaceholders(player, msg);
+        if (usePapi && PlaceholderAPI_setPlaceholders != null) {
+            try {
+                return (String) PlaceholderAPI_setPlaceholders.invoke(null, player, msg);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         } else return msg;
     }
 

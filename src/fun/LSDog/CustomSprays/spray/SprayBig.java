@@ -89,17 +89,22 @@ public class SprayBig extends SprayBase {
 
             int mapViewId = MapViewId.getId();
 
+
             Object mcMap = MapFrameFactory.getMcMap(mapViewId);
-            Object mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);
             Object itemFrame = MapFrameFactory.getItemFrame(mcMap, locs[i], blockFace, playerLocation);
             Object spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+            Object mapPacket = null;
+            Object[] mapPackets_7 = new Object[0];
+            if (NMS.getSubVer() >= 8) mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);
+            else mapPackets_7 = MapFrameFactory.getMapPackets_7((short) mapViewId, pixelPieces[i]);
             itemFrameIds[i] = NMS.getMcEntityId(itemFrame);
             Object dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
 
             for (Player p : $playersShowTo) {
-                NMS.sendPacket(p, spawnPacket);  // spawns a itemFrame with map
-                NMS.sendPacket(p, dataPacket);  // add dataWatcher for itemFrame
-                NMS.sendPacket(p, mapPacket);  // refresh mapView (draw image)
+                NMS.sendPacket(p, spawnPacket);
+                NMS.sendPacket(p, dataPacket);
+                if (NMS.getSubVer() >= 8) NMS.sendPacket(p, mapPacket);
+                else for (Object packet : mapPackets_7) NMS.sendPacket(p, packet);
             }
 
         }

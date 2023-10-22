@@ -1,63 +1,27 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.listeners;
 
+import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.data.DataMySQL;
 import fun.LSDog.CustomSprays.spray.SprayManager;
+import fun.LSDog.CustomSprays.utils.NMS;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * 实现双击F喷漆
  */
-public class Events implements Listener {
-
-    /**
-     * 存储所有玩家按F的时间
-     */
-    private static final Map<UUID, Long> timeMap = new HashMap<>();
-
-    /**
-     * 判断双击F时的时间间隔最长为多久(ms)
-     */
-    private static final int CD = 350;
-
-    /**
-     * 检测双击F
-     * @param e {@link PlayerSwapHandItemsEvent}
-     */
-    @EventHandler (priority = EventPriority.MONITOR)
-    public void onToggleF(PlayerSwapHandItemsEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> {
-            Player player = e.getPlayer();
-            UUID uuid = player.getUniqueId();
-            Long t = timeMap.get(uuid);
-            if ( t==null || System.currentTimeMillis() > t) {
-                timeMap.put(uuid, System.currentTimeMillis() + CD);
-            } else {
-                timeMap.remove(uuid);
-                if (!player.isSneaking()) { // 小喷漆
-                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> SprayManager.spray(player, false));
-                } else { // 大喷漆
-                    Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> SprayManager.spray(player, true));
-                }
-            }
-        });
-    }
+public class ListenerBasic implements Listener {
 
     /**
      * 玩家加入相关逻辑
@@ -142,13 +106,11 @@ public class Events implements Listener {
                     lore.set(useTimeLineIndex, loreTimesUse + useTime);
                     itemMeta.setLore(lore);
                     item.setItemMeta(itemMeta);
-                    switch (e.getHand()) {
-                        case HAND:
-                            e.getPlayer().getInventory().setItemInMainHand(item);
-                            break;
-                        case OFF_HAND:
-                            e.getPlayer().getInventory().setItemInOffHand(item);
-                            break;
+                    if (NMS.getSubVer() <= 7) {
+                        //noinspection deprecation
+                        e.getPlayer().setItemInHand(item);
+                    } else {
+                        ListenerBasicNew.setItemInHandNew(e, item);
                     }
                 }
             } else {
@@ -156,5 +118,6 @@ public class Events implements Listener {
             }
         }
     }
+
 
 }

@@ -36,9 +36,10 @@ public class ImageDownloader implements Closeable {
     public static class TooManyDownloadException extends Exception {
     }
 
-    private static void setPixivSimulationProp(URLConnection conn) {
+    private static void setSimulationProp(URLConnection conn) {
         String url = conn.getURL().toString();
         String host = url.substring(url.indexOf("://") + 3);
+        if (!host.contains("/")) return;
         host = host.substring(0, url.indexOf("/"));
         conn.setRequestProperty("HOST", host);
         conn.setRequestProperty("Connection", "keep-alive");
@@ -55,7 +56,7 @@ public class ImageDownloader implements Closeable {
         if (url.contains("i.pximg.net"))
             conn.setRequestProperty("Referer", "https://www.pixiv.net/");
         conn.setRequestProperty("Accept-Encoding", "gzip, deflate, br");
-        conn.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7");
+        conn.setRequestProperty("Accept-Language", "en;q=0.9");
     }
 
     @Override
@@ -75,7 +76,7 @@ public class ImageDownloader implements Closeable {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Accept-Encoding", "identity");
-            setPixivSimulationProp(conn);
+            setSimulationProp(conn);
             conn.setUseCaches(false);
             conn.setConnectTimeout(10000);
             if (conn.getResponseCode() == 403) return 4;
@@ -103,7 +104,7 @@ public class ImageDownloader implements Closeable {
         try {
             URL url = new URL(destUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            setPixivSimulationProp(conn);
+            setSimulationProp(conn);
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
             conn.setConnectTimeout(10000);

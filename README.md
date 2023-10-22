@@ -122,7 +122,14 @@ ___
 >> **原因:** 这些版本中插件使用 id [32467~32767] 对地图图案(MapView)进行标识，喷漆时对图案会被替换  
 >> **Reason:** In these versions plugin uses id [32467~32767] to target the Mapview, so map with that id will be replaced.
 
-
+## 💻 开发 | for Developers
+___
+### 你只需要...
+- **1.9+ 服务端** 作为库
+- 直接构建！构建结果可用于全部适用版本
+### You only need...
+- **1.9+ server jar** as the library
+- Build the jar! the build results can be used for all applicable versions
 
 ## ✍ TODO
 ___

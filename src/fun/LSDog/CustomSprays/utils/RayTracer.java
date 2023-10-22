@@ -254,6 +254,16 @@ public class RayTracer {
         public Block getRelativeBlock() {
             return block.getRelative(blockFace);
         }
+
+        @Override
+        public String toString() {
+            return "BlockRayTraceResult{" +
+                    "point=" + point +
+                    ", block=" + block +
+                    ", blockFace=" + blockFace +
+                    ", distance=" + distance +
+                    '}';
+        }
     }
 
 }

@@ -178,8 +178,6 @@ public class SprayManager {
      */
     public static void removeSpray(SprayBase spray) {
 
-        // spray.remove();
-
         List<SprayBase> playerSprayList = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
         if (!playerSprayList.isEmpty()) playerSprayList.remove(spray);
         playerSprayMap.put(spray.player.getUniqueId(), playerSprayList);
