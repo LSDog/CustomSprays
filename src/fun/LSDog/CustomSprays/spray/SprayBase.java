@@ -175,17 +175,4 @@ public class SprayBase {
         NMS.sendDestroyEntities(new int[]{itemFrameId}, playersShown);
     }
 
-    protected Location getFixedPointLoc(Location location) {
-        location = location.clone();
-        location.setX(getFixedPoint(location.getX()));
-        location.setY(getFixedPoint(location.getY()));
-        location.setZ(getFixedPoint(location.getZ()));
-        return location;
-    }
-
-    private double getFixedPoint(double num) {
-        return Math.floor(num);
-        //return ((int) num * 32.0D) / 32.0D;
-    }
-
 }

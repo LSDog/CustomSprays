@@ -290,19 +290,6 @@ public class MapFrameFactory {
         return mapPackets;
     }
 
-    public static Object getMapScalePacket_7(short mapViewId, byte scale) throws ReflectiveOperationException {
-        byte[] bytes = new byte[]{2,scale};
-        if (cPacketPlayOutMap == null) {
-            // Spigot version has 3rd parameter byte, just use 0.
-            if (usingSpigot) cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class, byte.class);
-            else cPacketPlayOutMap = NMS.getPacketClass("PacketPlayOutMap").getConstructor(int.class, byte[].class);
-            cPacketPlayOutMap.setAccessible(true);
-        }
-
-        if (usingSpigot) return cPacketPlayOutMap.newInstance(mapViewId, bytes, (byte) 0);
-        return cPacketPlayOutMap.newInstance(mapViewId, bytes);
-    }
-
     protected static Object blockFaceToEnumDirection(BlockFace blockFace) {
         if (enumDirectionMap == null) {
             enumDirectionMap = new HashMap<>();
