@@ -57,29 +57,31 @@ public class SprayBig extends SprayBase {
         if (big_mode < 0 || big_mode > 2) big_mode = 1;
 
         for (int i = 0; i < length * length; i++) {
+            
+            Location forLoc = locs[i];
 
             if (big_mode == 1) {
 
-                if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) {
+                if (!forLoc.getBlock().getRelative(opposite).getType().isSolid()) {
                     continue;
                 }
             } else if (big_mode == 2) {
 
-                if (!locs[i].getBlock().getRelative(opposite).getType().isSolid()) {
-                    Block nextBlock = locs[i].getBlock().getRelative(opposite).getRelative(opposite);
+                if (!forLoc.getBlock().getRelative(opposite).getType().isSolid()) {
+                    Block nextBlock = forLoc.getBlock().getRelative(opposite).getRelative(opposite);
                     if (nextBlock.getType().isSolid()) {
                         // 喷到它的后面的方块
-                        locs[i] = nextBlock.getRelative(blockFace).getLocation();
+                        forLoc = nextBlock.getRelative(blockFace).getLocation();
                     } else {
                         continue;
                     }
                 }
 
-                if (locs[i].getBlock().getType().isSolid()) {
-                    Block frontBlock = locs[i].getBlock().getRelative(blockFace);
+                if (forLoc.getBlock().getType().isSolid()) {
+                    Block frontBlock = forLoc.getBlock().getRelative(blockFace);
                     if (!frontBlock.getType().isSolid()) {
                         // 喷到它的前面的方块
-                        locs[i] = frontBlock.getLocation();
+                        forLoc = frontBlock.getLocation();
                     } else {
                         continue;
                     }
@@ -91,8 +93,10 @@ public class SprayBig extends SprayBase {
 
 
             Object mcMap = MapFrameFactory.getMcMap(mapViewId);
-            Object itemFrame = MapFrameFactory.getItemFrame(mcMap, locs[i], blockFace, playerLocation);
+            Location offLoc = NMS.getSubVer() >= 8 ? forLoc : forLoc.add(-blockFace.getModX(), 0, -blockFace.getModZ());
+            Object itemFrame = MapFrameFactory.getItemFrame(mcMap, offLoc, blockFace, playerLocation);
             Object spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+            if (NMS.getSubVer() <= 7) NMS.setSpawnPacketLocation(spawnPacket, offLoc);
             Object mapPacket = null;
             Object[] mapPackets_7 = new Object[0];
             if (NMS.getSubVer() >= 8) mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);

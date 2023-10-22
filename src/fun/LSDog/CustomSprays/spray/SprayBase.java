@@ -128,8 +128,10 @@ public class SprayBase {
         int mapViewId = MapViewId.getId();
 
         Object mcMap = MapFrameFactory.getMcMap(mapViewId);
-        Object itemFrame = MapFrameFactory.getItemFrame(mcMap, location, blockFace, playerLocation);
+        Location offLoc = NMS.getSubVer() >= 8 ? location : location.add(-blockFace.getModX(), 0, -blockFace.getModZ());
+        Object itemFrame = MapFrameFactory.getItemFrame(mcMap, offLoc, blockFace, playerLocation);
         Object spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+        if (NMS.getSubVer() <= 7) NMS.setSpawnPacketLocation(spawnPacket, offLoc);
         Object mapPacket = null;
         Object[] mapPackets_7 = new Object[0];
         if (NMS.getSubVer() >= 8) mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
@@ -154,6 +156,8 @@ public class SprayBase {
         }
 
         if (playSound) playSpraySound(player);
+
+        System.out.println(itemFrame);
 
     }
 

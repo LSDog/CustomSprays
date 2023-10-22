@@ -322,4 +322,29 @@ public class NMS {
             e.printStackTrace();
         }
     }
+
+    private static Field fPacketSpawnEntity_x = null;
+    private static Field fPacketSpawnEntity_y = null;
+    private static Field fPacketSpawnEntity_z = null;
+    public static void setSpawnPacketLocation(Object packetSpawnEntity, Location loc) {
+        if (fPacketSpawnEntity_x == null) {
+            try {
+                fPacketSpawnEntity_x = getPacketClass("PacketPlayOutSpawnEntity").getDeclaredField("b");
+                fPacketSpawnEntity_y = getPacketClass("PacketPlayOutSpawnEntity").getDeclaredField("c");
+                fPacketSpawnEntity_z = getPacketClass("PacketPlayOutSpawnEntity").getDeclaredField("d");
+                fPacketSpawnEntity_x.setAccessible(true);
+                fPacketSpawnEntity_y.setAccessible(true);
+                fPacketSpawnEntity_z.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            fPacketSpawnEntity_x.set(packetSpawnEntity, (int) (loc.getX()*32.0));
+            fPacketSpawnEntity_y.set(packetSpawnEntity, (int) (loc.getY()*32.0));
+            fPacketSpawnEntity_z.set(packetSpawnEntity, (int) (loc.getZ()*32.0));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
