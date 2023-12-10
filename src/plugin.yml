@@ -1,5 +1,5 @@
 name: CustomSprays
-version: 1.5.9
+version: 1.5.10
 main: fun.LSDog.CustomSprays.CustomSprays
 authors: [LSDog]
 softdepend: [PlaceholderAPI,WorldEdit,FastAsyncWorldEdit,Residence,WorldGuard,GriefDefender,Vault]

@@ -12,14 +12,14 @@
 ## 📢 介绍 | Introduce
 ___
 
-|       *Name*        | *Content*                                                    |
-|:-------------------:|--------------------------------------------------------------|
+|          *Name*           | *Content*                                                    |
+|:-------------------------:|--------------------------------------------------------------|
 | ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                       |
-|   作者 <br> Author    | LSDog                                                        |
-|   版本 <br> Version   | 1.5.9                                                        |
-|   支持 <br> Support   | **1.7.10 ~ 1.20.2** (Bukkit Spigot Paper ...)                |
-|     指令 <br> Cmd     | `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
-|    权限 <br> Perm     | 请见 "config.yml" / see "config.yml"                           |
+|      作者 <br> Author       | LSDog                                                        |
+|      版本 <br> Version      | 1.5.10                                                       |
+|      支持 <br> Support      | **1.7.10 ~ 1.20.4** (Bukkit Spigot Paper ...)                |
+|        指令 <br> Cmd        | `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
+|       权限 <br> Perm        | 请见 "config.yml" / see "config.yml"                           |
 > 
 > Links:
 > [Mcbbs](https://www.mcbbs.net/thread-1289391-1-1.html)
@@ -69,7 +69,7 @@ ___
 
 ## 🎮 版本支持 | Version Support
 ___
-> 🔷 **1.7.10 ~ 1.20.2**
+> 🔷 **1.7.10 ~ 1.20.4**
 
 > 📏 支持的 **"领域"** 插件 | Supported **"region"** plugins:
 > - [x] Residence .......... [ *?* ~ 5.0.1.3+ ]
@@ -116,8 +116,8 @@ ___
 ## ⚡ 注意事项 | Warning
 ___
 
-> 🔺 已知问题 ***[仅限版本1.8~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换  
-> 🔺 Known problem ***[Only in version 1.8~1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
+> 🔺 已知问题 ***[仅限版本1.7~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换  
+> 🔺 Known problem ***[Only in version 1.7~1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
 >
 >> **原因:** 这些版本中插件使用 id [32467~32767] 对地图图案(MapView)进行标识，喷漆时对图案会被替换  
 >> **Reason:** In these versions plugin uses id [32467~32767] to target the Mapview, so map with that id will be replaced.

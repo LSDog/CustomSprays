@@ -246,12 +246,16 @@ public class NMS {
                         // 天杀的 mojang 在 1_19_R2 的时候改了 Entity.class, 导致获取id的方法名字变了
                         case 3: methodName = "af"; break;
                         // 真牛逼他又改了 1_19_R3
-                    }
-                    break;
+                    } break;
                 case 20:
-                    methodName = subRVer <= 1 ? "af" : "ah"; break;
+                    switch (subRVer) {
+                        case 1: methodName = "af"; break;
+                        case 2: methodName = "ah"; break;
+                        case 3: methodName = "aj"; break;
+                        // ... fine
+                    } break;
                 default:
-                    methodName = "ah"; break;
+                    methodName = "aj"; break;
             }
             Entity_getId = NMS.getMcEntityClass().getMethod(methodName);
             Entity_getId.setAccessible(true);
@@ -275,9 +279,13 @@ public class NMS {
                     }
                     break;
                 case 20:
-                    methodName = subRVer <= 1 ? "aj" : "al"; break;
+                    switch (subRVer) {
+                        case 1: methodName = "aj"; break;
+                        case 2: methodName = "al"; break;
+                        case 3: methodName = "an"; break;
+                    } break;
                 default:
-                    methodName = "aj"; break;
+                    methodName = "an"; break;
             }
             Entity_getDataWatcher = NMS.getMcEntityClass().getMethod(methodName);
             Entity_getDataWatcher.setAccessible(true);
