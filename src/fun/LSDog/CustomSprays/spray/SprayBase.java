@@ -57,13 +57,19 @@ public class SprayBase {
     public static void playSpraySound(Player player) {
         String sound = CustomSprays.instance.getConfig().getString("spray_sound");
         if (sound == null || "default".equals(sound)) {
-            if (NMS.getSubVer() <= 8) player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F);
-            else player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F);
+            if (NMS.getSubVer() <= 8) {
+                Bukkit.getScheduler().runTask(CustomSprays.instance, () ->
+                        player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F));
+            }
+            else {
+                Bukkit.getScheduler().runTask(CustomSprays.instance, () ->
+                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F));
+            }
         } else {
             String[] strings = sound.split("-");
-            if (strings.length == 3) {
-                player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2]));
-            }
+            if (strings.length != 3) return;
+            Bukkit.getScheduler().runTask(CustomSprays.instance, () ->
+                player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2])));
         }
     }
 
