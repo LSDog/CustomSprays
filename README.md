@@ -32,6 +32,8 @@ ___
 
 **⭐ [喷漆音效资源包](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) / [Spray sound resource pack](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
 
+**⭐ [ItemsAdder支持](https://github.com/LSDog/CustomSprays/tree/itemsadder) ⭐**
+
 **⭐ English message config is also in config.yml (commented out by #) ⭐**
 
 
