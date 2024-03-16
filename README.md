@@ -1,10 +1,12 @@
 ![CustomSprays](media/banner.png)
 
-# **CustomSprays** | 【ItemsAdder资源】 🎉
+# **CustomSprays** |【ItemsAdder 资源 | Resource】 🎉
 
-ItemsAdder 资源配置
 
-## 📦 [【下载 | Download】](https://codeload.github.com/LSDog/CustomSprays/zip/refs/heads/itemsadder)
+ItemsAdder 资源配置 | Resource by **[postyizhan](https://github.com/postyizhan)** !!
+
+    
+### 📦 [【下载 | Download】](https://codeload.github.com/LSDog/CustomSprays/zip/refs/heads/itemsadder)  
 
 
 ## ✨ 用法 | Usage
