@@ -5,8 +5,8 @@
 
 ItemsAdder 资源配置 | Resource by **[postyizhan](https://github.com/postyizhan)** !!
 
-    
-### 📦 [【下载 | Download】](https://codeload.github.com/LSDog/CustomSprays/zip/refs/heads/itemsadder)  
+
+### 📦 [【下载 | Download】](https://codeload.github.com/LSDog/CustomSprays/zip/refs/heads/itemsadder)
 
 
 ## ✨ 用法 | Usage
@@ -21,7 +21,7 @@ ___
       |
     4 | 修改配置:
       |
-      | 找到 config/customsprays/config.yml 中的:
+      | 找到 plugins/customsprays/config.yml 中的:
       | spray_sound: "default-1-0.8"
       |
       | 改为:
@@ -38,7 +38,7 @@ ___
       |
     4 | Edit config:
       |
-      | Find line in config/customsprays/config.yml:
+      | Find line in plugins/customsprays/config.yml:
       | spray_sound: "default-1-0.8"
       |
       | Change it to:
