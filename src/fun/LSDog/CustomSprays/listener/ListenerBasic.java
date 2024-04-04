@@ -112,8 +112,6 @@ public class ListenerBasic implements Listener {
                         ListenerBasicNew.setItemInHandNew(e, item);
                     }
                 }
-            } else {
-                SprayManager.spray(e.getPlayer(), e.getPlayer().isSneaking());
             }
         }
     }
