@@ -1,8 +1,8 @@
 package fun.LSDog.CustomSprays.data;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.utils.ImageUtil;
-import fun.LSDog.CustomSprays.utils.MapColors;
+import fun.LSDog.CustomSprays.util.ImageUtil;
+import fun.LSDog.CustomSprays.util.MapColors;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

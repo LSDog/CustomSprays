@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.utils;
+package fun.LSDog.CustomSprays.util;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import org.bukkit.map.MapPalette;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
- * 超级感谢 <a href="https://scrayos.net/high-performance-map-displays/">scrayos 的博客</a>
+ * Thanks to <a href="https://scrayos.net/high-performance-map-displays/">scrayos 's blog</a> !!
  */
 public class MapColors {
 

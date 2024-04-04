@@ -1,6 +1,6 @@
 package fun.LSDog.CustomSprays.map;
 
-import fun.LSDog.CustomSprays.utils.NMS;
+import fun.LSDog.CustomSprays.util.NMS;
 
 /**
  * 获取一个 用作标识的 MapviewID <br>
@@ -16,7 +16,7 @@ public class MapViewId {
     /**
      * /sprays view 所使用的id
      */
-    public static int shortViewId = 0;
+    public static int sprayViewId = 0;
 
     public static int getId() {
         return (++id > MAX || id < MIN) ? (id = MIN) : id;

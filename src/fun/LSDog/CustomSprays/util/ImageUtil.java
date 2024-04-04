@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.utils;
+package fun.LSDog.CustomSprays.util;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -9,15 +9,6 @@ public class ImageUtil {
      * Resize image
      */
     public static BufferedImage resizeImage(BufferedImage image, int width, int height) {
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        bufferedImage.createGraphics().drawImage(image, 0, 0, width, height, null);
-        bufferedImage.getGraphics().dispose();
-        return bufferedImage;
-    }
-
-    public static BufferedImage resizeImage(BufferedImage image, double multiple) {
-        int width = (int) (image.getWidth() * multiple);
-        int height = (int) (image.getHeight() * multiple);
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         bufferedImage.createGraphics().drawImage(image, 0, 0, width, height, null);
         bufferedImage.getGraphics().dispose();

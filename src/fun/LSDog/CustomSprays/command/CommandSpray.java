@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.commands;
+package fun.LSDog.CustomSprays.command;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;

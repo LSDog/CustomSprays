@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.listeners;
+package fun.LSDog.CustomSprays.listener;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.spray.SprayManager;

@@ -1,11 +1,11 @@
-package fun.LSDog.CustomSprays.listeners;
+package fun.LSDog.CustomSprays.listener;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
+import fun.LSDog.CustomSprays.command.CommandCustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.data.DataMySQL;
 import fun.LSDog.CustomSprays.spray.SprayManager;
-import fun.LSDog.CustomSprays.utils.NMS;
+import fun.LSDog.CustomSprays.util.NMS;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -40,8 +40,6 @@ public class ListenerBasic implements Listener {
         if (CustomSprays.latestVersion != null && e.getPlayer().isOp()) {
             e.getPlayer().sendMessage(CustomSprays.prefix + " §6§l嘿, 管理! CustomSprays 有个更新~~ §7-> §b§l" + CustomSprays.latestVersion);
             e.getPlayer().sendMessage(CustomSprays.prefix + " §6§lHey, OP! CustomSprays has an update~~ §7-> §b§l" + CustomSprays.latestVersion);
-            //e.getPlayer().sendRawMessage("[{\"text\":\"*CustomSprays*\",\"color\":\"dark_blue\",\"bold\":true,\"italic\":true,\"underlined\":true,\"strikethrough\":false,\"obfuscated\":false,\"insertion\":\"https://gitee.com/pixelmc/CustomSprays/releases\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"https://gitee.com/pixelmc/CustomSprays/releases\"},\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"*click*\"}}]");
-            // Use less.
         }
     }
 

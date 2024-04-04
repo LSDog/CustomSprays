@@ -2,8 +2,8 @@ package fun.LSDog.CustomSprays.spray;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
-import fun.LSDog.CustomSprays.utils.CoolDown;
-import fun.LSDog.CustomSprays.utils.SprayRayTracer;
+import fun.LSDog.CustomSprays.util.CoolDown;
+import fun.LSDog.CustomSprays.util.SprayRayTracer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.utils;
+package fun.LSDog.CustomSprays.util;
 
 import org.bukkit.Location;
 import org.bukkit.World;

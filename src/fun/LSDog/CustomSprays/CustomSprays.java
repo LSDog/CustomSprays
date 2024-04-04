@@ -1,14 +1,14 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.commands.CommandCustomSprays;
-import fun.LSDog.CustomSprays.commands.CommandSpray;
+import fun.LSDog.CustomSprays.command.CommandCustomSprays;
+import fun.LSDog.CustomSprays.command.CommandSpray;
 import fun.LSDog.CustomSprays.data.DataManager;
-import fun.LSDog.CustomSprays.listeners.ListenerBasic;
-import fun.LSDog.CustomSprays.listeners.ListenerBasicNew;
+import fun.LSDog.CustomSprays.listener.ListenerBasic;
+import fun.LSDog.CustomSprays.listener.ListenerBasicNew;
 import fun.LSDog.CustomSprays.map.MapViewId;
-import fun.LSDog.CustomSprays.utils.MapColors;
-import fun.LSDog.CustomSprays.utils.NMS;
-import fun.LSDog.CustomSprays.utils.UpdateChecker;
+import fun.LSDog.CustomSprays.util.MapColors;
+import fun.LSDog.CustomSprays.util.NMS;
+import fun.LSDog.CustomSprays.util.UpdateChecker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class CustomSprays extends JavaPlugin {
 
-    public static final double LEAST_CONFIG_VERSION = 1.71;
+    public static final double CONFIG_VERSION = 1.71;
     public static CustomSprays instance;
 
     public static String prefix = "§3§lCustomSprays >>§r ";
@@ -49,16 +49,12 @@ public class CustomSprays extends JavaPlugin {
             saveDefaultConfig();
         } else {
             //TODO 每次更迭配置版本的时候别忘了改这里！！
-            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < LEAST_CONFIG_VERSION) {
-                log("\n\n\n\n\n\n\n=====================\n");
-                log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
-                log("| Unsupported config detected! please delete config.yml and re-config me! \n");
-                log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
-                log("| Unsupported config detected! please delete config.yml and re-config me! \n");
-                log("| 检测到不支持的配置！请删除 config.yml 重新配置！");
-                log("| Unsupported config detected! please delete config.yml and re-config me! \n");
-                log("=====================\n\n");
-                Bukkit.shutdown();
+            if (YamlConfiguration.loadConfiguration(config).getDouble("configVersion") < CONFIG_VERSION) {
+                log("\n\n\n" +
+                        "=====================\n" +
+                        "| 检测到不支持的配置！请删除 config.yml 并重启服务器！\n" +
+                        "| Unsupported config detected! Please delete config.yml and restart server!\n" +
+                        "=====================\n\n\n");
                 return;
             }
         }
@@ -84,13 +80,14 @@ public class CustomSprays extends JavaPlugin {
         // 1.13 及以上 MapView 支持int
         if (NMS.getSubVer() >= 13) {
             MapViewId.setIdRange(-2048_000_000,-2048_000_999);
-            MapViewId.shortViewId = -2048_001_000;
+            MapViewId.sprayViewId = -2048_001_000;
         }
 
         // 信息统计
         // https://bstats.org/plugin/bukkit/CustomSprays/13633
         new Metrics(this, 13633);
 
+        // 检查更新
         if (getConfig().getBoolean("check_update")) Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
            String pluginVersion = CustomSprays.instance.getDescription().getVersion();
            String latestVersion = UpdateChecker.checkGithub();
@@ -100,6 +97,7 @@ public class CustomSprays extends JavaPlugin {
            CustomSprays.latestVersion = latestVersion;
         });
 
+        // 计算颜色板
         if (getConfig().getBoolean("better_color") && NMS.getSubVer() >= 8) {
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 log("Loading Color Palette");

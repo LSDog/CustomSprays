@@ -2,7 +2,7 @@ package fun.LSDog.CustomSprays.spray;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.map.MapViewId;
-import fun.LSDog.CustomSprays.utils.NMS;
+import fun.LSDog.CustomSprays.util.NMS;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

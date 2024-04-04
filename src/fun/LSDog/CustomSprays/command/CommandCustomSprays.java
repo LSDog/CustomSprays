@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays.commands;
+package fun.LSDog.CustomSprays.command;
 
 import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
@@ -6,7 +6,7 @@ import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.spray.MapFrameFactory;
 import fun.LSDog.CustomSprays.spray.SprayBase;
 import fun.LSDog.CustomSprays.spray.SprayManager;
-import fun.LSDog.CustomSprays.utils.*;
+import fun.LSDog.CustomSprays.util.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -270,7 +270,7 @@ public class CommandCustomSprays implements TabExecutor {
                             targetPlayer.sendMessage(CustomSprays.prefix + targetPlayer.getName() + " " + DataManager.getMsg(player, "COMMAND_VIEW.PLAYER_NO_IMAGE")); return;
                         }
                         // check image by showing item
-                        int id = MapViewId.shortViewId;
+                        int id = MapViewId.sprayViewId;
                         try {
                             if (NMS.getSubVer() < 17) {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
