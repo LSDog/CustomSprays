@@ -55,20 +55,20 @@ public class SprayBase {
      * 向某个玩家播放喷漆音效
      */
     public static void playSpraySound(Player player) {
-        String sound = CustomSprays.instance.getConfig().getString("spray_sound");
+        String sound = CustomSprays.plugin.getConfig().getString("spray_sound");
         if (sound == null || "default".equals(sound)) {
             if (NMS.getSubVer() <= 8) {
-                Bukkit.getScheduler().runTask(CustomSprays.instance, () ->
+                Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
                         player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F));
             }
             else {
-                Bukkit.getScheduler().runTask(CustomSprays.instance, () ->
+                Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
                     player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F));
             }
         } else {
             String[] strings = sound.split("-");
             if (strings.length != 3) return;
-            Bukkit.getScheduler().runTask(CustomSprays.instance, () ->
+            Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
                 player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2])));
         }
     }
@@ -80,11 +80,11 @@ public class SprayBase {
 
         Location eyeLocation = player.getEyeLocation();
         RayTracer.BlockRayTraceResult ray =
-                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instance.getConfig().getDouble("distance")).rayTraceBlock(SprayManager::isSpraySurfaceBlock);
+                new RayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.plugin.getConfig().getDouble("distance")).rayTraceBlock(SprayManager::isSpraySurfaceBlock);
         if (ray == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆
-        if (ray.isUpOrDown() && ( NMS.getSubVer() < 13 || !CustomSprays.instance.getConfig().getBoolean("spray_on_ground") )) return false;
+        if (ray.isUpOrDown() && ( NMS.getSubVer() < 13 || !CustomSprays.plugin.getConfig().getBoolean("spray_on_ground") )) return false;
 
         this.block = ray.getRelativeBlock();
         this.location = block.getLocation();
@@ -101,7 +101,7 @@ public class SprayBase {
             return false;
         }
 
-        double cost = CustomSprays.instance.getConfig().getDouble((this instanceof SprayBig) ? "spray_big_cost" : "spray_cost");
+        double cost = CustomSprays.plugin.getConfig().getDouble((this instanceof SprayBig) ? "spray_big_cost" : "spray_cost");
         if (cost != 0 && !player.hasPermission("CustomSprays.nomoney") && VaultChecker.isVaultEnabled()) {
             if (VaultChecker.costMoney(player, cost)) {
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.COST").replace("%cost%", cost+""));
@@ -172,7 +172,7 @@ public class SprayBase {
      * @param tick 延迟Tick后自毁
      */
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, this::remove, tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, this::remove, tick);
     }
 
     /**

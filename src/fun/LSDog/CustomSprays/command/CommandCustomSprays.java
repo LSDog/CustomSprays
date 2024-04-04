@@ -63,7 +63,7 @@ public class CommandCustomSprays implements TabExecutor {
     }
 
     public static String getSprayItemMaterialName() {
-        String name = CustomSprays.instance.getConfig().getString("spray_item");
+        String name = CustomSprays.plugin.getConfig().getString("spray_item");
         if (NMS.getSubVer() <= 12 && "GOLDEN_HORSE_ARMOR".equals(name)) name = "GOLD_BARDING";
         return name;
     }
@@ -86,9 +86,9 @@ public class CommandCustomSprays implements TabExecutor {
     @Override
     @SuppressWarnings({"deprecation"})
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        FileConfiguration config = CustomSprays.instance.getConfig();
+        FileConfiguration config = CustomSprays.plugin.getConfig();
         if (args.length == 0) {
-            sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.instance.getDescription().getVersion() + "§r" +
+            sender.sendMessage(CustomSprays.prefix + "§8v" + CustomSprays.plugin.getDescription().getVersion() + "§r" +
                     "\n    §b/sprays§r §3upload§l <url> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.UPLOAD") +
                     (sender.hasPermission("CustomSprays.copy") ? "\n    §b/sprays§r §3copy§l <player> §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.COPY") : "") +
                     (sender.hasPermission("CustomSprays.view") ? "\n    §b/sprays§r §3view§l [player] §r§7- " + DataManager.getMsg(sender, "COMMAND_HELP.VIEW") : "") +
@@ -110,8 +110,8 @@ public class CommandCustomSprays implements TabExecutor {
                     return true;
                 }
                 SprayManager.removeAllSpray();
-                CustomSprays.instance.reloadConfig();
-                DataManager.initialize(CustomSprays.instance.getConfig().getString("storage"));
+                CustomSprays.plugin.reloadConfig();
+                DataManager.initialize(CustomSprays.plugin.getConfig().getString("storage"));
                 CoolDown.reset();
                 RegionChecker.reload();
                 VaultChecker.reload();
@@ -140,7 +140,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                         uploadingSet.add(player.getUniqueId());
                         /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
-                        CoolDown.setUploadCooldown(player, CustomSprays.instance.getConfig().getDouble("upload_failed_cooldown_multiple"));
+                        CoolDown.setUploadCooldown(player, CustomSprays.plugin.getConfig().getDouble("upload_failed_cooldown_multiple"));
 
                         if (args.length == 1) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));
@@ -186,7 +186,7 @@ public class CommandCustomSprays implements TabExecutor {
                         imageDownloader.close();
                         uploadingSet.remove(player.getUniqueId());
                     }
-                }.runTaskAsynchronously(CustomSprays.instance);
+                }.runTaskAsynchronously(CustomSprays.plugin);
                 break;
 
             case "copy":
@@ -234,12 +234,12 @@ public class CommandCustomSprays implements TabExecutor {
                                     return;
                                 }
                                 DataManager.saveImageBytes(player, data);
-                                CoolDown.setUploadCooldown(player, CustomSprays.instance.getConfig().getDouble("copy_cooldown_multiple"));
+                                CoolDown.setUploadCooldown(player, CustomSprays.plugin.getConfig().getDouble("copy_cooldown_multiple"));
                                 sender.sendMessage(CustomSprays.prefix + "OK!" + (player.isOp()&&!allow?" §7§l(OP-bypass)":"") );
                             }
                         }
                     }
-                }.runTaskAsynchronously(CustomSprays.instance);
+                }.runTaskAsynchronously(CustomSprays.plugin);
                 break;
 
             case "view":
@@ -291,7 +291,7 @@ public class CommandCustomSprays implements TabExecutor {
                             e.printStackTrace();
                         }
                         // Send original mapview back
-                        Bukkit.getScheduler().runTaskLater(CustomSprays.instance, () -> {
+                        Bukkit.getScheduler().runTaskLater(CustomSprays.plugin, () -> {
                             player.updateInventory();
                             if (NMS.getSubVer() < 13) {
                                 MapView mapView = getMapView(id);
@@ -300,7 +300,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }, 30);
                         sender.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_VIEW.WARN"));
                     }
-                }.runTask(CustomSprays.instance);
+                }.runTask(CustomSprays.plugin);
                 break;
 
             case "check":
@@ -313,7 +313,7 @@ public class CommandCustomSprays implements TabExecutor {
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
-                }.runTaskAsynchronously(CustomSprays.instance);
+                }.runTaskAsynchronously(CustomSprays.plugin);
                 break;
 
             case "delete":
@@ -329,7 +329,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
-                }.runTaskAsynchronously(CustomSprays.instance);
+                }.runTaskAsynchronously(CustomSprays.plugin);
                 break;
 
             case "getitem":
@@ -352,8 +352,8 @@ public class CommandCustomSprays implements TabExecutor {
                 Material material = Material.matchMaterial(getSprayItemMaterialName());
                 ItemStack item = new ItemStack(material);
                 ItemMeta itemMeta = item.getItemMeta();
-                String loreText = CustomSprays.instance.getConfig().getString("spray_item_lore");
-                String loreTimesUse = CustomSprays.instance.getConfig().getString("spray_item_lore_times_use");
+                String loreText = CustomSprays.plugin.getConfig().getString("spray_item_lore");
+                String loreTimesUse = CustomSprays.plugin.getConfig().getString("spray_item_lore_times_use");
                 List<String> lore = new ArrayList<>();
                 if (loreText != null) {
                     lore.add(ChatColor.translateAlternateColorCodes('&', loreText));
@@ -364,7 +364,7 @@ public class CommandCustomSprays implements TabExecutor {
                                 (useTime > 0 ? useTime : DataManager.getMsg(player, "INFINITE"))
                 );
                 itemMeta.setLore(lore);
-                itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("spray_item_name")));
+                itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("spray_item_name")));
                 item.setItemMeta(itemMeta);
                 player.getInventory().addItem(item);
                 break;

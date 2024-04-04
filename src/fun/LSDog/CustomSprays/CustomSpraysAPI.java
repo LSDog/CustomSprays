@@ -18,7 +18,7 @@ public class CustomSpraysAPI {
      * @see fun.LSDog.CustomSprays.CustomSprays
      */
     public static Plugin getPlugin() {
-        return CustomSprays.instance;
+        return CustomSprays.plugin;
     }
 
     /**

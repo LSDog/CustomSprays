@@ -22,7 +22,7 @@ public class CoolDown {
     }
 
     public static void setSprayCooldown(Player player, double multiple) {
-        sprayCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instance.getConfig().getDouble("spray_cooldown") *multiple*1000));
+        sprayCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.plugin.getConfig().getDouble("spray_cooldown") *multiple*1000));
     }
 
     public static boolean isSprayCooling(Player player) {
@@ -41,7 +41,7 @@ public class CoolDown {
 
 
     public static void setUploadCooldown(Player player, double multiple) {
-        uploadCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.instance.getConfig().getDouble("upload_cooldown") *multiple*1000));
+        uploadCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.plugin.getConfig().getDouble("upload_cooldown") *multiple*1000));
     }
 
     public static boolean isUploadCooling(Player player) {

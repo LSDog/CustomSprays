@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
  */
 public class MapColors {
 
-    private static final File fileMapColorPalette = new File(CustomSprays.instance.getDataFolder()+"/"+ NMS.getMcVer()+".colors");
+    private static final File fileMapColorPalette = new File(CustomSprays.plugin.getDataFolder()+"/"+ NMS.getMcVer()+".colors");
     /* 把索引当成 24位Int颜色 对应 MC的byte颜色值 的颜色版 */
     private static byte[] colors = null;
     private static java.awt.Color[] mcColors;
@@ -61,7 +61,7 @@ public class MapColors {
 
         for (int intColor = 0; intColor < colors.length; intColor++) {
 
-            if (intColor % 1048576 == 0) CustomSprays.instance.getLogger().info("Calculating colors... "+(intColor/16777216.0*100)+"%");
+            if (intColor % 1048576 == 0) CustomSprays.plugin.getLogger().info("Calculating colors... "+(intColor/16777216.0*100)+"%");
 
             int index = 0;
             double smallestDistance = -1;
@@ -81,7 +81,7 @@ public class MapColors {
             out.flush();
 
             colorPaletteAvailable = true;
-            CustomSprays.instance.getLogger().info("Calculation OVER... stored at "+fileMapColorPalette.getAbsolutePath());
+            CustomSprays.plugin.getLogger().info("Calculation OVER... stored at "+fileMapColorPalette.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }

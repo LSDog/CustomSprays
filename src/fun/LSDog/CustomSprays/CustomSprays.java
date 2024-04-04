@@ -20,13 +20,13 @@ import java.io.IOException;
 public class CustomSprays extends JavaPlugin {
 
     public static final double CONFIG_VERSION = 1.71;
-    public static CustomSprays instance;
+    public static CustomSprays plugin;
 
     public static String prefix = "§3§lCustomSprays >>§r ";
 
     public File config = new File(getDataFolder() + File.separator + "config.yml");
     public File playerDataFolder = new File(getDataFolder() + File.separator + "playerData");
-    public CustomSprays() { instance = this; }
+    public CustomSprays() { plugin = this; }
 
     public static String latestVersion = null;
 
@@ -89,7 +89,7 @@ public class CustomSprays extends JavaPlugin {
 
         // 检查更新
         if (getConfig().getBoolean("check_update")) Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-           String pluginVersion = CustomSprays.instance.getDescription().getVersion();
+           String pluginVersion = CustomSprays.plugin.getDescription().getVersion();
            String latestVersion = UpdateChecker.checkGithub();
            if (latestVersion == null) latestVersion = UpdateChecker.checkGitee();
            if (latestVersion == null) return;

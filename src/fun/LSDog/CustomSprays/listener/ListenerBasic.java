@@ -31,7 +31,7 @@ public class ListenerBasic implements Listener {
     @EventHandler (priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
         // 初始化账户
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, () -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> {
             if (e.getPlayer().isOnline() && DataManager.data instanceof DataMySQL) {
                 DataMySQL.addAccountIfNotExist(e.getPlayer());
             }
@@ -58,8 +58,8 @@ public class ListenerBasic implements Listener {
 
             ItemStack item = e.getItem();
 
-            String loreText = CustomSprays.instance.getConfig().getString("spray_item_lore");
-            String loreTimesUse = ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("spray_item_lore_times_use"));
+            String loreText = CustomSprays.plugin.getConfig().getString("spray_item_lore");
+            String loreTimesUse = ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("spray_item_lore_times_use"));
             boolean isSprayItem = loreText == null;
 
             if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
@@ -99,7 +99,7 @@ public class ListenerBasic implements Listener {
 
                 if (useTime >= 1 && SprayManager.spray(e.getPlayer(), e.getPlayer().isSneaking())) {
                     useTime -= 1;
-                    if (CustomSprays.instance.getConfig().getBoolean("destroy_if_exhausted") && useTime <= 0) item.setType(Material.AIR);
+                    if (CustomSprays.plugin.getConfig().getBoolean("destroy_if_exhausted") && useTime <= 0) item.setType(Material.AIR);
                     e.getPlayer().sendMessage(CustomSprays.prefix + ChatColor.translateAlternateColorCodes('&',
                             DataManager.getMsg(e.getPlayer(), "SPRAY.ITEM_USE")).replace("%use%", useTime+""));
                     lore.set(useTimeLineIndex, loreTimesUse + useTime);

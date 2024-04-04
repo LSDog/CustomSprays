@@ -47,7 +47,7 @@ public class UpdateChecker {
         try (InputStream in = conn.getInputStream()) {
             String string = inputStreamToString(in);
             JSONObject jsonObject = (JSONObject) JSONValue.parse(string);
-            CustomSprays.log("found new version: " + jsonObject.get("tag_name"));
+            CustomSprays.log("get newest version: " + jsonObject.get("tag_name") + " (you are using "+CustomSprays.plugin.getDescription().getVersion()+")");
             return (String) jsonObject.get("tag_name");
         }
     }

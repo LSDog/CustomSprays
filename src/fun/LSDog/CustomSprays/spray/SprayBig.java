@@ -53,7 +53,7 @@ public class SprayBig extends SprayBase {
         }
 
         int big_mode;
-        big_mode = CustomSprays.instance.getConfig().getInt("big_mode");
+        big_mode = CustomSprays.plugin.getConfig().getInt("big_mode");
         if (big_mode < 0 || big_mode > 2) big_mode = 1;
 
         for (int i = 0; i < length * length; i++) {
@@ -119,7 +119,7 @@ public class SprayBig extends SprayBase {
 
     @Override
     public void autoRemove(long tick) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, this::remove, tick);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, this::remove, tick);
     }
 
     @Override

@@ -84,7 +84,7 @@ public class RegionChecker {
      * 检测某个位置是否处于禁止的区域
      */
     public static boolean isLocInDisabledRegion(Location loc) {
-        List<String> disableList = CustomSprays.instance.getConfig().getStringList("disabled_region");
+        List<String> disableList = CustomSprays.plugin.getConfig().getStringList("disabled_region");
         for (String name : getRegionNames(loc)) {
             if (disableList.contains(name)) return true;
         }

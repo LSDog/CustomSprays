@@ -60,7 +60,7 @@ public class SprayManager {
                     return false;
                 }
                 SprayBase spray = new SprayBase(player, bytes, Bukkit.getOnlinePlayers());
-                result = spray.create((long) (CustomSprays.instance.getConfig().getDouble("destroy") * 20L));
+                result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy") * 20L));
                 if (result) {
                     CoolDown.setSprayCooldown(player,1);
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ());
@@ -69,7 +69,7 @@ public class SprayManager {
             } else {
 
                 // 大喷漆
-                int length = CustomSprays.instance.getConfig().getInt("big_size");
+                int length = CustomSprays.plugin.getConfig().getInt("big_size");
                 byte[] bytes;
                 if (length == 3) {
                     bytes = DataManager.get384pxImageBytes(player);
@@ -85,9 +85,9 @@ public class SprayManager {
                 }
 
                 SprayBase spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
-                result = spray.create((long) (CustomSprays.instance.getConfig().getDouble("destroy")*20L));
+                result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy")*20L));
                 if (result) {
-                    CoolDown.setSprayCooldown(player, CustomSprays.instance.getConfig().getDouble("big_spray_cooldown_multiple"));
+                    CoolDown.setSprayCooldown(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cooldown_multiple"));
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
                 }
 
@@ -118,7 +118,7 @@ public class SprayManager {
      */
     public static void sendExistSprays(Player player) {
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.instance, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
             try {
                 spray.spawn(Collections.singletonList(player), false);
             } catch (ReflectiveOperationException exception) {
@@ -133,7 +133,7 @@ public class SprayManager {
     public static SprayBase getSprayInSight(Player player) {
 
         Location eyeLocation = player.getEyeLocation();
-        return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.instance.getConfig().getDouble("distance")).rayTraceSpray(SprayManager::isSpraySurfaceBlock);
+        return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.plugin.getConfig().getDouble("distance")).rayTraceSpray(SprayManager::isSpraySurfaceBlock);
     }
 
     /**

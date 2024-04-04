@@ -84,7 +84,7 @@ public class ImageDownloader implements Closeable {
             String contentType = conn.getContentType();
             if ((byteSize == 0) || (contentType != null && !contentType.startsWith("image"))) return 4;
             size = byteSize/1024;
-            if (size >= CustomSprays.instance.getConfig().getDouble("file_size_limit") + 1) {
+            if (size >= CustomSprays.plugin.getConfig().getDouble("file_size_limit") + 1) {
                 return 3;
             } else if (conn.getContentLength() == 0){
                 return 4;

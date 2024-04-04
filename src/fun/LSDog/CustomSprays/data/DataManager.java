@@ -32,7 +32,7 @@ public class DataManager {
     public static String urlRegex = "^https?://.*";
     public static List<String> disableWorlds = null;
     private static byte[] defaultImage = null;
-    private static final File defaultImageFile = new File(CustomSprays.instance.getDataFolder() + File.separator + "default.yml");
+    private static final File defaultImageFile = new File(CustomSprays.plugin.getDataFolder() + File.separator + "default.yml");
 
     private static Method PlaceholderAPI_setPlaceholders = null;
 
@@ -45,7 +45,7 @@ public class DataManager {
 
     public static String getMsg(Player player, String path) {
 
-        String msg = ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("Messages."+path));
+        String msg = ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("Messages."+path));
         if (usePapi && PlaceholderAPI_setPlaceholders != null) {
             try {
                 return (String) PlaceholderAPI_setPlaceholders.invoke(null, player, msg);
@@ -60,7 +60,7 @@ public class DataManager {
         if (sender instanceof Player) {
             return getMsg((Player) sender, path);
         }
-        return ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("Messages."+path));
+        return ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("Messages."+path));
     }
 
     public static byte[] getSizedImageBytes(Player player, int width, int hight) {
@@ -136,12 +136,12 @@ public class DataManager {
 
     public static void initialize(String method) {
         if (method == null) method = "YML";
-        debug = CustomSprays.instance.getConfig().getBoolean("debug");
-        downloadLimit = CustomSprays.instance.getConfig().getInt("download_limit");
-        urlRegex = CustomSprays.instance.getConfig().getString("url_regex");
+        debug = CustomSprays.plugin.getConfig().getBoolean("debug");
+        downloadLimit = CustomSprays.plugin.getConfig().getInt("download_limit");
+        urlRegex = CustomSprays.plugin.getConfig().getString("url_regex");
         usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
-        disableWorlds = CustomSprays.instance.getConfig().getStringList("disabled_world");
-        CustomSprays.prefix = ChatColor.translateAlternateColorCodes('&', CustomSprays.instance.getConfig().getString("msg_prefix"));
+        disableWorlds = CustomSprays.plugin.getConfig().getStringList("disabled_world");
+        CustomSprays.prefix = ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("msg_prefix"));
         switch (StorageMethod.getValue(method.toUpperCase())) {
             case MYSQL:
                 CustomSprays.log("§8use [MYSQL]");
@@ -161,7 +161,7 @@ public class DataManager {
             try {
                 defaultImage = DataManager.decompressBytes(Base64.getDecoder().decode(
                         Files.readAllLines(
-                                Paths.get(CustomSprays.instance.getDataFolder() + File.separator + "default.yml")
+                                Paths.get(CustomSprays.plugin.getDataFolder() + File.separator + "default.yml")
                         ).get(0)
                 ));
                 CustomSprays.log("§7Default image loaded!");

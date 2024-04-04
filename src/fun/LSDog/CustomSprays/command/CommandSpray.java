@@ -17,7 +17,7 @@ public class CommandSpray implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) return true;
-        Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.instance, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.plugin, () -> {
             Player player = ((Player) sender).getPlayer();
             if (args.length != 0) {
                 // 大喷漆
