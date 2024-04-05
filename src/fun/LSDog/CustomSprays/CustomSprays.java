@@ -93,8 +93,8 @@ public class CustomSprays extends JavaPlugin {
            String latestVersion = UpdateChecker.checkGithub();
            if (latestVersion == null) latestVersion = UpdateChecker.checkGitee();
            if (latestVersion == null) return;
-           if (pluginVersion.equals(latestVersion)) return;
-           CustomSprays.latestVersion = latestVersion;
+           int compareResult = UpdateChecker.compareVersions(latestVersion, pluginVersion);
+           if (compareResult > 0) CustomSprays.latestVersion = latestVersion;
         });
 
         // 计算颜色板

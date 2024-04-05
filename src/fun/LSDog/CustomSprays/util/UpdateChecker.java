@@ -45,7 +45,7 @@ public class UpdateChecker {
         try (InputStream in = conn.getInputStream()) {
             String string = inputStreamToString(in);
             JSONObject jsonObject = (JSONObject) JSONValue.parse(string);
-            CustomSprays.log("get newest version: " + jsonObject.get("tag_name") + " (you are using "+CustomSprays.plugin.getDescription().getVersion()+")");
+            CustomSprays.log("Found the newest version: " + jsonObject.get("tag_name") + " (you are using "+CustomSprays.plugin.getDescription().getVersion()+")");
             return (String) jsonObject.get("tag_name");
         }
     }
@@ -59,6 +59,39 @@ public class UpdateChecker {
             result.write(buffer, 0, length);
         }
         return result.toString("UTF-8");
+    }
+
+    /**
+     * 比较两个版本号的大小
+     * @return int < 0 → ver1 < ver2, int = 0 → ver1 = ver2, int > 0 → ver1 > ver2
+     */
+    public static int compareVersions(String ver1, String ver2) {
+        String[] ver1strs = ver1.split("\\.");
+        String[] ver2strs = ver2.split("\\.");
+        // 统一版本数字段数（向最小位(最右)对齐）
+        int lengthOff = ver1strs.length - ver2strs.length;
+        if (lengthOff > 0) ver2strs = backPushArray(ver2strs, lengthOff);
+        else if (lengthOff < 0) ver1strs = backPushArray(ver1strs, -lengthOff);
+        int diff;
+        for (int i = 0; i < ver1strs.length; i++) {
+            diff = toInt(ver1strs[i]) - toInt(ver2strs[i]);
+            if (diff != 0) return diff;
+        }
+        return 0;
+    }
+
+    private static String[] backPushArray(String[] array, int pos) {
+        String[] newArray = new String[array.length+pos];
+        System.arraycopy(array, 0, newArray, pos, array.length);
+        return newArray;
+    }
+
+    private static int toInt(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
 }
