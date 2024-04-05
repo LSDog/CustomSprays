@@ -3,8 +3,7 @@ package fun.LSDog.CustomSprays;
 import fun.LSDog.CustomSprays.command.CommandCustomSprays;
 import fun.LSDog.CustomSprays.command.CommandSpray;
 import fun.LSDog.CustomSprays.data.DataManager;
-import fun.LSDog.CustomSprays.listener.ListenerBasic;
-import fun.LSDog.CustomSprays.listener.ListenerBasicNew;
+import fun.LSDog.CustomSprays.listener.*;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.util.MapColors;
 import fun.LSDog.CustomSprays.util.NMS;
@@ -39,6 +38,8 @@ public class CustomSprays extends JavaPlugin {
         Bukkit.getScheduler().getActiveWorkers().forEach(bukkitWorker -> {
             if (bukkitWorker.getOwner().getName().equals("CustomSprays")) bukkitWorker.getThread().interrupt();
         });
+        if (NMS.getSubVer() >= 8) getServer().getOnlinePlayers().forEach(PacketListener::removePlayer);
+        else getServer().getOnlinePlayers().forEach(PacketListener7::removePlayer);
         log("CustomSprays disabled.");
     }
 
@@ -69,11 +70,11 @@ public class CustomSprays extends JavaPlugin {
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());
 
-        Bukkit.getPluginManager().registerEvents(new ListenerBasic(), this);
+        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
 
         // 检测条件并启用 双击F 喷漆
         if (NMS.getSubVer() >= 9 && getConfig().getBoolean("F_spray")) {
-            Bukkit.getPluginManager().registerEvents(new ListenerBasicNew(), this);
+            Bukkit.getPluginManager().registerEvents(new EventListenerNew(), this);
             log("§8[F_spray] enabled.");
         }
 
@@ -82,6 +83,9 @@ public class CustomSprays extends JavaPlugin {
             MapViewId.setIdRange(-2048_000_000,-2048_000_999);
             MapViewId.sprayViewId = -2048_001_000;
         }
+
+        // 检测已在服务器中的玩家
+        getServer().getOnlinePlayers().forEach(EventListener::playerJoin);
 
         // 信息统计
         // https://bstats.org/plugin/bukkit/CustomSprays/13633

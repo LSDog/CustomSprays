@@ -16,9 +16,9 @@ ___
 |:-------------------------:|--------------------------------------------------------------|
 | ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                       |
 |      作者 <br> Author       | LSDog                                                        |
-|      版本 <br> Version      | 1.5.10                                                       |
+|      版本 <br> Version      | 1.5.11                                                       |
 |      支持 <br> Support      | **1.7.10 ~ 1.20.4** (Bukkit Spigot Paper ...)                |
-|        指令 <br> Cmd        | `/cspray ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
+|        指令 <br> Cmd        | `/sprays ...` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
 |       权限 <br> Perm        | 请见 "config.yml" / see "config.yml"                           |
 > 
 > Links:
@@ -46,7 +46,7 @@ ___
       |
       | (现在去复制图片链接)
       |
-    2 | 输入指令: /cspray upload <url>  -  上传图片
+    2 | 输入指令: /sprays upload <url>  -  上传图片
     3 | 输入指令: /spray                -  对着墙喷漆
       |
     4 | 🎇 如果服务器版本 ≥ 1.9，【快速双击F键】也可以喷漆！🎇
@@ -57,7 +57,7 @@ ___
       |
       | (now get ur image link)
       |
-    2 | Send command: /cspray upload <url>  -  Upload image
+    2 | Send command: /sprays upload <url>  -  Upload image
     3 | Send command: /spray                -  Spray at wall
       |
     4 | 🎇 If server version ≥ 1.9，【Quick double click "F"】can also spray！🎇

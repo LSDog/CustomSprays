@@ -26,6 +26,7 @@ public class SprayBig extends SprayBase {
      * @see fun.LSDog.CustomSprays.data.DataManager#get384pxImageBytes(Player)
      * @see fun.LSDog.CustomSprays.data.DataManager#getSizedImageBytes(Player, int, int)
      * @param player 喷漆的玩家
+     * @param length 喷漆边长多少个方块
      * @param pixels Byte color array <b>必为 384*384 或 640*640</b>
      * @param showTo 能看到这个喷漆的玩家
      */
@@ -113,8 +114,11 @@ public class SprayBig extends SprayBase {
 
         }
 
-        if (playSound) SprayBase.playSpraySound(player);
+        // 设置 itemframeId 为最中间的 id
+        int frameCount = length * length;
+        itemFrameId = itemFrameIds[(frameCount + frameCount%2)/2 - 1];
 
+        if (playSound) SprayBase.playSpraySound(player);
     }
 
     @Override

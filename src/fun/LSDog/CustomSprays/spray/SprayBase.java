@@ -35,7 +35,7 @@ public class SprayBase {
     protected Location playerLocation;
     protected int intDirection;
 
-    private int itemFrameId;
+    protected int itemFrameId;
     protected boolean valid = true;
 
     /**
@@ -55,22 +55,32 @@ public class SprayBase {
      * 向某个玩家播放喷漆音效
      */
     public static void playSpraySound(Player player) {
-        String sound = CustomSprays.plugin.getConfig().getString("spray_sound");
-        if (sound == null || "default".equals(sound)) {
-            if (NMS.getSubVer() <= 8) {
-                Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
-                        player.getWorld().playSound(player.getLocation(), Sound.valueOf("SILVERFISH_HIT"), 1, 0.8F));
-            }
-            else {
-                Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
-                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_SILVERFISH_HURT, 1, 0.8F));
-            }
+        String soundName = CustomSprays.plugin.getConfig().getString("spray_sound");
+        if (soundName == null || "default".equals(soundName)) {
+            Sound sound = Sound.valueOf(NMS.getSubVer() <= 8 ? "SILVERFISH_HIT" : "ENTITY_SILVERFISH_HURT");
+            Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
+                    player.getWorld().playSound(player.getLocation(), sound, 1, 0.8F));
         } else {
-            String[] strings = sound.split("-");
+            String[] strings = soundName.split("-");
             if (strings.length != 3) return;
             Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
                 player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2])));
         }
+    }
+
+    /**
+     * 移除喷漆音效
+     */
+    public static void playRemoveSound(Player player) {
+        int subVer = NMS.getSubVer();
+        String soundName;
+        if (subVer <= 8) soundName = "DIG_WOOL";
+        else if (subVer <= 12) soundName = "BLOCK_CLOTH_HIT";
+        else soundName = "BLOCK_WOOL_HIT";
+        Sound sound = Sound.valueOf(soundName);
+        Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
+                player.getWorld().playSound(player.getLocation(), sound, 1, 1.2F));
+
     }
 
     /**
@@ -162,8 +172,6 @@ public class SprayBase {
         }
 
         if (playSound) playSpraySound(player);
-
-        System.out.println(itemFrame);
 
     }
 

@@ -26,7 +26,7 @@ public class NMS {
     private static Method Entity_getId;
     private static Method Entity_getDataWatcher;
     private static Constructor<?> cPacketPlayOutEntityMetadata;
-    
+
     private static Class<?> getClass(String name) {
         try {
             return Class.forName(name);
@@ -36,19 +36,36 @@ public class NMS {
         return null;
     }
 
-    private static Method PlayerConnection_SendPacket;
+    private static Method PlayerConnection_sendPacket;
     private static Method DataWatcher_getNonDefaultValues;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static Object getDeclaredField(Object object, String name) {
+    public static Field getDeclaredField(Class<?> clazz, String name) throws NoSuchFieldException {
+        if (clazz == null || name == null) return null;
+        Field field = clazz.getDeclaredField(name);
+        field.setAccessible(true);
+        return field;
+    }
+
+    public static Object getDeclaredFieldObject(Object object, String name) {
         if (object == null || name == null) return null;
         try {
             Field field = object.getClass().getDeclaredField(name);
             field.setAccessible(true);
             return field.get(object);
         } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Object getDeclaredFieldObject(Object object, Field field) {
+        if (object == null || field == null) return null;
+        try {
+            return field.get(object);
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             return null;
         }
@@ -71,6 +88,8 @@ public class NMS {
     private static Class<?> mcEntityPlayerClass = null;
     private static Class<?> mcEntityItemFrameClass = null;
     private static Class<?> mcPlayerConnectionClass = null;
+    private static Class<?> mcServerCommonPacketListenerImplClass = null;
+    private static Class<?> mcNetworkManagerClass = null;
     private static Class<?> mcItemStackClass = null;
     private static Class<?> mcIMaterialClass = null;
     private static Class<?> mcItemClass = null;
@@ -104,12 +123,12 @@ public class NMS {
     }
 
     public static void sendPacket(Player player, Object packet) throws ReflectiveOperationException {
-        if (PlayerConnection_SendPacket == null) {
-            if (getSubVer() <= 17) PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass());
-            else if (getSubVer() < 20 || (getSubVer() == 20 && getSubRVer() <= 1)) PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("a", getPacketClass());
-            else PlayerConnection_SendPacket = getMcPlayerConnectionClass().getMethod("b", getPacketClass()); // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
+        if (PlayerConnection_sendPacket == null) {
+            if (getSubVer() <= 17) PlayerConnection_sendPacket = getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass());
+            else if (getSubVer() < 20 || (getSubVer() == 20 && getSubRVer() <= 1)) PlayerConnection_sendPacket = getMcPlayerConnectionClass().getMethod("a", getPacketClass());
+            else PlayerConnection_sendPacket = getMcPlayerConnectionClass().getMethod("b", getPacketClass()); // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
         }
-        PlayerConnection_SendPacket.invoke(getMcPlayerConnection(player), packet);
+        PlayerConnection_sendPacket.invoke(getMcPlayerConnection(player), packet);
     }
 
     // "Legacy" 指的是版本 < 1.17, 因为 NMS 在1.17后相应类的路径大改
@@ -157,6 +176,16 @@ public class NMS {
         else return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("server.network.PlayerConnection") : mcPlayerConnectionClass;
     }
 
+    public static Class<?> getMcServerCommonPacketListenerImplClass() {
+        return mcServerCommonPacketListenerImplClass == null ?
+                mcServerCommonPacketListenerImplClass = getMcClass("server.network.ServerCommonPacketListenerImpl") : mcServerCommonPacketListenerImplClass;
+    }
+
+    public static Class<?> getMcNetworkManagerClass() {
+        if (getSubVer() < 17) return mcNetworkManagerClass == null ? mcNetworkManagerClass = getLegacyMcClass("NetworkManager") : mcNetworkManagerClass;
+        else return mcNetworkManagerClass == null ? mcNetworkManagerClass = getMcClass("network.NetworkManager") : mcNetworkManagerClass;
+    }
+
     public static Class<?> getMcItemStackClass() {
         if (getSubVer() < 17) return mcItemStackClass == null ? mcItemStackClass = getLegacyMcClass("ItemStack") : mcItemStackClass;
         else return mcItemStackClass == null ? mcItemStackClass = getMcClass("world.item.ItemStack") : mcItemStackClass;
@@ -174,7 +203,7 @@ public class NMS {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     public static Object getHandle(Object object) throws ReflectiveOperationException {
         return object.getClass().getMethod("getHandle").invoke(object);
     }
@@ -215,19 +244,67 @@ public class NMS {
         if (getSubVer() < 17) return mcNBTTagCompound == null ? mcNBTTagCompound = getLegacyMcClass("NBTTagCompound") : mcNBTTagCompound;
         else return mcNBTTagCompound == null ? mcNBTTagCompound = getMcClass("nbt.NBTTagCompound") : mcNBTTagCompound;
     }
-    
+
+    private static Field fEntityPlayer_playerConnection = null;
     public static Object getMcPlayerConnection(Player player) throws ReflectiveOperationException {
-        int subVer = getSubVer();
-        String fieldName = "playerConnection";
-        if (subVer >= 18) switch (subVer) {
-            case 18:
-            case 19:
-                fieldName = "b"; break;
-            case 20:
-            default:
-                fieldName = "c"; break;
+        if (fEntityPlayer_playerConnection == null) {
+            String fieldName = "playerConnection";
+            int subVer = getSubVer();
+            if (subVer >= 17) switch (subVer) {
+                case 17:
+                case 18:
+                case 19:
+                    fieldName = "b"; break;
+                case 20:
+                default:
+                    fieldName = "c"; break;
+            }
+            fEntityPlayer_playerConnection = getDeclaredField(getMcEntityPlayerClass(), fieldName);
         }
-        return getMcEntityPlayerClass().getField(fieldName).get(getMcEntityPlayer(player));
+        return fEntityPlayer_playerConnection.get(getMcEntityPlayer(player));
+    }
+
+    private static Field fPlayerConnection_networkManager = null;
+    public static Object getMcPlayerNetworkManager(Player player) throws ReflectiveOperationException {
+        if (fPlayerConnection_networkManager == null) {
+            int subVer = getSubVer();
+            String fieldName = "networkManager";
+            if (subVer >= 17) switch (subVer) {
+                case 17:
+                case 18:
+                    fieldName = "a"; break;
+                case 19:
+                    fieldName = "h"; break;
+                case 20:
+                default:
+                    fieldName = "c"; break;
+            }
+            if (subVer >= 20) {
+                fPlayerConnection_networkManager = getDeclaredField(getMcServerCommonPacketListenerImplClass(), fieldName);
+            } else {
+                fPlayerConnection_networkManager = getDeclaredField(getMcPlayerConnectionClass(), fieldName);
+            }
+        }
+        return fPlayerConnection_networkManager.get(getMcPlayerConnection(player));
+    }
+
+    private static Field fNetworkManager_channel = null;
+    public static Object getMcPlayerNettyChannel(Player player) throws ReflectiveOperationException {
+        if (fNetworkManager_channel == null) {
+            int subVer = getSubVer();
+            String fieldName = "channel";
+            if (subVer <= 7 || subVer >= 17) switch (subVer) {
+                case 17: fieldName = "k"; break;
+                case 7:
+                case 18:
+                case 19: fieldName = "m"; break;
+                case 20:
+                default: fieldName = "n"; break;
+            }
+            fNetworkManager_channel = getDeclaredField(getMcNetworkManagerClass(), fieldName);
+        }
+        if (fNetworkManager_channel == null) return null;
+        return fNetworkManager_channel.get(getMcPlayerNetworkManager(player));
     }
 
     public static int getMcEntityId(Object mcEntity) throws ReflectiveOperationException {
@@ -337,12 +414,10 @@ public class NMS {
     public static void setSpawnPacketLocation(Object packetSpawnEntity, Location loc) {
         if (fPacketSpawnEntity_x == null) {
             try {
-                fPacketSpawnEntity_x = getPacketClass("PacketPlayOutSpawnEntity").getDeclaredField("b");
-                fPacketSpawnEntity_y = getPacketClass("PacketPlayOutSpawnEntity").getDeclaredField("c");
-                fPacketSpawnEntity_z = getPacketClass("PacketPlayOutSpawnEntity").getDeclaredField("d");
-                fPacketSpawnEntity_x.setAccessible(true);
-                fPacketSpawnEntity_y.setAccessible(true);
-                fPacketSpawnEntity_z.setAccessible(true);
+                Class<?> packetClass = getPacketClass("PacketPlayOutSpawnEntity");
+                fPacketSpawnEntity_x = getDeclaredField(packetClass, "b");
+                fPacketSpawnEntity_y = getDeclaredField(packetClass, "c");
+                fPacketSpawnEntity_z = getDeclaredField(packetClass, "d");
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }

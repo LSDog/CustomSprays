@@ -326,6 +326,7 @@ public class CommandCustomSprays implements TabExecutor {
                         if (spray != null) {
                             player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                             spray.remove();
+                            SprayBase.playRemoveSound(player);
                         }
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }

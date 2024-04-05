@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * 1.9+ 版本的 Listeners
  */
-public class ListenerBasicNew implements Listener {
+public class EventListenerNew implements Listener {
 
 
     /**

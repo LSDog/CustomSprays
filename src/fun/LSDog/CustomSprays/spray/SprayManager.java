@@ -21,6 +21,8 @@ public class SprayManager {
     public static Map<Block, List<SprayBase>> locationSprayMap = new ConcurrentHashMap<>();
     // 注意block指的是喷漆所在的方块而不是依附着的方块
 
+    public static Map<Integer, SprayBase> itemframeIdMap = new ConcurrentHashMap<>();
+
     /**
      * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家 <br>
      * <b>务必使用 runTaskAsynchronously 异步执行, 否则可能造成卡顿！！</b>
@@ -42,8 +44,8 @@ public class SprayManager {
             return false;
         }
         // 检测CD
-        if (!player.hasPermission("CustomSprays.nocd") && CoolDown.isSprayCooling(player)) {
-            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+ CoolDown.getSprayCD(player)+")");
+        if (!player.hasPermission("CustomSprays.nocd") && CoolDown.isSprayInCd(player)) {
+            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING")+" §7("+ CoolDown.getSprayCdFormat(player)+"s)");
             return false;
         }
 
@@ -62,7 +64,7 @@ public class SprayManager {
                 SprayBase spray = new SprayBase(player, bytes, Bukkit.getOnlinePlayers());
                 result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy") * 20L));
                 if (result) {
-                    CoolDown.setSprayCooldown(player,1);
+                    CoolDown.setSprayCdMultiple(player,1);
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ());
                 }
 
@@ -87,7 +89,7 @@ public class SprayManager {
                 SprayBase spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
                 result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy")*20L));
                 if (result) {
-                    CoolDown.setSprayCooldown(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cooldown_multiple"));
+                    CoolDown.setSprayCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cooldown_multiple"));
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
                 }
 
@@ -110,6 +112,8 @@ public class SprayManager {
         List<SprayBase> locList = locationSprayMap.getOrDefault(spray.block, new ArrayList<>());
         locList.add(spray);
         locationSprayMap.put(spray.block, locList);
+
+        itemframeIdMap.put(spray.itemFrameId, spray);
 
     }
 
@@ -172,6 +176,10 @@ public class SprayManager {
         return null;
     }
 
+    public static SprayBase getSpray(int itemframeEntityId) {
+        return itemframeIdMap.get(itemframeEntityId);
+    }
+
     /**
      * 清除喷漆和记录用map中的spray
      * @param spray 喷漆
@@ -185,6 +193,8 @@ public class SprayManager {
         List<SprayBase> locSprayList = locationSprayMap.getOrDefault(spray.block, new ArrayList<>());
         if (!locSprayList.isEmpty()) locSprayList.remove(spray);
         locationSprayMap.put(spray.block, locSprayList);
+
+        itemframeIdMap.remove(spray.itemFrameId);
     }
 
     /**
@@ -201,6 +211,7 @@ public class SprayManager {
 
         playerSprayMap.clear();
         locationSprayMap.clear();
+        itemframeIdMap.clear();
     }
 
     /**

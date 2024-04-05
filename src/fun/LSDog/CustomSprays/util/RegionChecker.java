@@ -100,9 +100,9 @@ public class RegionChecker {
             try {
                 Object residence = ResidenceManager_getByLoc.invoke(residenceManager, loc);
                 if (residence != null) {
-                    String name = (String) NMS.getDeclaredField(residence, "resName");
+                    String name = (String) NMS.getDeclaredFieldObject(residence, "resName");
                     if (name != null) nameList.add(name);
-                    while ((name = (String) NMS.getDeclaredField(residence = ClaimedResidence_getParent.invoke(residence), "resName")) != null) {
+                    while ((name = (String) NMS.getDeclaredFieldObject(residence = ClaimedResidence_getParent.invoke(residence), "resName")) != null) {
                         nameList.add(name);
                     }
                 }
