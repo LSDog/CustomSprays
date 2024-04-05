@@ -9,52 +9,80 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CoolDown {
 
-    private static final Map<UUID, Long> sprayCooldown = new ConcurrentHashMap<>();
-    private static final Map<UUID, Long> uploadCooldown = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> sprayCdMap = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> uploadCdMap = new ConcurrentHashMap<>();
 
     public static void reset() {
-        sprayCooldown.clear();
-        uploadCooldown.clear();
+        sprayCdMap.clear();
+        uploadCdMap.clear();
     }
 
     private static long time() {
         return System.currentTimeMillis();
     }
 
-    public static void setSprayCooldown(Player player, double multiple) {
-        sprayCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.plugin.getConfig().getDouble("spray_cooldown") *multiple*1000));
+    public static void setSprayCd(Player player, long millisecond) {
+        sprayCdMap.put(player.getUniqueId(), time() + millisecond);
     }
 
-    public static boolean isSprayCooling(Player player) {
-        if (sprayCooldown.containsKey(player.getUniqueId())) {
-            return time() < sprayCooldown.get(player.getUniqueId());
+    public static void setSprayCdMultiple(Player player, double multiple) {
+        setSprayCd(player, Math.round(CustomSprays.plugin.getConfig().getDouble("spray_cooldown")*multiple*1000));
+    }
+
+    public static boolean isSprayInCd(Player player) {
+        if (sprayCdMap.containsKey(player.getUniqueId())) {
+            return time() < sprayCdMap.get(player.getUniqueId());
         } else {
-            sprayCooldown.put(player.getUniqueId(), time());
+            sprayCdMap.put(player.getUniqueId(), time());
             return false;
         }
     }
 
-    public static long getSprayCD(Player player) {
-        return (sprayCooldown.getOrDefault(player.getUniqueId(), time()) - time())/1000;
+    /**
+     * Get spray cd time in millisecond
+     * @return cd time in millisecond
+     */
+    public static long getSprayCd(Player player) {
+        return sprayCdMap.getOrDefault(player.getUniqueId(), time()) - time();
+    }
+
+    public static String getSprayCdFormat(Player player) {
+        return getTimeSecondFormat(getSprayCd(player));
     }
 
 
-
-    public static void setUploadCooldown(Player player, double multiple) {
-        uploadCooldown.put(player.getUniqueId(), (long) (time() + CustomSprays.plugin.getConfig().getDouble("upload_cooldown") *multiple*1000));
+    public static void setUploadCd(Player player, long millisecond) {
+        uploadCdMap.put(player.getUniqueId(), time() + millisecond);
     }
 
-    public static boolean isUploadCooling(Player player) {
-        if (uploadCooldown.containsKey(player.getUniqueId())) {
-            return time() <= uploadCooldown.get(player.getUniqueId());
+    public static void setUploadCdMultiple(Player player, double multiple) {
+        setUploadCd(player, Math.round(CustomSprays.plugin.getConfig().getDouble("upload_cooldown")*multiple*1000));
+    }
+
+    public static boolean isUploadInCd(Player player) {
+        if (uploadCdMap.containsKey(player.getUniqueId())) {
+            return time() <= uploadCdMap.get(player.getUniqueId());
         } else {
-            uploadCooldown.put(player.getUniqueId(), time());
+            uploadCdMap.put(player.getUniqueId(), time());
             return false;
         }
     }
 
-    public static long getUploadCool(Player player) {
-        return (uploadCooldown.getOrDefault(player.getUniqueId(), time()) - time())/1000;
+    /**
+     * Get upload cd time in millisecond
+     * @return cd time in millisecond
+     */
+    public static long getUploadCd(Player player) {
+        return (uploadCdMap.getOrDefault(player.getUniqueId(), time()) - time())/1000;
+    }
+
+    public static String getUploadCdFormat(Player player) {
+        return getTimeSecondFormat(getUploadCd(player));
+    }
+
+    private static String getTimeSecondFormat(long ms) {
+        if (ms > 1000 || ms < -1000) return String.valueOf(ms/1000);
+        else return String.format("%.1f", ms/1000.0);
     }
 
 }

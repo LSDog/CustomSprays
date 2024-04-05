@@ -133,14 +133,14 @@ public class CommandCustomSprays implements TabExecutor {
                             player.sendMessage(CustomSprays.prefix + "§7♦ ......!");
                             return;
                         }
-                        if ( !player.hasPermission("CustomSprays.noCD") && CoolDown.isUploadCooling(player) ) {
-                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+ CoolDown.getUploadCool(player)+")");
+                        if ( !player.hasPermission("CustomSprays.noCD") && CoolDown.isUploadInCd(player) ) {
+                            player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+ CoolDown.getUploadCdFormat(player)+"s)");
                             uploadingSet.remove(player.getUniqueId()); return;
                         }
 
                         uploadingSet.add(player.getUniqueId());
                         /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
-                        CoolDown.setUploadCooldown(player, CustomSprays.plugin.getConfig().getDouble("upload_failed_cooldown_multiple"));
+                        CoolDown.setUploadCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("upload_failed_cooldown_multiple"));
 
                         if (args.length == 1) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));
@@ -180,7 +180,7 @@ public class CommandCustomSprays implements TabExecutor {
                         }
                         int size = DataManager.saveImageBytes(player, imgBytes);
                         /* 上传成功了就用原冷却时间，所谓人性化是也~~ */
-                        CoolDown.setUploadCooldown(player, 1);
+                        CoolDown.setUploadCdMultiple(player, 1);
                         CustomSprays.debug("§f§l" + player.getName() + "§b upload §7->§r (§e§l"+ imageDownloader.size+"k§7>>§e§l"+size/1024+"k§r) " + url);
                         player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.OK"));
                         imageDownloader.close();
@@ -224,8 +224,8 @@ public class CommandCustomSprays implements TabExecutor {
                                     player.sendMessage(CustomSprays.prefix + target.getName() + DataManager.getMsg(player, "COMMAND_COPY.NOT_ALLOW"));
                                     return;
                                 }
-                                if ( !player.hasPermission("CustomSprays.noCD") && CoolDown.isUploadCooling(player) ) {
-                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+ CoolDown.getUploadCool(player)+")");
+                                if ( !player.hasPermission("CustomSprays.noCD") && CoolDown.isUploadInCd(player) ) {
+                                    player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "IN_COOLING") + " §7("+ CoolDown.getUploadCdFormat(player)+"s)");
                                     uploadingSet.remove(player.getUniqueId()); return;
                                 }
                                 byte[] data = DataManager.data.getImageBytes(target);
@@ -234,7 +234,7 @@ public class CommandCustomSprays implements TabExecutor {
                                     return;
                                 }
                                 DataManager.saveImageBytes(player, data);
-                                CoolDown.setUploadCooldown(player, CustomSprays.plugin.getConfig().getDouble("copy_cooldown_multiple"));
+                                CoolDown.setUploadCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("copy_cooldown_multiple"));
                                 sender.sendMessage(CustomSprays.prefix + "OK!" + (player.isOp()&&!allow?" §7§l(OP-bypass)":"") );
                             }
                         }
