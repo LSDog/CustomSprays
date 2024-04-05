@@ -16,11 +16,10 @@ public class UpdateChecker {
     public static String checkGithub() {
 
         try {
-            URL url = new URL("https://api.github.com/repos/LSDogX/CustomSprays/releases/latest");
+            URL url = new URL("https://api.github.com/repos/LSDog/CustomSprays/releases/latest");
             return getVersionFromUrlApi(url);
         } catch (Exception e) {
-            CustomSprays.log("failed to check version...");
-            CustomSprays.log(e);
+            CustomSprays.log("failed to check version: " + e);
         }
         return null;
     }
@@ -31,8 +30,7 @@ public class UpdateChecker {
             URL url = new URL("https://gitee.com/api/v5/repos/PixelMC/CustomSprays/releases/latest");
             return getVersionFromUrlApi(url);
         } catch (Exception e) {
-            CustomSprays.log("failed to check version...");
-            CustomSprays.log(e);
+            CustomSprays.log("failed to check version: " + e);
         }
         return null;
     }

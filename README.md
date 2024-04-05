@@ -26,11 +26,11 @@ ___
 > | [Spigot](https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/)
 > | [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
 
-## ⏬ **下载 | Download** → [发布页](https://github.com/LSDogX/CustomSprays/releases) | [Releases](https://github.com/LSDogX/CustomSprays/releases) !!
+## ⏬ **下载 | Download** → [发布页](https://github.com/LSDog/CustomSprays/releases) | [Releases](https://github.com/LSDog/CustomSprays/releases) !!
 (上面Github打不开? → [Gitee发布页](https://gitee.com/pixelmc/CustomSprays/releases))
 
 
-**⭐ [喷漆音效资源包](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) / [Spray sound resource pack](https://github.com/LSDogX/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
+**⭐ [喷漆音效资源包](https://github.com/LSDog/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) / [Spray sound resource pack](https://github.com/LSDog/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) ! ⭐**
 
 **⭐ [ItemsAdder支持](https://github.com/LSDog/CustomSprays/tree/itemsadder) ⭐**
 
