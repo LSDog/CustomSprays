@@ -89,7 +89,7 @@ public class SprayManager {
                 SprayBase spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
                 result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy")*20L));
                 if (result) {
-                    CoolDown.setSprayCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cooldown_multiple"));
+                    CoolDown.setSprayCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cd_multiple"));
                     CustomSprays.debug("§f§l" + player.getName() + "§b spray §7->§r " + spray.location.getX() + " " + spray.location.getY() + " " + spray.location.getZ() + " (big)");
                 }
 

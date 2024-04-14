@@ -18,7 +18,7 @@ import java.io.IOException;
 
 public class CustomSprays extends JavaPlugin {
 
-    public static final double CONFIG_VERSION = 1.71;
+    public static final double CONFIG_VERSION = 1.8;
     public static CustomSprays plugin;
 
     public static String prefix = "§3§lCustomSprays >>§r ";

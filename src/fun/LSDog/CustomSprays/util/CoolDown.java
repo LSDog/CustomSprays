@@ -26,7 +26,7 @@ public class CoolDown {
     }
 
     public static void setSprayCdMultiple(Player player, double multiple) {
-        setSprayCd(player, Math.round(CustomSprays.plugin.getConfig().getDouble("spray_cooldown")*multiple*1000));
+        setSprayCd(player, Math.round(CustomSprays.plugin.getConfig().getDouble("spray_cd")*multiple*1000));
     }
 
     public static boolean isSprayInCd(Player player) {
@@ -56,7 +56,7 @@ public class CoolDown {
     }
 
     public static void setUploadCdMultiple(Player player, double multiple) {
-        setUploadCd(player, Math.round(CustomSprays.plugin.getConfig().getDouble("upload_cooldown")*multiple*1000));
+        setUploadCd(player, Math.round(CustomSprays.plugin.getConfig().getDouble("upload_cd")*multiple*1000));
     }
 
     public static boolean isUploadInCd(Player player) {

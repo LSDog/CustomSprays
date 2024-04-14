@@ -140,7 +140,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                         uploadingSet.add(player.getUniqueId());
                         /* 上传失败了就缩短冷却时间，所谓人性化是也~~ */
-                        CoolDown.setUploadCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("upload_failed_cooldown_multiple"));
+                        CoolDown.setUploadCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("upload_failed_cd_multiple"));
 
                         if (args.length == 1) {
                             player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "COMMAND_UPLOAD.NO_URL"));
@@ -234,7 +234,7 @@ public class CommandCustomSprays implements TabExecutor {
                                     return;
                                 }
                                 DataManager.saveImageBytes(player, data);
-                                CoolDown.setUploadCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("copy_cooldown_multiple"));
+                                CoolDown.setUploadCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("copy_cd_multiple"));
                                 sender.sendMessage(CustomSprays.prefix + "OK!" + (player.isOp()&&!allow?" §7§l(OP-bypass)":"") );
                             }
                         }
@@ -287,7 +287,7 @@ public class CommandCustomSprays implements TabExecutor {
                                     NMS.sendPacket(player, packet);
                                 }
                             } else NMS.sendPacket(player, MapFrameFactory.getMapPacket(id, imageBytes));
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             e.printStackTrace();
                         }
                         // Send original mapview back

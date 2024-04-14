@@ -63,7 +63,7 @@ public class DataManager {
         return ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("Messages."+path));
     }
 
-    public static byte[] getSizedImageBytes(Player player, int width, int hight) {
+    public static byte[] getSizedImageBytes(Player player, int width, int height) {
 
         byte[] bytes384 = data.getImageBytes(player);
         if (bytes384 == null || bytes384.length != 147456) {
@@ -83,9 +83,9 @@ public class DataManager {
         }
         image384.setRGB(0, 0, 384, 384, intColorArray, 0, 384);
 
-        BufferedImage imageSized = new BufferedImage(width, hight, BufferedImage.TYPE_INT_ARGB_PRE);
+        BufferedImage imageSized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D graphics2D = imageSized.createGraphics();
-        graphics2D.drawImage(image384, 0, 0, width, hight, null);
+        graphics2D.drawImage(image384, 0, 0, width, height, null);
         graphics2D.dispose();
 
         byte[] bytes;

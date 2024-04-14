@@ -26,7 +26,7 @@ public class DataYml implements IData {
     }
 
     /**
-     * 都是384*384大小
+     * @param imgBytes byte[384*384]{MinecraftColorBytes}
      */
     @Override
     public int saveImageBytes(Player player, byte[] imgBytes) {
@@ -51,7 +51,7 @@ public class DataYml implements IData {
     }
 
     /**
-     * 都是384*384大小
+     * @return byte[384*384]{MinecraftColorBytes}
      */
     @Override
     public byte[] getImageBytes(Player player) {

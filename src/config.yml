@@ -74,6 +74,11 @@ check_update: true
 ############ NUMBER CONFIGS ##############
 ############ 数字有关的配置 ##############
 
+distance: 4.5
+# |玩家喷漆到方块的最大距离 (格)
+# |Max distance from player to spray surface (Block)
+# 默认|Default: 4.5
+
 big_size: 3
 # |大喷漆的大小 (格), 允许 3 或 5
 # |Big spray size (Block), allow 3 or 5
@@ -90,43 +95,38 @@ big_mode: 1
 # 2: Sprays onto nearby surfaces if there's a block covering
 # 默认|Default: 1
 
-distance: 4.5
-# |玩家喷漆到方块的最大距离 (格)
-# |Max distance from player to block (Block)
-# 默认|Default: 4.5
-
 destroy: 40
 # |玩家喷漆自动消失时间 (秒)
 # |Spray self destruct time (Second)
 # 默认|Default: 40
 
-spray_cooldown: 30
+spray_cd: 30
 # |喷漆的冷却时间 (秒)
 # |Cooldown of spraying (Second)
 # 默认|Default: 30
 
-big_spray_cooldown_multiple: 1.5
-# big_spray_cooldown == spray_cooldown * big_spray_cooldown_multiple
-# |大喷漆的冷却时间倍数 (upload_cooldown的倍数)
-# |Multiple number of big spray cooldown (Multiple of upload_cooldown)
-# 默认|Default: 1.5
+big_spray_cd_multiple: 1.25
+# big_spray_cd = spray_cd * big_spray_cd_multiple
+# |大喷漆的冷却时间倍数 (spray_cd的倍数)
+# |Multiple number of big spray cooldown (Multiple of spray_cd)
+# 默认|Default: 1.25
 
 
-upload_cooldown: 60
+upload_cd: 60
 # |上传图片的冷却时间 (秒)
 # |Cooldown between uploading an image (Second)
 # 默认|Default: 60
 
-upload_failed_cooldown_multiple: 0.2
-# upload_failed_cooldown == upload_cooldown * upload_failed_cooldown_multiple
-# |上传图片失败时的冷却时间倍数 (upload_cooldown的倍数)
-# |Multiple number of cooldown when failed to upload an image (Multiple of upload_cooldown)
+upload_failed_cd_multiple: 0.2
+# upload_failed_cd = upload_cd * upload_failed_cd_multiple
+# |上传图片失败时的冷却时间倍数 (upload_cd的倍数)
+# |Multiple number of cooldown when failed to upload an image (Multiple of upload_cd)
 # 默认|Default: 0.2
 
-copy_cooldown_multiple: 0.3
-# copy_cooldown == upload_cooldown * copy_cooldown_multiple
-# |玩家复制另一个玩家图片的冷却时间倍数 (upload_cooldown的倍数)
-# |Multiple of cooldown when player copy an image from another player (Multiple of upload_cooldown)
+copy_cd_multiple: 0.3
+# copy_cd = upload_cd * copy_cd_multiple
+# |玩家复制另一个玩家图片的冷却时间倍数 (upload_cd的倍数)
+# |Multiple of cooldown when player copy an image from another player (Multiple of upload_cd)
 # 默认|Default: 0.3
 
 
@@ -369,6 +369,6 @@ Messages:
 
 
 
-# |Checking compatibility, take care of this (✿◕‿◕✿)
+# |Checking compatibility, don't touch this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.71
+configVersion: 1.8
