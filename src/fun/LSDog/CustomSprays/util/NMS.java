@@ -5,27 +5,35 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Constructor;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 全是 Object 的跨版本NMS适配机器（
+ * NMS Util for {@link net.minecraft.server} related actions
+ * Support 1.7.10 ~ 1.20.4
  */
 public class NMS {
 
+    // ClassSimpleName - Class<?>
     private static final Map<String, Class<?>> mcClassMap = new HashMap<>();
 
     private static String version = null;
-    private static int subVer = 0;
-    private static int subRVer = 0;
-    private static Method Entity_getId;
-    private static Method Entity_getDataWatcher;
-    private static Constructor<?> cPacketPlayOutEntityMetadata;
+    private static int subVer = -1;
+    private static int subRVer = -1;
+    // Constructor
+    private static final MethodHandle cPacketPlayOutEntityDestroy;
+    private static final MethodHandle cPacketPlayOutEntityMetadata;
+    // Method
+    private static final MethodHandle Entity_getId;
+    private static final MethodHandle Entity_getDataWatcher;
+    private static final MethodHandle PlayerConnection_sendPacket;
+    private static final MethodHandle DataWatcher_getNonDefaultValues;
 
     private static Class<?> getClass(String name) {
         try {
@@ -36,9 +44,53 @@ public class NMS {
         return null;
     }
 
-    private static Method PlayerConnection_sendPacket;
-    private static Method DataWatcher_getNonDefaultValues;
+    static {
 
+        getSubVer();
+        getSubRVer();
+        String name;
+
+        try {
+
+            cPacketPlayOutEntityDestroy = getConstructor(getPacketClass("PacketPlayOutEntityDestroy"), MethodType.methodType(void.class, int[].class));
+
+            cPacketPlayOutEntityMetadata = getConstructor(NMS.getPacketClass("PacketPlayOutEntityMetadata"),
+                    subVer < 19 || (subVer == 19 && subRVer == 1) ?
+                            MethodType.methodType(void.class, int.class, NMS.getMcDataWatcherClass(), boolean.class) :
+                            MethodType.methodType(void.class, int.class, List.class)
+                    );
+
+            name = "getId";
+            if (subVer >= 18) switch (subVer) {
+                case 18: name = "ae"; break;
+                case 19: name = subRVer == 1 ? "ae" : subRVer == 2 ? "ah" : "af"; break;
+                case 20: name = subRVer == 1 ? "af" : subRVer == 2 ? "ah" : "aj"; break;
+                default: name = "aj"; break;
+            }
+            Entity_getId = getMethodVirtual(getMcEntityClass(), name, MethodType.methodType(int.class));
+
+            name = "getDataWatcher";
+            if (subVer >= 18) switch (subVer) {
+                case 18: name = "ai"; break;
+                case 19: name = subRVer == 1 ? "ai" : subRVer == 2 ? "al" : "aj"; break;
+                case 20: name = subRVer == 1 ? "aj" : subRVer == 2 ? "al" : "an"; break;
+                default: name = "an"; break;
+            }
+            Entity_getDataWatcher = getMethodVirtual(getMcEntityClass(), name, MethodType.methodType(getMcDataWatcherClass()));
+
+            if (subVer <= 17) name = "sendPacket";
+            else if (subVer < 20 || (subVer == 20 && subRVer <= 1)) name = "a";
+            else name = "b"; // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
+            PlayerConnection_sendPacket = getMethodVirtual(
+                    getMcPlayerConnectionClass(), name, MethodType.methodType(void.class, getPacketClass()));
+
+            DataWatcher_getNonDefaultValues = (subVer > 19 || (subVer == 19 && subRVer > 1)) ?
+                    getMethodVirtual(getMcDataWatcherClass(), "c", MethodType.methodType(List.class)) : null;
+
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,18 +123,16 @@ public class NMS {
         }
     }
 
+    public static MethodHandle getMethodVirtual(Class<?> refc, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+        return MethodHandles.lookup().findVirtual(refc, name, type);
+    }
+
+    public static MethodHandle getConstructor(Class<?> refc, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+        return MethodHandles.lookup().findConstructor(refc, type);
+    }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    public static Class<?> getMcClass(String name) {
-        Class<?> clazz = mcClassMap.get(name);
-        if (clazz == null) {
-            clazz = getClass("net.minecraft."+name);
-            mcClassMap.put(name, clazz);
-        }
-        return clazz;
-    }
-    private static Constructor<?> cPacketPlayOutEntityDestroy;
     private static Class<?> mcWorldClass = null;
     private static Class<?> mcEntityClass = null;
     private static Class<?> mcEntityPlayerClass = null;
@@ -111,7 +161,7 @@ public class NMS {
      * v1_12_R1 -> 12
      */
     public static int getSubVer() {
-        return subVer == 0 ? subVer = Integer.parseInt(getMcVer().split("_")[1]) : subVer;
+        return subVer == -1 ? subVer = Integer.parseInt(getMcVer().split("_")[1]) : subVer;
     }
 
     /**
@@ -119,20 +169,28 @@ public class NMS {
      * v1_12_R1 -> 1
      */
     public static int getSubRVer() {
-        return subRVer == 0 ? subRVer = Integer.parseInt(getMcVer().split("_")[2].substring(1)) : subRVer;
+        return subRVer == -1 ? subRVer = Integer.parseInt(getMcVer().split("_")[2].substring(1)) : subRVer;
     }
 
-    public static void sendPacket(Player player, Object packet) throws ReflectiveOperationException {
-        if (PlayerConnection_sendPacket == null) {
-            if (getSubVer() <= 17) PlayerConnection_sendPacket = getMcPlayerConnectionClass().getMethod("sendPacket", getPacketClass());
-            else if (getSubVer() < 20 || (getSubVer() == 20 && getSubRVer() <= 1)) PlayerConnection_sendPacket = getMcPlayerConnectionClass().getMethod("a", getPacketClass());
-            else PlayerConnection_sendPacket = getMcPlayerConnectionClass().getMethod("b", getPacketClass()); // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
-        }
+    public static void sendPacket(Player player, Object packet) throws Throwable {
         PlayerConnection_sendPacket.invoke(getMcPlayerConnection(player), packet);
     }
 
+    public static Class<?> getMcClass(String newName, String legacyName) {
+        return getSubVer() < 17 ? getMcClassLegacy(legacyName) : getMcClassNew(newName);
+    }
+
+    public static Class<?> getMcClassNew(String name) {
+        Class<?> clazz = mcClassMap.get(name);
+        if (clazz == null) {
+            clazz = getClass("net.minecraft."+name);
+            mcClassMap.put(name, clazz);
+        }
+        return clazz;
+    }
+
     // "Legacy" 指的是版本 < 1.17, 因为 NMS 在1.17后相应类的路径大改
-    public static Class<?> getLegacyMcClass(String name) {
+    public static Class<?> getMcClassLegacy(String name) {
         Class<?> clazz = mcClassMap.get(name);
         if (clazz == null) {
             clazz = getClass("net.minecraft.server."+getMcVer()+"."+name);
@@ -142,63 +200,51 @@ public class NMS {
     }
 
     public static Class<?> getPacketClass() {
-        if (getSubVer() < 17) return getLegacyMcClass("Packet");
-        else return getMcClass("network.protocol.Packet");
+        return getMcClass("network.protocol.Packet", "Packet");
     }
 
     public static Class<?> getPacketClass(String paketName) {
-        if (getSubVer() < 17) return getLegacyMcClass(paketName);
-        else return getMcClass("network.protocol.game."+paketName);
+        return getMcClass("network.protocol.game."+paketName, paketName);
     }
 
     public static Class<?> getMcWorldClass() {
-        if (getSubVer() < 17) return mcWorldClass == null ? mcWorldClass = getLegacyMcClass("World") : mcWorldClass;
-        else return mcWorldClass == null ? mcWorldClass = getMcClass("world.level.World") : mcWorldClass;
+        return mcWorldClass == null ? mcWorldClass = getMcClass("world.level.World", "World") : mcWorldClass;
     }
 
     public static Class<?> getMcEntityClass() {
-        if (getSubVer() < 17) return mcEntityClass == null ? mcEntityClass = getLegacyMcClass("Entity") : mcEntityClass;
-        else return mcEntityClass == null ? mcEntityClass = getMcClass("world.entity.Entity") : mcEntityClass;
+        return mcEntityClass == null ? mcEntityClass = getMcClass("world.entity.Entity", "Entity") : mcEntityClass;
     }
 
     public static Class<?> getMcEntityPlayerClass() {
-        if (getSubVer() < 17) return mcEntityPlayerClass == null ? mcEntityPlayerClass = getLegacyMcClass("EntityPlayer") : mcEntityPlayerClass;
-        else return mcEntityPlayerClass == null ? mcEntityPlayerClass = getMcClass("server.level.EntityPlayer") : mcEntityPlayerClass;
+        return mcEntityPlayerClass == null ? mcEntityPlayerClass = getMcClass("server.level.EntityPlayer", "EntityPlayer") : mcEntityPlayerClass;
     }
 
     public static Class<?> getMcEntityItemFrameClass() {
-        if (getSubVer() < 17) return mcEntityItemFrameClass == null ? mcEntityItemFrameClass = getLegacyMcClass("EntityItemFrame") : mcEntityItemFrameClass;
-        else return mcEntityItemFrameClass == null ? mcEntityItemFrameClass = getMcClass("world.entity.decoration.EntityItemFrame") : mcEntityItemFrameClass;
+        return mcEntityItemFrameClass == null ? mcEntityItemFrameClass = getMcClass("world.entity.decoration.EntityItemFrame", "EntityItemFrame") : mcEntityItemFrameClass;
     }
 
     public static Class<?> getMcPlayerConnectionClass() {
-        if (getSubVer() < 17) return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getLegacyMcClass("PlayerConnection") : mcPlayerConnectionClass;
-        else return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("server.network.PlayerConnection") : mcPlayerConnectionClass;
+        return mcPlayerConnectionClass == null ? mcPlayerConnectionClass = getMcClass("server.network.PlayerConnection", "PlayerConnection") : mcPlayerConnectionClass;
     }
 
     public static Class<?> getMcServerCommonPacketListenerImplClass() {
-        return mcServerCommonPacketListenerImplClass == null ?
-                mcServerCommonPacketListenerImplClass = getMcClass("server.network.ServerCommonPacketListenerImpl") : mcServerCommonPacketListenerImplClass;
+        return mcServerCommonPacketListenerImplClass == null ? mcServerCommonPacketListenerImplClass = getMcClassNew("server.network.ServerCommonPacketListenerImpl") : mcServerCommonPacketListenerImplClass;
     }
 
     public static Class<?> getMcNetworkManagerClass() {
-        if (getSubVer() < 17) return mcNetworkManagerClass == null ? mcNetworkManagerClass = getLegacyMcClass("NetworkManager") : mcNetworkManagerClass;
-        else return mcNetworkManagerClass == null ? mcNetworkManagerClass = getMcClass("network.NetworkManager") : mcNetworkManagerClass;
+        return mcNetworkManagerClass == null ? mcNetworkManagerClass = getMcClass("network.NetworkManager", "NetworkManager") : mcNetworkManagerClass;
     }
 
     public static Class<?> getMcItemStackClass() {
-        if (getSubVer() < 17) return mcItemStackClass == null ? mcItemStackClass = getLegacyMcClass("ItemStack") : mcItemStackClass;
-        else return mcItemStackClass == null ? mcItemStackClass = getMcClass("world.item.ItemStack") : mcItemStackClass;
+        return mcItemStackClass == null ? mcItemStackClass = getMcClass("world.item.ItemStack", "ItemStack") : mcItemStackClass;
     }
 
     public static Class<?> getMcIMaterialClass() {
-        if (getSubVer() < 17) return mcIMaterialClass == null ? mcIMaterialClass = getLegacyMcClass("IMaterial") : mcIMaterialClass;
-        else return mcIMaterialClass == null ? mcIMaterialClass = getMcClass("world.level.IMaterial") : mcIMaterialClass;
+        return mcIMaterialClass == null ? mcIMaterialClass = getMcClass("world.level.IMaterial", "IMaterial") : mcIMaterialClass;
     }
 
     public static Class<?> getMcItemClass() {
-        if (getSubVer() < 17) return mcItemClass == null ? mcItemClass = getLegacyMcClass("Item") : mcItemClass;
-        else return mcItemClass == null ? mcItemClass = getMcClass("world.item.Item") : mcItemClass;
+        return mcItemClass == null ? mcItemClass = getMcClass("world.item.Item", "Item") : mcItemClass;
     }
 
 
@@ -217,8 +263,7 @@ public class NMS {
     }
 
     public static Class<?> getMcItemsClass() {
-        if (getSubVer() < 17) return mcItemsClass == null ? mcItemsClass = getLegacyMcClass("Items") : mcItemsClass;
-        else return mcItemsClass == null ? mcItemsClass = getMcClass("world.item.Items") : mcItemsClass;
+        return mcItemsClass == null ? mcItemsClass = getMcClass("world.item.Items", "Items") : mcItemsClass;
     }
 
     public static Object getMcBlockPosition(Location location) throws ReflectiveOperationException {
@@ -226,23 +271,19 @@ public class NMS {
     }
 
     public static Class<?> getMcDataWatcherClass() {
-        if (getSubVer() < 17) return mcDataWatcherClass == null ? mcDataWatcherClass = getLegacyMcClass("DataWatcher") : mcDataWatcherClass;
-        else return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("network.syncher.DataWatcher") : mcDataWatcherClass;
+        return mcDataWatcherClass == null ? mcDataWatcherClass = getMcClass("network.syncher.DataWatcher", "DataWatcher") : mcDataWatcherClass;
     }
 
     public static Class<?> getMcBlockPositionClass() {
-        if (getSubVer() < 17) return mcBlockPositionClass == null ? mcBlockPositionClass = getLegacyMcClass("BlockPosition") : mcBlockPositionClass;
-        else return mcBlockPositionClass == null ? mcBlockPositionClass = getMcClass("core.BlockPosition") : mcBlockPositionClass;
+        return mcBlockPositionClass == null ? mcBlockPositionClass = getMcClass("core.BlockPosition", "BlockPosition") : mcBlockPositionClass;
     }
 
     public static Class<?> getMcEnumDirectionClass() {
-        if (getSubVer() < 17) return mcEnumDirectionClass == null ? mcEnumDirectionClass = getLegacyMcClass("EnumDirection") : mcEnumDirectionClass;
-        else return mcEnumDirectionClass == null ? mcEnumDirectionClass = getMcClass("core.EnumDirection") : mcEnumDirectionClass;
+        return mcEnumDirectionClass == null ? mcEnumDirectionClass = getMcClass("core.EnumDirection", "EnumDirection") : mcEnumDirectionClass;
     }
 
     public static Class<?> getMcNBTTagCompoundClass() {
-        if (getSubVer() < 17) return mcNBTTagCompound == null ? mcNBTTagCompound = getLegacyMcClass("NBTTagCompound") : mcNBTTagCompound;
-        else return mcNBTTagCompound == null ? mcNBTTagCompound = getMcClass("nbt.NBTTagCompound") : mcNBTTagCompound;
+        return mcNBTTagCompound == null ? mcNBTTagCompound = getMcClass("nbt.NBTTagCompound", "NBTTagCompound") : mcNBTTagCompound;
     }
 
     private static Field fEntityPlayer_playerConnection = null;
@@ -307,103 +348,31 @@ public class NMS {
         return fNetworkManager_channel.get(getMcPlayerNetworkManager(player));
     }
 
-    public static int getMcEntityId(Object mcEntity) throws ReflectiveOperationException {
-        int subVer = getSubVer();
-        int subRVer = getSubRVer();
-        if (Entity_getId == null) {
-            String methodName = "getId";
-            if (subVer >= 18) switch (subVer) {
-                case 18:
-                    methodName = "ae";
-                    break;
-                case 19:
-                    switch (subRVer) {
-                        case 1: methodName = "ae"; break;
-                        case 2: methodName = "ah"; break;
-                        // 天杀的 mojang 在 1_19_R2 的时候改了 Entity.class, 导致获取id的方法名字变了
-                        case 3: methodName = "af"; break;
-                        // 真牛逼他又改了 1_19_R3
-                    } break;
-                case 20:
-                    switch (subRVer) {
-                        case 1: methodName = "af"; break;
-                        case 2: methodName = "ah"; break;
-                        case 3: methodName = "aj"; break;
-                        // ... fine
-                    } break;
-                default:
-                    methodName = "aj"; break;
-            }
-            Entity_getId = NMS.getMcEntityClass().getMethod(methodName);
-            Entity_getId.setAccessible(true);
-        }
+    public static int getMcEntityId(Object mcEntity) throws Throwable {
         return (int) Entity_getId.invoke(mcEntity);
     }
 
-    public static Object getDataWatcher(Object entity) throws ReflectiveOperationException {
-        int subVer = getSubVer();
-        if (Entity_getDataWatcher == null) {
-            String methodName = "getDataWatcher";
-            if (subVer >= 18) switch (subVer) {
-                case 18:
-                    methodName = "ai";
-                    break;
-                case 19:
-                    switch (subRVer) {
-                        case 1: methodName = "ai"; break;
-                        case 2: methodName = "al"; break;
-                        case 3: methodName = "aj"; break;
-                    }
-                    break;
-                case 20:
-                    switch (subRVer) {
-                        case 1: methodName = "aj"; break;
-                        case 2: methodName = "al"; break;
-                        case 3: methodName = "an"; break;
-                    } break;
-                default:
-                    methodName = "an"; break;
-            }
-            Entity_getDataWatcher = NMS.getMcEntityClass().getMethod(methodName);
-            Entity_getDataWatcher.setAccessible(true);
-        }
+    public static Object getDataWatcher(Object entity) throws Throwable {
         return Entity_getDataWatcher.invoke(entity);
     }
 
-    public static Object getPacketPlayOutEntityMetadata(Object entity) throws ReflectiveOperationException {
-        if (getSubVer() < 19 || (getSubVer() == 19 && getSubRVer() == 1)) {
-            /* <= 1_19_R1 */
-            if (cPacketPlayOutEntityMetadata == null) {
-                cPacketPlayOutEntityMetadata = NMS.getPacketClass("PacketPlayOutEntityMetadata").getConstructor(int.class, NMS.getMcDataWatcherClass(), boolean.class);
-                cPacketPlayOutEntityMetadata.setAccessible(true);
-            }
-            return cPacketPlayOutEntityMetadata.newInstance(getMcEntityId(entity), getDataWatcher(entity), false);
-        } else {
-            if (cPacketPlayOutEntityMetadata == null) {
-                cPacketPlayOutEntityMetadata = NMS.getPacketClass("PacketPlayOutEntityMetadata").getConstructor(int.class, List.class);
-                cPacketPlayOutEntityMetadata.setAccessible(true);
-            }
-            if (DataWatcher_getNonDefaultValues == null) {
-                DataWatcher_getNonDefaultValues = NMS.getMcDataWatcherClass().getMethod("c");
-            }
-            return cPacketPlayOutEntityMetadata.newInstance(getMcEntityId(entity), DataWatcher_getNonDefaultValues.invoke(getDataWatcher(entity)));
-        }
+    public static Object getPacketPlayOutEntityMetadata(Object entity) throws Throwable {
+        if (subVer < 19 || (subVer == 19 && subRVer == 1))
+            return cPacketPlayOutEntityMetadata.invoke(getMcEntityId(entity), getDataWatcher(entity), false);
+        else
+            return cPacketPlayOutEntityMetadata.invoke(
+                    getMcEntityId(entity),
+                    DataWatcher_getNonDefaultValues.invoke(getDataWatcher(entity))
+            );
     }
 
     public static void sendDestroyEntities(int[] entityIds, Collection<Player> toPlayers) {
-        if (cPacketPlayOutEntityDestroy == null) {
-            try {
-                cPacketPlayOutEntityDestroy = NMS.getPacketClass("PacketPlayOutEntityDestroy").getConstructor(int[].class);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
         try {
-            for (Player p : (toPlayers != null ? toPlayers : Bukkit.getOnlinePlayers())) {
+            for (Player p : toPlayers) {
                 if (!p.isOnline()) continue;
-                NMS.sendPacket(p, cPacketPlayOutEntityDestroy.newInstance( new Object[]{entityIds} ));
+                NMS.sendPacket(p, cPacketPlayOutEntityDestroy.invoke( entityIds ));
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

@@ -38,7 +38,7 @@ public class SprayBig extends SprayBase {
     }
 
     @Override
-    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound) throws ReflectiveOperationException {
+    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound) throws Throwable {
 
         if (!valid) return;
 

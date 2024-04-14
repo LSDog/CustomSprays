@@ -122,11 +122,11 @@ public class SprayManager {
      */
     public static void sendExistSprays(Player player) {
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> SprayManager.playerSprayMap.forEach((uuid, sprays) -> sprays.forEach(spray -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> SprayManager.playerSprayMap.values().forEach(sprays -> sprays.forEach(spray -> {
             try {
                 spray.spawn(Collections.singletonList(player), false);
-            } catch (ReflectiveOperationException exception) {
-                exception.printStackTrace();
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         })), 20L);
     }

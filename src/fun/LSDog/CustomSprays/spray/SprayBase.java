@@ -123,7 +123,7 @@ public class SprayBase {
 
         try {
             spawn(playersShown, true);
-        } catch (ReflectiveOperationException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             return false;
         }
@@ -137,7 +137,7 @@ public class SprayBase {
      * 生成展示框与地图
      * @param playersShowTo 要展示给的玩家, null为默认初始值
      */
-    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound) throws ReflectiveOperationException {
+    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound) throws Throwable {
 
         if (!valid) return;
 
