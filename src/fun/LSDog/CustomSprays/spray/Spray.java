@@ -1,6 +1,7 @@
 package fun.LSDog.CustomSprays.spray;
 
 import fun.LSDog.CustomSprays.CustomSprays;
+import fun.LSDog.CustomSprays.PlayerSprayEvent;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.util.NMS;
@@ -18,6 +19,8 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * 喷漆本体，包括所有的反射发包方法
@@ -89,6 +92,21 @@ public class Spray {
                 player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_MONEY").replace("%cost%", cost+""));
                 return false;
             }
+        }
+
+        // Call PlayerSprayEvent
+        PlayerSprayEvent event = new PlayerSprayEvent(player, this);
+        Future<Boolean> result = Bukkit.getScheduler().callSyncMethod(CustomSprays.plugin, () -> {
+            Bukkit.getPluginManager().callEvent(event);
+            return event.isCancelled();
+        });
+        try {
+            if (result.get()) {
+                valid = false;
+                return false;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
 
         try {
