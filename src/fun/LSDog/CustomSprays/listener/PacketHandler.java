@@ -1,7 +1,7 @@
 package fun.LSDog.CustomSprays.listener;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.spray.SprayBase;
+import fun.LSDog.CustomSprays.spray.Spray;
 import fun.LSDog.CustomSprays.spray.SprayManager;
 import fun.LSDog.CustomSprays.util.CoolDown;
 import fun.LSDog.CustomSprays.util.NMS;
@@ -48,7 +48,7 @@ public class PacketHandler {
             String actionName = getActionNameFromPacketPlayInUseEntity(packet);
             if (!actionName.equals("ATTACK")) return false;
             // get spray and check it
-            SprayBase spray = SprayManager.getSpray(entityId);
+            Spray spray = SprayManager.getSpray(entityId);
             if (spray == null) return false;
             Player owner = spray.player;
             if (player != owner && !player.hasPermission("CustomSprays.delete")) return false;
@@ -59,7 +59,7 @@ public class PacketHandler {
                     player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                 }
                 if (CoolDown.getSprayCd(player) > 1000) CoolDown.setSprayCd(player, 1000);
-                SprayBase.playRemoveSound(player);
+                Spray.playRemoveSound(player);
             });
 
             return true; // Cancel this packet because it's a client side entity interaction

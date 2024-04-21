@@ -9,10 +9,10 @@ import org.bukkit.util.Vector;
 import java.util.function.Predicate;
 
 /**
- * (方块)射线追踪(?) <br>
- * 用法: <br>
+ * (block) ray tracing <br>
+ * usage: <br>
  * <p>
- *     1. 获得4.5格内玩家指向的非空气方块: <br>
+ *     1. Get the non-air block face pointed by the player within 4.5 blocks: <br>
  *     new RayTracer(player.getEyeLocation.getDirection(), player.getEyeLocation(), 4.5).rayTraceBlock(block -> {return block.getType()!=Material.AIR});
  * </p>
  * <br>
@@ -38,10 +38,10 @@ public class RayTracer {
 
 
     /**
-     * 射线追踪
-     * @param direction 视线
-     * @param startLocation 起始点
-     * @param maxLong 最远距离
+     * Ray tracing
+     * @param direction sight (eye location)
+     * @param startLocation start point (player's eye)
+     * @param maxLong farthest distance
      */
     public RayTracer(Vector direction, Location startLocation, double maxLong) {
         this.max = maxLong;
@@ -68,8 +68,8 @@ public class RayTracer {
     }
 
     /**
-     * 开始追踪
-     * @return 返回追踪结果见 {@link BlockRayTraceResult}
+     * Start ray tracing
+     * @return {@link BlockRayTraceResult}
      */
     public BlockRayTraceResult rayTraceBlock(Predicate<Block> blockChecker) {
 
@@ -131,7 +131,7 @@ public class RayTracer {
 
 
     /**
-     * 判断方块面
+     * Judgment block face
      */
     BlockFace getFace() {
 
@@ -193,8 +193,8 @@ public class RayTracer {
     }
 
     /**
-     * 计算打到面上的交点与当前目标点的倍数差
-     * @return 向量"走过站"的倍数 m, 即当前坐标需减去 m * 步长
+     * Calculate the multiple difference between the intersection point hitting the surface and the current target point
+     * @return The multiple m of the vector "walked through the station", that is, the current coordinate needs to be subtracted from m * step size
      */
     double getPointRedundantMultiples() {
         switch (face) {
@@ -224,14 +224,14 @@ public class RayTracer {
     }
 
     /**
-     * 方块追踪的结果
+     * Block tracking results
      */
     public static class BlockRayTraceResult {
 
-        public final Vector point;          // 交点
-        public final Block block;           // 方块
-        public final BlockFace blockFace;   // 交点所在方块面
-        public final double distance;       // 距离
+        public final Vector point;          // intersection point
+        public final Block block;           // block
+        public final BlockFace blockFace;   // BlockFace where the intersection point is located
+        public final double distance;       // distance
 
         public BlockRayTraceResult(Vector point, Block block, BlockFace blockFace, double distance) {
             this.point = point;
@@ -241,15 +241,15 @@ public class RayTracer {
         }
 
         /**
-         * @return 方块面是否为上面或下面
+         * @return Whether the block face is top or bottom
          */
         public boolean isUpOrDown() {
             return (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN);
         }
 
         /**
-         * 返回目标方块的上一个方块
-         * @return 目标方块blockFace面向的那个相邻方块
+         * Returns the previous block of the target block along the sight
+         * @return the block that spray paint holds
          */
         public Block getRelativeBlock() {
             return block.getRelative(blockFace);

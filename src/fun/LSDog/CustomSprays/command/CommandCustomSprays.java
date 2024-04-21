@@ -4,7 +4,7 @@ import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.spray.MapFrameFactory;
-import fun.LSDog.CustomSprays.spray.SprayBase;
+import fun.LSDog.CustomSprays.spray.Spray;
 import fun.LSDog.CustomSprays.spray.SprayManager;
 import fun.LSDog.CustomSprays.util.*;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -309,7 +309,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        SprayBase spray = SprayManager.getSprayInSight(player);
+                        Spray spray = SprayManager.getSprayInSight(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
@@ -322,11 +322,11 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        SprayBase spray = SprayManager.getSprayInSight(player);
+                        Spray spray = SprayManager.getSprayInSight(player);
                         if (spray != null) {
                             player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                             spray.remove();
-                            SprayBase.playRemoveSound(player);
+                            Spray.playRemoveSound(player);
                         }
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }

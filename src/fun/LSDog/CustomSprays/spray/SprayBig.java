@@ -14,7 +14,7 @@ import java.util.Collection;
 /**
  * 3*3或5*5大喷漆
  */
-public class SprayBig extends SprayBase {
+public class SprayBig extends Spray {
 
     private final int length;
     private final int[] itemFrameIds; // 九宫格展示框ID (0 ~ length*length)
@@ -25,10 +25,10 @@ public class SprayBig extends SprayBase {
      *
      * @see fun.LSDog.CustomSprays.data.DataManager#get384pxImageBytes(Player)
      * @see fun.LSDog.CustomSprays.data.DataManager#getSizedImageBytes(Player, int, int)
-     * @param player 喷漆的玩家
-     * @param length 喷漆边长多少个方块
-     * @param pixels Byte color array <b>必为 384*384 或 640*640</b>
-     * @param showTo 能看到这个喷漆的玩家
+     * @param player Sprayer
+     * @param length Side length
+     * @param pixels Byte color array <b>size of 384*384 or 640*640</b>
+     * @param showTo Players who can see this spray
      */
     public SprayBig(Player player, int length, byte[] pixels, Collection<? extends Player> showTo) {
         super(player, pixels, showTo);
@@ -116,9 +116,9 @@ public class SprayBig extends SprayBase {
 
         // 设置 itemframeId 为最中间的 id
         int frameCount = length * length;
-        itemFrameId = itemFrameIds[(frameCount + frameCount%2)/2 - 1];
+        if (itemFrameId == -1) itemFrameId = itemFrameIds[(frameCount + frameCount%2)/2 - 1];
 
-        if (playSound) SprayBase.playSpraySound(player);
+        if (playSound) Spray.playSpraySound(player);
     }
 
     @Override

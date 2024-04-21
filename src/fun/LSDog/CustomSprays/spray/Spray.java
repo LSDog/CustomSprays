@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * 喷漆本体，包括所有的反射发包方法
  */
-public class SprayBase {
+public class Spray {
 
     public final Player player;
     protected final World world;
@@ -35,16 +35,17 @@ public class SprayBase {
     protected Location playerLocation;
     protected int intDirection;
 
-    protected int itemFrameId;
+    protected int itemFrameId = -1;
     protected boolean valid = true;
 
     /**
-     * 喷漆的构造器
+     * The constructor of a spray.
+     * Use {@link #create(long)} to initialize and calculate the spray, use {@link #spawn(Collection, boolean)} to send packet.
      * @param player The sprayer
-     * @param pixels Byte color array <b>必为 128*128</b>
+     * @param pixels Byte color array <b>size of 128*128</b>
      * @param showTo The players who can see this spray (in spraying).
      */
-    public SprayBase(Player player, byte[] pixels, Collection<? extends Player> showTo) {
+    public Spray(Player player, byte[] pixels, Collection<? extends Player> showTo) {
         this.player = player;
         this.world = player.getWorld();
         this.pixels = pixels;
@@ -52,39 +53,8 @@ public class SprayBase {
     }
 
     /**
-     * 向某个玩家播放喷漆音效
-     */
-    public static void playSpraySound(Player player) {
-        String soundName = CustomSprays.plugin.getConfig().getString("spray_sound");
-        if (soundName == null || "default".equals(soundName)) {
-            Sound sound = Sound.valueOf(NMS.getSubVer() <= 8 ? "SILVERFISH_HIT" : "ENTITY_SILVERFISH_HURT");
-            Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
-                    player.getWorld().playSound(player.getLocation(), sound, 1, 0.8F));
-        } else {
-            String[] strings = soundName.split("-");
-            if (strings.length != 3) return;
-            Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
-                player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2])));
-        }
-    }
-
-    /**
-     * 移除喷漆音效
-     */
-    public static void playRemoveSound(Player player) {
-        int subVer = NMS.getSubVer();
-        String soundName;
-        if (subVer <= 8) soundName = "DIG_WOOL";
-        else if (subVer <= 12) soundName = "BLOCK_CLOTH_HIT";
-        else soundName = "BLOCK_WOOL_HIT";
-        Sound sound = Sound.valueOf(soundName);
-        Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
-                player.getWorld().playSound(player.getLocation(), sound, 1, 1.2F));
-
-    }
-
-    /**
-     * @param removeTick 自动移除时长, 负数将不会自动移除
+     * Do raytrace and find the surface for spraying, then spawn the spray immediately
+     * @param removeTick Automatic removal duration, negative numbers == no auto remove
      */
     public boolean create(long removeTick) {
 
@@ -127,6 +97,7 @@ public class SprayBase {
             e.printStackTrace();
             return false;
         }
+
         SprayManager.addSpray(this);
         if (removeTick >= 0) autoRemove(removeTick);
 
@@ -153,7 +124,7 @@ public class SprayBase {
         if (NMS.getSubVer() >= 8) mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
         else mapPackets_7 = MapFrameFactory.getMapPackets_7((short) mapViewId, pixels);
 
-        itemFrameId = NMS.getMcEntityId(itemFrame);
+        if (itemFrameId == -1) itemFrameId = NMS.getMcEntityId(itemFrame);
         Object dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
 
         Collection<? extends Player> $playersShowTo = playersShown;
@@ -191,6 +162,38 @@ public class SprayBase {
         valid = false;
         SprayManager.removeSpray(this);
         NMS.sendDestroyEntities(new int[]{itemFrameId}, playersShown);
+    }
+
+    /**
+     * 向某个玩家播放喷漆音效
+     */
+    public static void playSpraySound(Player player) {
+        String soundName = CustomSprays.plugin.getConfig().getString("spray_sound");
+        if (soundName == null || "default".equals(soundName)) {
+            Sound sound = Sound.valueOf(NMS.getSubVer() <= 8 ? "SILVERFISH_HIT" : "ENTITY_SILVERFISH_HURT");
+            Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
+                    player.getWorld().playSound(player.getLocation(), sound, 1, 0.8F));
+        } else {
+            String[] strings = soundName.split("-");
+            if (strings.length != 3) return;
+            Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
+                    player.getWorld().playSound(player.getLocation(), strings[0], Float.parseFloat(strings[1]), Float.parseFloat(strings[2])));
+        }
+    }
+
+    /**
+     * 移除喷漆音效
+     */
+    public static void playRemoveSound(Player player) {
+        int subVer = NMS.getSubVer();
+        String soundName;
+        if (subVer <= 8) soundName = "DIG_WOOL";
+        else if (subVer <= 12) soundName = "BLOCK_CLOTH_HIT";
+        else soundName = "BLOCK_WOOL_HIT";
+        Sound sound = Sound.valueOf(soundName);
+        Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
+                player.getWorld().playSound(player.getLocation(), sound, 1, 1.2F));
+
     }
 
 }

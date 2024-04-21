@@ -1,11 +1,11 @@
 package fun.LSDog.CustomSprays;
 
-import fun.LSDog.CustomSprays.spray.SprayBase;
+import fun.LSDog.CustomSprays.spray.Spray;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
 
-public class SprayParticle extends SprayBase {
+public class SprayParticle extends Spray {
 
 
     /**

@@ -16,12 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SprayManager {
 
-    public static Map<UUID, List<SprayBase>> playerSprayMap = new ConcurrentHashMap<>();
+    public static Map<UUID, List<Spray>> playerSprayMap = new ConcurrentHashMap<>();
 
-    public static Map<Block, List<SprayBase>> locationSprayMap = new ConcurrentHashMap<>();
+    public static Map<Block, List<Spray>> locationSprayMap = new ConcurrentHashMap<>();
     // 注意block指的是喷漆所在的方块而不是依附着的方块
 
-    public static Map<Integer, SprayBase> itemframeIdMap = new ConcurrentHashMap<>();
+    public static Map<Integer, Spray> itemframeIdMap = new ConcurrentHashMap<>();
 
     /**
      * 让玩家喷漆，若玩家进行大喷漆(3*3)却没有权限，则会变为小喷漆(1*1)，默认展示给全服玩家 <br>
@@ -61,7 +61,7 @@ public class SprayManager {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return false;
                 }
-                SprayBase spray = new SprayBase(player, bytes, Bukkit.getOnlinePlayers());
+                Spray spray = new Spray(player, bytes, Bukkit.getOnlinePlayers());
                 result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy") * 20L));
                 if (result) {
                     CoolDown.setSprayCdMultiple(player,1);
@@ -86,7 +86,7 @@ public class SprayManager {
                     return false;
                 }
 
-                SprayBase spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
+                Spray spray = new SprayBig(player, length, bytes, Bukkit.getOnlinePlayers());
                 result = spray.create((long) (CustomSprays.plugin.getConfig().getDouble("destroy")*20L));
                 if (result) {
                     CoolDown.setSprayCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cd_multiple"));
@@ -103,13 +103,13 @@ public class SprayManager {
     /**
      * 在喷漆列表中加入新的喷漆, 玩家将会在进入相应世界的时候看到列表中的喷漆
      */
-    public static void addSpray(SprayBase spray) {
+    public static void addSpray(Spray spray) {
 
-        List<SprayBase> list = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
+        List<Spray> list = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
         list.add(spray);
         playerSprayMap.put(spray.player.getUniqueId(), list);
 
-        List<SprayBase> locList = locationSprayMap.getOrDefault(spray.block, new ArrayList<>());
+        List<Spray> locList = locationSprayMap.getOrDefault(spray.block, new ArrayList<>());
         locList.add(spray);
         locationSprayMap.put(spray.block, locList);
 
@@ -134,7 +134,7 @@ public class SprayManager {
     /**
      * 获取某个玩家视角中的喷漆
      */
-    public static SprayBase getSprayInSight(Player player) {
+    public static Spray getSprayInSight(Player player) {
 
         Location eyeLocation = player.getEyeLocation();
         return new SprayRayTracer(eyeLocation.getDirection(), eyeLocation, CustomSprays.plugin.getConfig().getDouble("distance")).rayTraceSpray(SprayManager::isSpraySurfaceBlock);
@@ -150,9 +150,9 @@ public class SprayManager {
 
         if (block == null || blockFace == null) return false;
 
-        List<SprayBase> list = locationSprayMap.get(block);
+        List<Spray> list = locationSprayMap.get(block);
         
-        if (list != null) for (SprayBase spray : list) {
+        if (list != null) for (Spray spray : list) {
             if (blockFace == spray.blockFace) return true;
         }
 
@@ -165,18 +165,18 @@ public class SprayManager {
      * @param blockFace 喷漆朝向
      * @return 相应位置的喷漆, 或者没有喷漆返回 null
      */
-    public static SprayBase getSpray(Block block, BlockFace blockFace) {
+    public static Spray getSpray(Block block, BlockFace blockFace) {
 
         if (block == null || blockFace == null) return null;
 
-        for (SprayBase spray : locationSprayMap.getOrDefault(block, Collections.emptyList())) {
+        for (Spray spray : locationSprayMap.getOrDefault(block, Collections.emptyList())) {
             if (blockFace == spray.blockFace) return spray;
         }
 
         return null;
     }
 
-    public static SprayBase getSpray(int itemframeEntityId) {
+    public static Spray getSpray(int itemframeEntityId) {
         return itemframeIdMap.get(itemframeEntityId);
     }
 
@@ -184,13 +184,13 @@ public class SprayManager {
      * 清除喷漆和记录用map中的spray
      * @param spray 喷漆
      */
-    public static void removeSpray(SprayBase spray) {
+    public static void removeSpray(Spray spray) {
 
-        List<SprayBase> playerSprayList = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
+        List<Spray> playerSprayList = playerSprayMap.getOrDefault(spray.player.getUniqueId(), new ArrayList<>());
         if (!playerSprayList.isEmpty()) playerSprayList.remove(spray);
         playerSprayMap.put(spray.player.getUniqueId(), playerSprayList);
 
-        List<SprayBase> locSprayList = locationSprayMap.getOrDefault(spray.block, new ArrayList<>());
+        List<Spray> locSprayList = locationSprayMap.getOrDefault(spray.block, new ArrayList<>());
         if (!locSprayList.isEmpty()) locSprayList.remove(spray);
         locationSprayMap.put(spray.block, locSprayList);
 
@@ -202,12 +202,12 @@ public class SprayManager {
      */
     public static void removeAllSpray() {
 
-        Set<SprayBase> deleteSprays = new HashSet<>();
+        Set<Spray> deleteSprays = new HashSet<>();
 
         locationSprayMap.values().forEach(deleteSprays::addAll);
         // 我们姑且不去担心两个map不一样的情况，随便吧
 
-        deleteSprays.forEach(SprayBase::remove);
+        deleteSprays.forEach(Spray::remove);
 
         playerSprayMap.clear();
         locationSprayMap.clear();
