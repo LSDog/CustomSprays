@@ -5,10 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -18,9 +15,14 @@ import java.util.Base64;
 public class DataYml implements IData {
 
     public DataYml() throws IOException {
-        if (!CustomSprays.plugin.playerDataFolder.exists()) {
-            if (!CustomSprays.plugin.playerDataFolder.mkdirs()) {
-                throw new IOException("CustomSprays: can not create data folder!");
+        mkdirs(CustomSprays.plugin.playerDataFolder);
+        mkdirs(CustomSprays.plugin.sprayDataFolder);
+    }
+
+    private void mkdirs(File folder) throws IOException {
+        if (!folder.exists()) {
+            if (!folder.mkdirs()) {
+                throw new IOException("CustomSprays: Can't create data folder '" + folder.getAbsolutePath() +"'");
             }
         }
     }

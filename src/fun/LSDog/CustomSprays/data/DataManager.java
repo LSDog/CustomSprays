@@ -34,13 +34,17 @@ public class DataManager {
     private static byte[] defaultImage = null;
     private static final File defaultImageFile = new File(CustomSprays.plugin.getDataFolder() + File.separator + "default.yml");
 
-    private static Method PlaceholderAPI_setPlaceholders = null;
+    private static final Method PlaceholderAPI_setPlaceholders;
 
     static {
+        Method method;
         try {
             Class<?> classPlaceholder = Class.forName("me.clip.placeholderapi.PlaceholderAPI");
-            PlaceholderAPI_setPlaceholders = classPlaceholder.getMethod("setPlaceholders", Player.class, String.class);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) { }
+            method = classPlaceholder.getMethod("setPlaceholders", Player.class, String.class);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+            method = null;
+        }
+        PlaceholderAPI_setPlaceholders = method;
     }
 
     public static String getMsg(Player player, String path) {

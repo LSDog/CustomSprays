@@ -25,6 +25,7 @@ public class CustomSprays extends JavaPlugin {
 
     public File config = new File(getDataFolder() + File.separator + "config.yml");
     public File playerDataFolder = new File(getDataFolder() + File.separator + "playerData");
+    public File sprayDataFolder = new File(getDataFolder() + File.separator + "sprayData");
     public CustomSprays() { plugin = this; }
 
     public static String latestVersion = null;
