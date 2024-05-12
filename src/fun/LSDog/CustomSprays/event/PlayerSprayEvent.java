@@ -1,4 +1,4 @@
-package fun.LSDog.CustomSprays;
+package fun.LSDog.CustomSprays.event;
 
 import fun.LSDog.CustomSprays.spray.Spray;
 import fun.LSDog.CustomSprays.spray.SprayBig;
@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 
 /**
- * Trigger when player want to spray (after checks, before sending packets)
+ * Trigger when a player wants to spray (after available checks, before sending packets)
  */
 public class PlayerSprayEvent extends PlayerEvent implements Cancellable {
 
@@ -18,12 +18,16 @@ public class PlayerSprayEvent extends PlayerEvent implements Cancellable {
      * The {@link Spray}, not generate (send packet) yet
      * @see #isBigSpray()
      */
-    public Spray spray;
+    private final Spray spray;
     private boolean canceled = false;
 
     public PlayerSprayEvent(Player player, Spray spray) {
         super(player);
         this.spray = spray;
+    }
+
+    public Spray getSpray() {
+        return spray;
     }
 
     /**
