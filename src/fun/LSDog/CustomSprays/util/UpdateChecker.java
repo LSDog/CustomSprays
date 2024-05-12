@@ -12,14 +12,16 @@ import java.net.URL;
 
 public class UpdateChecker {
 
+    public static final String GITHUB_RELEASE_URL = "https://api.github.com/repos/LSDog/CustomSprays/releases/latest";
+    public static final String GITEE_RELEASE_URL = "https://gitee.com/api/v5/repos/PixelMC/CustomSprays/releases/latest";
 
     public static String checkGithub() {
 
         try {
-            URL url = new URL("https://api.github.com/repos/LSDog/CustomSprays/releases/latest");
+            URL url = new URL(GITHUB_RELEASE_URL);
             return getVersionFromUrlApi(url);
         } catch (Exception e) {
-            CustomSprays.log("failed to check version: " + e);
+            CustomSprays.log("Failed to check version from github ("+GITHUB_RELEASE_URL+"): \n" + e);
         }
         return null;
     }
@@ -27,10 +29,10 @@ public class UpdateChecker {
     public static String checkGitee() {
 
         try {
-            URL url = new URL("https://gitee.com/api/v5/repos/PixelMC/CustomSprays/releases/latest");
+            URL url = new URL(GITEE_RELEASE_URL);
             return getVersionFromUrlApi(url);
         } catch (Exception e) {
-            CustomSprays.log("failed to check version: " + e);
+            CustomSprays.log("Failed to check version from gitee ("+GITEE_RELEASE_URL+"): \n" + e);
         }
         return null;
     }
