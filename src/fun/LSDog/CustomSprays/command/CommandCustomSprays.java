@@ -45,20 +45,21 @@ public class CommandCustomSprays implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+        List<String> argList = new ArrayList<>();
         if (args.length == 1) {
-            List<String> argList = new ArrayList<>();
             argList.add("upload");
             if (sender.hasPermission("CustomSprays.copy")) argList.add("copy");
             if (sender.hasPermission("CustomSprays.view")) argList.add("view");
             if (sender.hasPermission("CustomSprays.check")) argList.add("check");
-            if (sender.hasPermission("CustomSprays.delete")) argList.add("delete");
+            if (sender.hasPermission("CustomSprays.delete")) {
+                argList.add("delete"); argList.add("remove");
+            }
             if (sender.hasPermission("CustomSprays.getitem")) argList.add("getitem");
             if (sender.isOp()) argList.add("reload");
             return getTabs(args[0], argList);
         } else {
-            List<String> list = new ArrayList<>();
-            Bukkit.getOnlinePlayers().forEach(p -> list.add(p.getName()));
-            return getTabs(args[1], list);
+            Bukkit.getOnlinePlayers().forEach(p -> argList.add(p.getName()));
+            return getTabs(args[1], argList);
         }
     }
 
@@ -317,6 +318,7 @@ public class CommandCustomSprays implements TabExecutor {
                 break;
 
             case "delete":
+            case "remove":
                 if (player == null) { sender.sendMessage(CustomSprays.prefix + "player only!"); return true; }
                 if (!player.hasPermission("CustomSprays.delete")) { player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "NO_PERMISSION")); return true; }
 
