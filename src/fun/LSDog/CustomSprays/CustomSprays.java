@@ -5,6 +5,7 @@ import fun.LSDog.CustomSprays.command.CommandSpray;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.listener.*;
 import fun.LSDog.CustomSprays.map.MapViewId;
+import fun.LSDog.CustomSprays.spray.MapFrameFactory;
 import fun.LSDog.CustomSprays.util.MapColors;
 import fun.LSDog.CustomSprays.util.NMS;
 import fun.LSDog.CustomSprays.util.UpdateChecker;
@@ -18,7 +19,7 @@ import java.io.IOException;
 
 public class CustomSprays extends JavaPlugin {
 
-    public static final double CONFIG_VERSION = 1.8;
+    public static final double CONFIG_VERSION = 1.9;
     public static CustomSprays plugin;
 
     public static String prefix = "§3§lCustomSprays >>§r ";
@@ -66,7 +67,10 @@ public class CustomSprays extends JavaPlugin {
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        DataManager.initialize(getConfig().getString("storage"));
+        DataManager.loadConfig(getConfig().getString("storage"));
+
+        NMS.init();
+        MapFrameFactory.init();
 
         getCommand("customsprays").setExecutor(new CommandCustomSprays());
         getCommand("spray").setExecutor(new CommandSpray());

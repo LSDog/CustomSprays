@@ -1,6 +1,7 @@
 package fun.LSDog.CustomSprays.event;
 
-import fun.LSDog.CustomSprays.spray.Spray;
+import fun.LSDog.CustomSprays.spray.ISpray;
+import fun.LSDog.CustomSprays.spray.SpraySmall;
 import fun.LSDog.CustomSprays.spray.SprayBig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -15,25 +16,25 @@ public class PlayerSprayEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
 
     /**
-     * The {@link Spray}, not generate (send packet) yet
+     * The {@link fun.LSDog.CustomSprays.spray.SprayBase}, not generate (send packet) yet
      * @see #isBigSpray()
      */
-    private final Spray spray;
+    private final ISpray spray;
     private boolean canceled = false;
 
-    public PlayerSprayEvent(Player player, Spray spray) {
+    public PlayerSprayEvent(Player player, ISpray spray) {
         super(player);
         this.spray = spray;
     }
 
-    public Spray getSpray() {
+    public ISpray getSpray() {
         return spray;
     }
 
-    /**
-     * Check if it is a big spray
-     * @return true if big spray
-     */
+    public boolean isSmallSpray() {
+        return spray instanceof SpraySmall;
+    }
+
     public boolean isBigSpray() {
         return spray instanceof SprayBig;
     }

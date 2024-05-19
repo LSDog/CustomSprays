@@ -28,6 +28,7 @@ public class DataManager {
     public static IData data;
     public static boolean debug = true;
     public static boolean usePapi = false;
+    public static boolean spray_particle = true;
     public static double downloadLimit = 4;
     public static String urlRegex = "^https?://.*";
     public static List<String> disableWorlds = null;
@@ -138,15 +139,16 @@ public class DataManager {
         return data.saveImageBytes(player, imgBytes);
     }
 
-    public static void initialize(String method) {
-        if (method == null) method = "YML";
+    public static void loadConfig(String storageMethod) {
+        if (storageMethod == null) storageMethod = "YML";
         debug = CustomSprays.plugin.getConfig().getBoolean("debug");
         downloadLimit = CustomSprays.plugin.getConfig().getInt("download_limit");
         urlRegex = CustomSprays.plugin.getConfig().getString("url_regex");
         usePapi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
+        spray_particle = CustomSprays.plugin.getConfig().getBoolean("spray_particle");
         disableWorlds = CustomSprays.plugin.getConfig().getStringList("disabled_world");
         CustomSprays.prefix = ChatColor.translateAlternateColorCodes('&', CustomSprays.plugin.getConfig().getString("msg_prefix"));
-        switch (StorageMethod.getValue(method.toUpperCase())) {
+        switch (StorageMethod.getValue(storageMethod.toUpperCase())) {
             case MYSQL:
                 CustomSprays.log("§8use [MYSQL]");
                 DataMySQL.createTableIfNotExist();

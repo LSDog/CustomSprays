@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
  */
 public class MapColors {
 
-    private static final File fileMapColorPalette = new File(CustomSprays.plugin.getDataFolder()+"/"+ NMS.getMcVer()+".colors");
+    private static final File fileMapColorPalette = new File(CustomSprays.plugin.getDataFolder()+"/v"+ NMS.getMcVer()+".colors");
     /* 把索引当成 24位Int颜色 对应 MC的byte颜色值 的颜色版 */
     private static byte[] colors = null;
     private static java.awt.Color[] mcColors;

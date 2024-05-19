@@ -17,8 +17,8 @@ public class PacketListener {
 
     public static void addPlayer(Player player) {
         try {
+            CustomSprays.debug("[PacketListener] Injecting netty channel of "+player.getName());
 
-            CustomSprays.debug("Injecting netty channel of "+player.getName());
             Channel channel = (Channel) NMS.getMcPlayerNettyChannel(player);
             if (channel == null) return;
             if (channel.pipeline().names().contains(HANDLER_NAME)) {
@@ -26,7 +26,9 @@ public class PacketListener {
             }
 
             channel.pipeline().addBefore("packet_handler", HANDLER_NAME, new ChannelHandler(player));
-        } catch (ReflectiveOperationException e) {
+
+            CustomSprays.debug("[PacketListener] Injected netty channel of "+player.getName());
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -39,7 +41,8 @@ public class PacketListener {
                 channel.pipeline().remove(HANDLER_NAME);
             }
 
-        } catch (ReflectiveOperationException e) {
+            CustomSprays.debug("[PacketListener] Removed netty channel injection of " + player.getName());
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -48,15 +51,18 @@ public class PacketListener {
      * Handle packet and call {@link PacketHandler#onReceive(Object, Player)} when receiving a packet
      */
     static class ChannelHandler extends ChannelDuplexHandler {
+
         private final Player player;
         private ChannelHandler(Player player) {
             this.player = player;
         }
+
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
             boolean cancel = PacketHandler.onReceive(packet, player);
             if (!cancel) super.channelRead(ctx, packet);
         }
+
     }
 
 }

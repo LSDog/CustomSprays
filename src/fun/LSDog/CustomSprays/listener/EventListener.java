@@ -85,9 +85,8 @@ public class EventListener implements Listener {
             List<String> lore = itemMeta.getLore();
             boolean isSprayItem = false;
             boolean isInfinite = false;
-            int useTime = 0;
+            final int[] useTime = {0};
             int useTimeLineIndex = -1;
-
             for (int i = 0; i < lore.size(); i++) {
                 String line = lore.get(i);
                 if (line.isEmpty()) continue;
@@ -98,33 +97,38 @@ public class EventListener implements Listener {
                     if (useTimeString.equals(DataManager.getMsg(player, "INFINITE"))) {
                         isInfinite = true;
                     } else try {
-                        useTime = Integer.parseInt(line.substring(loreTimesUse.length()));
+                        useTime[0] = Integer.parseInt(line.substring(loreTimesUse.length()));
                     } catch (Exception ignore) { return; }
                 }
             }
 
             if (!isSprayItem) return;
+            e.setCancelled(true);
 
-            if (isInfinite) {
-                SprayManager.spray(player, player.isSneaking());
-                return;
-            }
-
-            if (useTime >= 1 && SprayManager.spray(player, player.isSneaking())) {
-                useTime -= 1;
-                if (CustomSprays.plugin.getConfig().getBoolean("destroy_if_exhausted") && useTime <= 0) item.setType(Material.AIR);
-                player.sendMessage(CustomSprays.prefix + ChatColor.translateAlternateColorCodes('&',
-                        DataManager.getMsg(player, "SPRAY.ITEM_USE")).replace("%use%", useTime+""));
-                lore.set(useTimeLineIndex, loreTimesUse + useTime);
-                itemMeta.setLore(lore);
-                item.setItemMeta(itemMeta);
-                if (NMS.getSubVer() <= 8) {
-                    //noinspection deprecation
-                    player.setItemInHand(item);
-                } else {
-                    EventListenerNew.setItemInHandNew(e, item);
+            boolean finalIsInfinite = isInfinite;
+            int finalUseTimeLineIndex = useTimeLineIndex;
+            Bukkit.getScheduler().runTaskAsynchronously(CustomSprays.plugin, () -> {
+                if (finalIsInfinite) {
+                    SprayManager.spray(player, player.isSneaking());
+                    return;
                 }
-            }
+                if (useTime[0] >= 1 && SprayManager.spray(player, player.isSneaking())) {
+                    useTime[0] -= 1;
+                    if (CustomSprays.plugin.getConfig().getBoolean("destroy_if_exhausted") && useTime[0] <= 0) item.setType(Material.AIR);
+                    player.sendMessage(CustomSprays.prefix + ChatColor.translateAlternateColorCodes('&',
+                            DataManager.getMsg(player, "SPRAY.ITEM_USE")).replace("%use%", useTime[0] +""));
+                    lore.set(finalUseTimeLineIndex, loreTimesUse + useTime[0]);
+                    itemMeta.setLore(lore);
+                    item.setItemMeta(itemMeta);
+                    if (NMS.getSubVer() <= 8) {
+                        //noinspection deprecation
+                        player.setItemInHand(item);
+                    } else {
+                        EventListenerNew.setItemInHandNew(e, item);
+                    }
+                }
+            });
+
         }
     }
 

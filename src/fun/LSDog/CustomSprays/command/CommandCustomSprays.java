@@ -4,7 +4,7 @@ import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.data.DataManager;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.spray.MapFrameFactory;
-import fun.LSDog.CustomSprays.spray.Spray;
+import fun.LSDog.CustomSprays.spray.SprayBase;
 import fun.LSDog.CustomSprays.spray.SprayManager;
 import fun.LSDog.CustomSprays.util.*;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -112,7 +112,7 @@ public class CommandCustomSprays implements TabExecutor {
                 }
                 SprayManager.removeAllSpray();
                 CustomSprays.plugin.reloadConfig();
-                DataManager.initialize(CustomSprays.plugin.getConfig().getString("storage"));
+                DataManager.loadConfig(CustomSprays.plugin.getConfig().getString("storage"));
                 CoolDown.reset();
                 RegionChecker.reload();
                 VaultChecker.reload();
@@ -273,13 +273,14 @@ public class CommandCustomSprays implements TabExecutor {
                         // check image by showing item
                         int id = MapViewId.sprayViewId;
                         try {
+                            // TODO optimize this
                             if (NMS.getSubVer() < 17) {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
-                                        .getConstructor(int.class, int.class, NMS.getMcItemStackClass())
+                                        .getConstructor(int.class, int.class, NMS.mcItemStackClass)
                                         .newInstance(0,36+player.getInventory().getHeldItemSlot(), MapFrameFactory.getMcMap(id)));
                             } else {
                                 NMS.sendPacket(player, NMS.getPacketClass("PacketPlayOutSetSlot")
-                                        .getConstructor(int.class, int.class, int.class, NMS.getMcItemStackClass())
+                                        .getConstructor(int.class, int.class, int.class, NMS.mcItemStackClass)
                                         .newInstance(0,0,36+player.getInventory().getHeldItemSlot(), MapFrameFactory.getMcMap(id)));
                             }
                             if (NMS.getSubVer() <= 7) {
@@ -310,7 +311,7 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        Spray spray = SprayManager.getSprayInSight(player);
+                        SprayBase spray = SprayManager.getSprayInSight(player);
                         if (spray != null) player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }
@@ -324,11 +325,11 @@ public class CommandCustomSprays implements TabExecutor {
 
                 new BukkitRunnable() {
                     public void run() {
-                        Spray spray = SprayManager.getSprayInSight(player);
+                        SprayBase spray = SprayManager.getSprayInSight(player);
                         if (spray != null) {
                             player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                             spray.remove();
-                            Spray.playRemoveSound(player);
+                            SprayManager.playRemoveSound(player);
                         }
                         else player.sendMessage(CustomSprays.prefix + "§7[§8X§7]");
                     }

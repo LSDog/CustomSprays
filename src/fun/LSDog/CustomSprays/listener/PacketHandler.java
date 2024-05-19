@@ -1,7 +1,7 @@
 package fun.LSDog.CustomSprays.listener;
 
 import fun.LSDog.CustomSprays.CustomSprays;
-import fun.LSDog.CustomSprays.spray.Spray;
+import fun.LSDog.CustomSprays.spray.SprayBase;
 import fun.LSDog.CustomSprays.spray.SprayManager;
 import fun.LSDog.CustomSprays.util.CoolDown;
 import fun.LSDog.CustomSprays.util.NMS;
@@ -25,8 +25,10 @@ public class PacketHandler {
         try {
             int subVer = NMS.getSubVer();
             Class<?> cPacketPlayInUseEntity = NMS.getPacketClass("PacketPlayInUseEntity");
-            PacketPlayInUseEntity_entityId = NMS.getDeclaredField(cPacketPlayInUseEntity, "a");
-            PacketPlayInUseEntity_action = NMS.getDeclaredField(cPacketPlayInUseEntity, subVer <= 16 ? "action" : "b");
+            PacketPlayInUseEntity_entityId = NMS.getDeclaredField(cPacketPlayInUseEntity,
+                    (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "a" : "b");
+            PacketPlayInUseEntity_action = NMS.getDeclaredField(cPacketPlayInUseEntity,
+                    subVer <= 16 ? "action" : (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "b" : "c");
             if (subVer >= 17) {
                 Class<?> cPacketPlayInUseEntity$EnumEntityUseAction = NMS.getPacketClass("PacketPlayInUseEntity$EnumEntityUseAction");
                 PacketPlayInUseEntity$Action_getType = cPacketPlayInUseEntity$EnumEntityUseAction.getDeclaredMethod("a");
@@ -41,14 +43,14 @@ public class PacketHandler {
 
         String packetClassName = packet.getClass().getSimpleName();
 
-        if (packetClassName.equals("PacketPlayInUseEntity")) {
+        if (packetClassName.equals("PacketPlayInUseEntity")) try {
 
             // get entity id
             int entityId = (int) NMS.getDeclaredFieldObject(packet, PacketPlayInUseEntity_entityId);
             String actionName = getActionNameFromPacketPlayInUseEntity(packet);
             if (!actionName.equals("ATTACK")) return false;
             // get spray and check it
-            Spray spray = SprayManager.getSpray(entityId);
+            SprayBase spray = SprayManager.getSpray(entityId);
             if (spray == null) return false;
             Player owner = spray.player;
             if (player != owner && !player.hasPermission("CustomSprays.delete")) return false;
@@ -59,10 +61,12 @@ public class PacketHandler {
                     player.sendMessage(CustomSprays.prefix + "§7[" + spray.player.getName() + "§7]");
                 }
                 if (CoolDown.getSprayCd(player) > 1000) CoolDown.setSprayCd(player, 1000);
-                Spray.playRemoveSound(player);
+                SprayManager.playRemoveSound(player);
             });
 
             return true; // Cancel this packet because it's a client side entity interaction
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
 
         return false;

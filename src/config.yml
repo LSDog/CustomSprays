@@ -35,7 +35,7 @@
 #
 # |Upload image by using yml-storage[storage: YML] and go copy content in "image: " from <\plugins\CustomSprays\playerData\{your uuid}.yml> (but don't contains "image: " !!) ,
 #    then create file <\plugins\CustomSprays\default.yml> and paste there, using "/sprays reload" to load the default image
-#    Player will spray this if he/she haven't upload image. If there's no default.yml then 'default image' will be disabled
+#    Player will spray this if he/she hasn't uploaded image. If there's no default.yml then 'default image' will be disabled
 #
 # # # # # # # # # # # # # # #
 
@@ -49,7 +49,7 @@ storage: YML
 
 MySQL:
   # |注意: 插件将会创建的表名为 "sprays"
-  # |Mention: Plugin will create table "sprays"
+  # |Mention: Plugin will create table named "sprays"
   host: '127.0.0.1'
   port: '3306'
   database: 'minecraft'
@@ -58,7 +58,7 @@ MySQL:
 
 debug: true
 # |Debug (会输出上传的图片链接和文件大小和玩家喷漆)
-# |Debug (Out put image link and file size and log player's spraying)
+# |Debug (Will out put image link and file size and log player's spraying)
 # 默认|Default: true
 
 msg_prefix: "&3&lCustomSprays >>&r "
@@ -157,7 +157,7 @@ spray_big_cost: 0
 ############ 填"是否" 的配置 ##############
 
 F_spray: true
-# |启用 双击"F"喷漆, 仅在1.9+有效
+# |启用双击"F"喷漆, 仅在1.9+有效
 # |Enable double click "F" spray, only support version 1.9+
 # 默认|Default: true
 
@@ -166,14 +166,19 @@ spray_on_ground: true
 # |Allow spraying on the top and bottom surfaces of the block, only support version 1.13+
 # 默认|Default: true
 
+spray_particle: true
+# |生成喷雾一样的粒子, 仅在1.9+有效
+# |Generate spray-like particles, only support version 1.9+
+# 默认|Default: true
+
 better_color: true
-# |让颜色更准确, 首次启动时需要耗费时间计算颜色表。1.7.10及以下不适用
-# |Makes colors more accurate, needs time to calculate color palette on first startup. 1.7.10 and below are not available.
+# |让颜色更准确, 首次启动时需要耗费时间计算颜色表。仅在1.8+有效
+# |Makes colors more accurate, needs time to calculate color palette on first startup. Only support version 1.8+
 # 默认|Default: true
 
 destroy_if_exhausted: true
-# |使用次数用完后物品自动销毁
-# |Items are automatically destroyed when the number of uses is exhausted
+# |使用次数用完后喷漆物品自动销毁
+# |Auto destroy spray items when the number of uses is exhausted
 # 默认|Default: true
 
 # 如果你想禁用大喷漆, 请设置权限 "CustomSprays.bigspray" 为 false
@@ -256,8 +261,8 @@ Messages:
     TOO_MANY_ARGUMENTS: "此为喷漆指令 查看帮助请使用 &b/sprays&r 哦！"
     NO_IMAGE: "笨蛋！ 你还没有上传图片呢！！！"
     NO_IMAGE_TIP: "使用 &b/sprays&r &3upload&l <url>&r 来上传图片！"
-    DISABLED_WORLD: "&7这里... 不可以的哟...❤ (此世界被禁用)"
-    DISABLED_REGION: "&7这.. 这里不可以呀啊！！ (此区域被禁用)"
+    DISABLED_WORLD: "&7此世界的喷漆被禁用了！"
+    DISABLED_REGION: "&7此区域的喷漆被禁用了！"
     NO_MONEY: "喂！傻瓜，你根本没带够钱来喷漆！！ 这需要 ￥%cost%！"
     COST: "&7- ￥%cost% (喷漆)"
     ITEM_USE: "§7剩余使用次数: %use%"
@@ -270,14 +275,14 @@ Messages:
     DELETE: "删除指向的喷漆"
     RELOAD: "重载插件"
     GETITEM: "获取一个喷漆罐 追加数字设定使用次数"
-    TIP: "\n&7TIP: &7&l\"在线图床 和 在线修改图片 很有用哦~\"\n  &7&l使用 &e&l/spray &b&l(big)&7 或在 &e&l1.9+版本&b&l(蹲下)&e&l双击F &7来&e&l喷漆&b&l(大)&7！ "
+    TIP: "\n&7TIP: &7&l\"在线图床很有用哦~\"\n  &7&l使用 &e&l/spray &b&l(big)&7 或在 &e&l1.9+版本&b&l(蹲下)&e&l双击F &7来&e&l喷漆&b&l(大)&7！ "
 
   COMMAND_UPLOAD:
     IN_BUSY: "服务器正忙，请稍后再传......"
     NO_URL: "你忘了写图片的地址了！ 笨蛋！！"
     NOT_URL: "你给的URL完全无效啊！ 笨蛋！！！！"
     CONNECT_FAILED: "url连接失败了！"
-    CONNECT_HTTPS_FAILED: "如果你提供的是&e&l https&r 那么可以改成&e&l http&r 链接尝试！"
+    CONNECT_HTTPS_FAILED: "如果你提供的是&e&l https&r 那么可以改成&e&l http&r 链接再试试！"
     FILE_TOO_BIG: "你提供的文件太大了！ 有足足{size}K！ &7(最大可以上传 &f&l{limit}k&r&7 的图片！)"
     CANT_GET_SIZE: "我们无法获取文件的大小！\n          请换一个以图片后缀&7(.png/.jpg/.jpeg)&r结尾的url试试吧......"
     UPLOADING: "&7加载中... 请稍候......"
@@ -300,8 +305,8 @@ Messages:
   COMMAND_GETITEM:
     BAD_NUM: "§c错误！你输入的不是正整数！"
 
-# 如果你想翻译，请到 [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] 向我投稿！
-# If you want to translate, find me in [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:2509863159@qq.com] ！
+# 如果你想翻译，请到 [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:LSDog@foxmail.com] 向我投稿！
+# If you want to do some translate, find me in [mcbbs:LSDog | spigot:LSDog | QQ:2509863159 | email:LSDog@foxmail.com] ！
 
 #####################
 #  ENGLISH VERSION  #
@@ -371,4 +376,4 @@ Messages:
 
 # |Checking compatibility, don't touch this (✿◕‿◕✿)
 # |检测配置兼容性，别乱改喔 （づ￣3￣）づ
-configVersion: 1.8
+configVersion: 1.9

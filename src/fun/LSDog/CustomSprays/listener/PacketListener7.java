@@ -57,7 +57,7 @@ public class PacketListener7 {
                     HANDLER_NAME,
                     listenerChannelHandler.newInstance(player)
             );
-        } catch (ReflectiveOperationException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -71,7 +71,7 @@ public class PacketListener7 {
             if (channel != null && handlerNames.contains(HANDLER_NAME)) {
                 ChannelPipeline_remove.invoke(pipeline, HANDLER_NAME);
             }
-        } catch (ReflectiveOperationException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
