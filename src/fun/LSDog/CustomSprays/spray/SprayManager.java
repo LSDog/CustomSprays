@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -161,12 +162,13 @@ public class SprayManager {
     }
 
     /**
-     * 发送玩家所有已存在的喷漆
+     * Send player existed sprays that in the player's world
      */
     public static void sendExistSprays(Player player) {
 
+        World playerWorld = player.getWorld();
         Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> SprayManager.playerSprayMap.values().forEach(sprays -> sprays.forEach(spray -> {
-            try {
+            if (spray.world == playerWorld) try {
                 spray.spawn(Collections.singletonList(player), false, false);
             } catch (Throwable e) {
                 e.printStackTrace();

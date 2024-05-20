@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -52,6 +53,11 @@ public class EventListener implements Listener {
             player.sendMessage(CustomSprays.prefix + " §6§l嘿, 管理! CustomSprays 有个更新~~ §7-> §b§l" + CustomSprays.latestVersion);
             player.sendMessage(CustomSprays.prefix + " §6§lHey, OP! CustomSprays has an update~~ §7-> §b§l" + CustomSprays.latestVersion);
         }
+    }
+
+    @EventHandler (priority = EventPriority.LOWEST)
+    public void onChangeWorld(PlayerChangedWorldEvent e) {
+        SprayManager.sendExistSprays(e.getPlayer());
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
