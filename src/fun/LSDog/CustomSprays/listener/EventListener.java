@@ -23,12 +23,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 
 /**
- * 实现双击F喷漆
+ * Listening to player's events
  */
 public class EventListener implements Listener {
 
     /**
-     * 玩家加入相关逻辑
+     * Player joins
      * @param e {@link PlayerJoinEvent}
      */
     @EventHandler (priority = EventPriority.LOWEST)
@@ -38,15 +38,15 @@ public class EventListener implements Listener {
     }
 
     public static void playerJoin(Player player) {
-        // 初始化账户
+        // Initialize account
         Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> {
             if (player.isOnline() && DataManager.data instanceof DataMySQL) {
                 DataMySQL.addAccountIfNotExist(player);
             }
         }, 10L);
-        // 发送已存在的 spray
+        // Send existing spray
         SprayManager.sendExistSprays(player);
-        // 开始监听玩家的 Packet
+        // Start monitoring player's packets
         if (NMS.getSubVer() >= 8) PacketListener.addPlayer(player);
         else PacketListener7.addPlayer(player);
         if (CustomSprays.latestVersion != null && player.isOp()) {
@@ -68,7 +68,7 @@ public class EventListener implements Listener {
     }
 
     /**
-     * 喷漆物品的使用
+     * Check if using spray item
      * @param e {@link PlayerInteractEvent}
      */
     @EventHandler

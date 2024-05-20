@@ -162,7 +162,7 @@ public class SprayManager {
     }
 
     /**
-     * Send player existed sprays that in the player's world
+     * Send player existing sprays that in the player's world
      */
     public static void sendExistSprays(Player player) {
 
