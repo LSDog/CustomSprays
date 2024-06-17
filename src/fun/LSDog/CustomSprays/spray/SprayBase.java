@@ -30,7 +30,6 @@ public abstract class SprayBase implements ISpray {
     public Location location;
     public BlockFace blockFace;
     public double distance;
-    protected Location playerLocation;
     protected int intDirection;
     protected int intRotation;
 
@@ -68,9 +67,8 @@ public abstract class SprayBase implements ISpray {
         location = block.getLocation();
         blockFace = ray.blockFace;
         distance = ray.distance;
-        playerLocation = player.getLocation();
         intDirection = MapFrameFactory.blockFaceToIntDirection(ray.blockFace);
-        intRotation = MapFrameFactory.getItemFrameRotate(location, blockFace);
+        intRotation = MapFrameFactory.getItemFrameRotate(player.getLocation(), blockFace);
 
         // ↓喷漆占用就取消
         if (SprayManager.hasSpray(ray.getRelativeBlock(), ray.blockFace)) return false;

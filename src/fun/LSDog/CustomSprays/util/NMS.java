@@ -189,7 +189,8 @@ public class NMS {
                 case 18: name = "ae"; break;
                 case 19: name = subRVer == 1 ? "ae" : subRVer == 2 ? "ah" : "af"; break;
                 case 20: name = subRVer == 1 ? "af" : subRVer == 2 ? "ah" : subRVer == 3 ? "aj" : "al"; break;
-                default: name = "al"; break;
+                case 21: name = "an";
+                default: name = "an"; break;
             }
             Entity_getId = getMethodVirtual(mcEntityClass, name, MethodType.methodType(int.class));
 
@@ -198,15 +199,15 @@ public class NMS {
                 case 18: name = "ai"; break;
                 case 19: name = subRVer == 1 ? "ai" : subRVer == 2 ? "al" : "aj"; break;
                 case 20: name = subRVer == 1 ? "aj" : subRVer == 2 ? "al" : subRVer == 3 ? "an" : "ap"; break;
-                default: name = "ap"; break;
+                case 21:
+                default: name = "ar"; break;
             }
             Entity_getDataWatcher = getMethodVirtual(mcEntityClass, name, MethodType.methodType(mcDataWatcherClass));
 
             if (subVer <= 17) name = "sendPacket";
             else if (subVer < 20 || (subVer == 20 && subRVer <= 1)) name = "a";
             else name = "b"; // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
-            PlayerConnection_sendPacket = getMethodVirtual(
-                    mcPlayerConnectionClass, name, MethodType.methodType(void.class, getPacketClass()));
+            PlayerConnection_sendPacket = getMethodVirtual(mcPlayerConnectionClass, name, MethodType.methodType(void.class, getPacketClass()));
 
             DataWatcher_getNonDefaultValues = (subVer > 19 || (subVer == 19 && subRVer > 1)) ?
                     getMethodVirtual(mcDataWatcherClass, "c", MethodType.methodType(List.class)) : null;

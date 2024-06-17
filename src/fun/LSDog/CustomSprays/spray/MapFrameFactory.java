@@ -94,9 +94,9 @@ public class MapFrameFactory {
             }
 
             cPacketPlayOutSpawnEntity = NMS.getConstructor(NMS.getPacketClass("PacketPlayOutSpawnEntity"),
-                    (subVer <= 13) ?
-                            MethodType.methodType(void.class, NMS.mcEntityClass, int.class, int.class) :
-                            MethodType.methodType(void.class, NMS.mcEntityClass, int.class));
+                    (subVer <= 13) ? MethodType.methodType(void.class, NMS.mcEntityClass, int.class, int.class)
+                            : (subVer <= 20) ? MethodType.methodType(void.class, NMS.mcEntityClass, int.class)
+                            : MethodType.methodType(void.class, NMS.mcEntityClass, int.class, NMS.mcBlockPositionClass));
 
             if (subVer <= 12) {
                 cItemStack = NMS.getConstructor(NMS.mcItemStackClass, MethodType.methodType(void.class, NMS.mcItemClass, int.class, int.class));
@@ -202,17 +202,27 @@ public class MapFrameFactory {
 
 
     /**
-     * 获取生成 ItemFrame 的包
+     * Get spawn packet of ItemFrame
      */
     protected static Object getSpawnPacket(Object itemFrame, int intDirection) throws Throwable {
         int subVer = NMS.getSubVer();
         if (subVer <= 13) {
             /* ItemFrame, ItemFrameID:71, Data:Facing(int) */
             return cPacketPlayOutSpawnEntity.invoke(itemFrame, 71, intDirection);
-        } else {
+        } else if (subVer <= 20) {
             /* ItemFrame, Data:Facing(int) */
             return cPacketPlayOutSpawnEntity.invoke(itemFrame, intDirection);
+        } else {
+            throw new RuntimeException("SpawnPacket in 1.21+ requires a BlockPosition!");
         }
+    }
+
+    /**
+     * version >= 1.21
+     * Get spawn packet of ItemFrame
+     */
+    protected static Object getSpawnPacket(Object itemFrame, int intDirection, Object blockPosition) throws Throwable {
+        return cPacketPlayOutSpawnEntity.invoke(itemFrame, intDirection, blockPosition);
     }
 
     /**

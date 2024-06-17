@@ -88,7 +88,8 @@ public class SprayBig extends SprayBase {
             offLocs[i] = NMS.getSubVer() >= 8 ? reLoc : reLoc.add(-blockFace.getModX(), 0, -blockFace.getModZ());
             itemFrames[i] = MapFrameFactory.getItemFrame(mcMap, offLocs[i], blockFace, intRotation);
             itemFrameIds[i] = NMS.getMcEntityId(itemFrames[i]);
-            spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection);
+            if (NMS.getSubVer() <= 20) spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection);
+            else spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection, NMS.getMcBlockPosition(locs[i]));
             if (NMS.getSubVer() <= 7) {
                 NMS.setSpawnPacketLocation_7(spawnPackets[i], offLocs[i]);
                 mapPackets_7s[i] = MapFrameFactory.getMapPackets_7((short) mapViewId, pixelPieces[i]);

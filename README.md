@@ -15,8 +15,8 @@ ___
 |:-------------------------:|----------------------------------------------------------|
 | ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                   |
 |      作者 <br> Author       | LSDog                                                    |
-|      版本 <br> Version      | 1.5.12                                                   |
-|      支持 <br> Support      | **1.7.10 ~ 1.20.6** (Bukkit Spigot Paper ...)            |
+|      版本 <br> Version      | 1.5.13                                                   |
+|      支持 <br> Support      | **1.7.10 ~ 1.21** (Bukkit Spigot Paper ...)              |
 |        指令 <br> Cmd        | `/sprays` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
 |       权限 <br> Perm        | 请见 "config.yml" / see "config.yml"                       |
 > 
@@ -72,7 +72,7 @@ ___
 
 ## 🎮 版本支持 | Version Support
 ___
-> 🔷 **1.7.10 ~ 1.20.4**
+> 🔷 **1.7.10 ~ 1.21**
 
 > 📏 支持的 **"领域"** 插件 | Supported **"region"** plugins:
 > - [x] Residence .......... [ *?* ~ 5.0.1.3+ ]

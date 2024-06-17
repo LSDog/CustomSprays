@@ -38,7 +38,8 @@ public class SpraySmall extends SprayBase {
         Object mcMap = MapFrameFactory.getMcMap(mapViewId);
         Object itemFrame = MapFrameFactory.getItemFrame(mcMap, offLoc, blockFace, intRotation);
         itemFrameId = NMS.getMcEntityId(itemFrame);
-        spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+        if (NMS.getSubVer() <= 20) spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+        else spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection, NMS.getMcBlockPosition(location));
         if (NMS.getSubVer() <= 7) {
             NMS.setSpawnPacketLocation_7(spawnPacket, offLoc);
             mapPackets_7 = MapFrameFactory.getMapPackets_7((short) mapViewId, pixels);
@@ -48,7 +49,6 @@ public class SpraySmall extends SprayBase {
         dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
 
         valid = true;
-
     }
 
     /**
@@ -77,6 +77,7 @@ public class SpraySmall extends SprayBase {
 
         if (spawnParticle && NMS.getSubVer() >= 9) ParticleUtil.playSprayParticleEffect(this, 3, 1, 0.8, 80);
         if (playSound) SprayManager.playSpraySound(player);
+
     }
 
 
