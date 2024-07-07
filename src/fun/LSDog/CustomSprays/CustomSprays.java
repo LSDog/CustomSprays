@@ -69,6 +69,7 @@ public class CustomSprays extends JavaPlugin {
         }
         DataManager.loadConfig(getConfig().getString("storage"));
 
+        log("mojang: " + (Package.getPackage("com.destroystokyo.paper") != null));
         NMS.init();
         MapFrameFactory.init();
 
@@ -118,7 +119,8 @@ public class CustomSprays extends JavaPlugin {
             });
         }
 
-        log("§eCustomSprays§r Enabled! plugin by §b§lLSDog§r."+" §8(Running on "+ NMS.getMcVer()+")");
+        log("§eCustomSprays§r Enabled! plugin by §b§lLSDog§r."+" §8(Running on "+ NMS.getMcVer()+" | " +
+                (NMS.SP ? "Spigot" : "Mojang") + " mapping)");
     }
 
     public static void log(Object object) {

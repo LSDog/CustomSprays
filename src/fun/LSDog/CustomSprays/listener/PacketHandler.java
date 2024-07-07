@@ -43,7 +43,8 @@ public class PacketHandler {
 
         String packetClassName = packet.getClass().getSimpleName();
 
-        if (packetClassName.equals("PacketPlayInUseEntity")) try {
+        // Spigot mapping name || Mojang mapping name
+        if (packetClassName.equals("PacketPlayInUseEntity") || packetClassName.equals("ServerboundInteractPacket")) try {
 
             // get entity id
             int entityId = (int) NMS.getDeclaredFieldObject(packet, PacketPlayInUseEntity_entityId);

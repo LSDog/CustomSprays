@@ -26,22 +26,41 @@ public class NMS {
      */
     public static void init() {}
 
+    /**
+     * @return Simple version number like 1.20.6
+     */
+    private static String getVersionNumber() {
+        if (simpleVersionNumber != null) return simpleVersionNumber;
+        String strVer = Bukkit.getServer().getBukkitVersion();
+        strVer = strVer.substring(0, strVer.indexOf("-"));
+        return simpleVersionNumber = strVer;
+    }
 
-    private static String version = null;
+    private static String simpleVersionNumber = null;
+    private static String rversion = null;
     private static int subVer = -1;
     private static int subRVer = -1;
 
+    public static final Map<String, String> rVerMap = new HashMap<String, String>(){{
+        put("1.20.5", "1_20_R4");
+        put("1.20.6", "1_20_R4");
+        put("1.21", "1_21_R1");
+    }};
     public static final boolean VER_1_17, VER_1_20_R4;
+    /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
+    public static final boolean SP = Double.parseDouble(getVersionNumber().split("\\.",2)[1]) >= 20.5 && Package.getPackage("com.destroystokyo.paper") == null;
 
     /**
      * get NMS version string (e.g. 1_12_R1)
      */
     public static String getMcVer() {
-        if (version != null) return version;
+        if (rversion != null) return rversion;
 
         String versionString = Bukkit.getServer().getClass().getPackage().getName(); // e.g. org.bukkit.craftbukkit.v1_20_R2.CraftServer
         if (versionString.contains("R")) {
-            return version = versionString.split("\\.")[3].substring(1); // -> 1_20_R2
+            return rversion = versionString.split("\\.")[3].substring(1); // -> 1_20_R2
+        } else if ((rversion = rVerMap.get(getVersionNumber())) != null) {
+            return rversion;
         } else {
             throw new RuntimeException("Can't get CraftBukkit revision number! Only got '" + versionString + "' instead.");
         }
@@ -153,7 +172,8 @@ public class NMS {
                 case 7: case 18: case 19:
                     name = "m"; break;
                 case 20:
-                    if (subRVer == 1) { name = "m"; break; }
+                    name = (subRVer == 1) ? "m" : "n"; break;
+                case 21:
                 default:
                     name = "n"; break;
             }
@@ -189,7 +209,7 @@ public class NMS {
                 case 18: name = "ae"; break;
                 case 19: name = subRVer == 1 ? "ae" : subRVer == 2 ? "ah" : "af"; break;
                 case 20: name = subRVer == 1 ? "af" : subRVer == 2 ? "ah" : subRVer == 3 ? "aj" : "al"; break;
-                case 21: name = "an";
+                case 21:
                 default: name = "an"; break;
             }
             Entity_getId = getMethodVirtual(mcEntityClass, name, MethodType.methodType(int.class));
@@ -317,8 +337,8 @@ public class NMS {
         return getMcClass("network.protocol.Packet", "Packet");
     }
 
-    public static Class<?> getPacketClass(String paketName) {
-        return getMcClass("network.protocol.game."+paketName, paketName);
+    public static Class<?> getPacketClass(String packetName) {
+        return getMcClass("network.protocol.game."+packetName, packetName);
     }
 
     public static Object getMcWorld(World world) throws Throwable {
