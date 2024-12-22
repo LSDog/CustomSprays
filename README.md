@@ -150,7 +150,7 @@ ___
 ##  💖 DONATE ME 💖 喜欢我就给我发电！！
 ___
 
-### 打赏 | Donate: [爱发电 | Aifadian](https://afdian.net/@LSDog)
+### 打赏 | Donate: [爱发电 | Aifadian](https://afdian.com/@LSDog)
 
 ![who use? I use!](https://bstats.org/signatures/bukkit/CustomSprays.svg)
 
