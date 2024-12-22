@@ -132,11 +132,10 @@ public class DataMySQL implements IData {
             CustomSprays.log("\n\n\n\n");
             CustomSprays.log("§c############################################");
             CustomSprays.log("§c==== 无法获取MySQL连接！ ====");
-            CustomSprays.log("§c==== We cant get your SQL connection! ====");
+            CustomSprays.log("§c==== Unable to get SQL connection! ====");
             CustomSprays.log("§c############################################");
-            e.printStackTrace();
             CustomSprays.log("\n\n\n\n");
-            Bukkit.shutdown();
+            e.printStackTrace();
             return null;
         }
         return connection;
