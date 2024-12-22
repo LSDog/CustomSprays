@@ -25,14 +25,18 @@ public class MapFrameFactory {
     private static final Object itemMap,
             DataComponents_MapID;
     // Class
-    private static final Class<?> mcMapDataClass = NMS.VER_1_17 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$b") : null,
+    private static final Class<?>
+            mcMapDataClass =
+                NMS.VER_1_21_R2 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$c") :
+                NMS.VER_1_17 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$b") : null,
             mcMapIdClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("world.level.saveddata.maps.MapId") : null,
             mcDataComponentHolderClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentHolder") : null,
             mcDataComponentTypeClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentType") : null,
             mcDataComponentMapClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentMap") : null,
             mcPatchedDataComponentMapClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.PatchedDataComponentMap") : null;
     // Constructor
-    private static final MethodHandle cItemFrame,
+    private static final MethodHandle
+            cItemFrame,
             cPacketPlayOutSpawnEntity,
             cItemStack,
             cNBTTagCompound,
@@ -66,7 +70,7 @@ public class MapFrameFactory {
 
             String name;
 
-            name = "rU";
+            name = "sI";
             if (subVer <= 16) {
                 name = "FILLED_MAP";
             } else if (subVer <= 18) {
@@ -82,10 +86,14 @@ public class MapFrameFactory {
                 case 1: case 2: name = "rf"; break;
                 case 3: name = "rR"; break;
                 case 4: name = "rU"; break;
+            } else if (subVer == 21) switch (subRVer) {
+                case 1: name = "rU"; break;
+                case 2: name = "sI"; break;
             }
             itemMap = NMS.getDeclaredFieldObject(NMS.mcItemsClass, name, null);
 
-            DataComponents_MapID = NMS.VER_1_20_R4 ? NMS.getDeclaredFieldObject(NMS.getMcClassNew("core.component.DataComponents"), "B", null) : null;
+            DataComponents_MapID =
+                    NMS.VER_1_20_R4 ? NMS.getDeclaredFieldObject(NMS.getMcClassNew("core.component.DataComponents"), NMS.VER_1_21_R2 ? "L" : "B", null) : null;
 
             if (subVer <= 7) {
                 cItemFrame = NMS.getConstructor(NMS.mcEntityItemFrameClass, MethodType.methodType(void.class, int.class, int.class, int.class, int.class));
