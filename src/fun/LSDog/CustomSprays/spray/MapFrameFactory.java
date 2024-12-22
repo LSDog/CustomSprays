@@ -89,6 +89,7 @@ public class MapFrameFactory {
             } else if (subVer == 21) switch (subRVer) {
                 case 1: name = "rU"; break;
                 case 2: name = "sI"; break;
+                case 3: name = "sR"; break;
             }
             itemMap = NMS.getDeclaredFieldObject(NMS.mcItemsClass, name, null);
 
