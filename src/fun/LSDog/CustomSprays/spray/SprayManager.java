@@ -10,13 +10,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class SprayManager {
 
@@ -65,7 +66,7 @@ public class SprayManager {
                     player.sendMessage(CustomSprays.prefix + DataManager.getMsg(player, "SPRAY.NO_IMAGE_TIP"));
                     return false;
                 }
-                SpraySmall spraySmall = new SpraySmall(player, bytes, Bukkit.getOnlinePlayers());
+                SpraySmall spraySmall = new SpraySmall(player, bytes, Bukkit.getOnlinePlayers().stream().map(Entity::getUniqueId).collect(Collectors.toList()));
                 result = spraySmall.init((long) (CustomSprays.plugin.getConfig().getDouble("destroy") * 20L));
                 if (result) {
                     CoolDown.setSprayCdMultiple(player,1);
@@ -90,7 +91,7 @@ public class SprayManager {
                     return false;
                 }
 
-                SprayBig spray = new SprayBig(player, bytes, Bukkit.getOnlinePlayers(), length);
+                SprayBig spray = new SprayBig(player, bytes, Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toList()), length);
                 result = spray.init((long) (CustomSprays.plugin.getConfig().getDouble("destroy") * 20L));
                 if (result) {
                     CoolDown.setSprayCdMultiple(player, CustomSprays.plugin.getConfig().getDouble("big_spray_cd_multiple"));
@@ -166,14 +167,20 @@ public class SprayManager {
      */
     public static void sendExistSprays(Player player) {
 
-        World playerWorld = player.getWorld();
         Bukkit.getScheduler().runTaskLaterAsynchronously(CustomSprays.plugin, () -> SprayManager.playerSprayMap.values().forEach(sprays -> sprays.forEach(spray -> {
-            if (spray.world == playerWorld) try {
-                spray.spawn(Collections.singletonList(player), false, false);
+            try {
+                spray.spawn(Collections.singletonList(player.getUniqueId()), false, false);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
         })), 20L);
+    }
+
+    /**
+     * Remove a player from every spray's shown player
+     */
+    public static void removeShownPlayer(Player player) {
+        itemframeIdMap.values().forEach(spray -> spray.playersShown.remove(player.getUniqueId()));
     }
 
     /**

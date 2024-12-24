@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * NMS Util for {@link net.minecraft.server} related actions
@@ -388,9 +389,10 @@ public class NMS {
             );
     }
 
-    public static void sendDestroyEntities(int[] entityIds, Collection<Player> toPlayers) {
+    public static void sendDestroyEntities(int[] entityIds, Collection<UUID> toPlayers) {
         try {
-            for (Player p : toPlayers) {
+            for (UUID uuid : toPlayers) {
+                Player p = Bukkit.getPlayer(uuid);
                 if (!p.isOnline()) continue;
                 NMS.sendPacket(p, cPacketPlayOutEntityDestroy.invoke( entityIds ));
             }

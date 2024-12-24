@@ -25,7 +25,7 @@ public class SpraySmall extends SprayBase {
      * @param pixels Byte color array <b>size of 128*128</b>
      * @param playerShown The players who can see this spray (in spraying).
      */
-    public SpraySmall(Player player, byte[] pixels, Collection<? extends Player> playerShown) {
+    public SpraySmall(Player player, byte[] pixels, Collection<? extends UUID> playerShown) {
         super(player, pixels, playerShown);
     }
 
@@ -56,18 +56,19 @@ public class SpraySmall extends SprayBase {
      * @param playersShowTo 要展示给的玩家, null为默认初始值
      */
     @Override
-    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound, boolean spawnParticle) throws Throwable {
+    public void spawn(Collection<? extends UUID> playersShowTo, boolean playSound, boolean spawnParticle) throws Throwable {
 
         if (!valid) return;
 
-        Collection<? extends Player> $playersShowTo = playersShown;
+        Collection<? extends UUID> $playersShowTo = playersShown;
 
         if (playersShowTo != null) {
             $playersShowTo = playersShowTo;
             playersShown.addAll($playersShowTo); // 重新生成的也要加到可见玩家里
         }
 
-        for (Player p : $playersShowTo) {
+        for (UUID uuid : $playersShowTo) {
+            Player p = Bukkit.getPlayer(uuid);
             NMS.sendPacket(p, spawnPacket);  // 生成带地图的展示框
             NMS.sendPacket(p, dataPacket);  // 为展示框添加 dataWatcher
             // 刷新 mapView (也就是"画图")

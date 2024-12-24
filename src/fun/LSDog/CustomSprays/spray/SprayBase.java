@@ -6,6 +6,7 @@ import fun.LSDog.CustomSprays.util.NMS;
 import fun.LSDog.CustomSprays.util.RayTracer;
 import fun.LSDog.CustomSprays.util.RegionChecker;
 import fun.LSDog.CustomSprays.util.VaultChecker;
+import io.netty.util.internal.ConcurrentSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,8 +15,8 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public abstract class SprayBase implements ISpray {
@@ -24,7 +25,7 @@ public abstract class SprayBase implements ISpray {
 
     public final Player player;
     protected final World world;
-    protected final Set<Player> playersShown = new HashSet<>();
+    protected final Set<UUID> playersShown = new ConcurrentSet<>();
 
     public Block block;
     public Location location;
@@ -40,7 +41,7 @@ public abstract class SprayBase implements ISpray {
      */
     protected int itemFrameId = -1;
 
-    protected SprayBase(Player player, byte[] pixels, Collection<? extends Player> playersShown) {
+    protected SprayBase(Player player, byte[] pixels, Collection<? extends UUID> playersShown) {
         this.player = player;
         this.world = player.getWorld();
         this.pixels = pixels;

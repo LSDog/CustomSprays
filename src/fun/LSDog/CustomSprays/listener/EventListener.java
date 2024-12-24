@@ -57,12 +57,13 @@ public class EventListener implements Listener {
 
     @EventHandler (priority = EventPriority.LOWEST)
     public void onChangeWorld(PlayerChangedWorldEvent e) {
-        SprayManager.sendExistSprays(e.getPlayer());
+        //SprayManager.sendExistSprays(e.getPlayer());
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent e) {
         Player player = e.getPlayer();
+        SprayManager.removeShownPlayer(player);
         if (NMS.getSubVer() >= 8) PacketListener.removePlayer(player);
         else PacketListener7.removePlayer(player);
     }

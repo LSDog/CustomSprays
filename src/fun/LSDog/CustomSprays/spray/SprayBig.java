@@ -4,12 +4,14 @@ import fun.LSDog.CustomSprays.CustomSprays;
 import fun.LSDog.CustomSprays.map.MapViewId;
 import fun.LSDog.CustomSprays.util.NMS;
 import fun.LSDog.CustomSprays.util.ParticleUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * 3*3或5*5大喷漆
@@ -38,7 +40,7 @@ public class SprayBig extends SprayBase {
      * @param pixels Byte color array <b>size of 384*384 or 640*640</b>
      * @param showTo Players who can see this spray
      */
-    public SprayBig(Player player, byte[] pixels, Collection<? extends Player> showTo, int length) {
+    public SprayBig(Player player, byte[] pixels, Collection<? extends UUID> showTo, int length) {
         super(player, pixels, showTo);
         this.length = length;
         int size = length * length;
@@ -109,11 +111,11 @@ public class SprayBig extends SprayBase {
     }
 
     @Override
-    public void spawn(Collection<? extends Player> playersShowTo, boolean playSound, boolean spawnParticle) throws Throwable {
+    public void spawn(Collection<? extends UUID> playersShowTo, boolean playSound, boolean spawnParticle) throws Throwable {
 
         if (!valid) return;
 
-        Collection<? extends Player> $playersShowTo = playersShown;
+        Collection<? extends UUID> $playersShowTo = playersShown;
 
         if (playersShowTo != null) {
             $playersShowTo = playersShowTo;
@@ -122,7 +124,8 @@ public class SprayBig extends SprayBase {
 
         for (int i = 0; i < length * length; i++) {
 
-            for (Player p : $playersShowTo) {
+            for (UUID uuid : $playersShowTo) {
+                Player p = Bukkit.getPlayer(uuid);
                 NMS.sendPacket(p, spawnPackets[i]);
                 NMS.sendPacket(p, dataPackets[i]);
                 if (NMS.getSubVer() >= 8) NMS.sendPacket(p, mapPackets[i]);
