@@ -90,11 +90,14 @@ public class MapFrameFactory {
                 case 1: name = "rU"; break;
                 case 2: name = "sI"; break;
                 case 3: name = "sR"; break;
+                case 4: name = "tc"; break;
             }
             itemMap = NMS.getDeclaredFieldObject(NMS.mcItemsClass, name, null);
 
-            DataComponents_MapID =
-                    NMS.VER_1_20_R4 ? NMS.getDeclaredFieldObject(NMS.getMcClassNew("core.component.DataComponents"), NMS.VER_1_21_R2 ? "L" : "B", null) : null;
+
+            DataComponents_MapID = NMS.VER_1_20_R4 ?
+                    NMS.getDeclaredFieldObject(NMS.getMcClassNew("core.component.DataComponents"),
+                            NMS.VER_1_21_R4 ? "M" : NMS.VER_1_21_R2 ? "L" : "B", null) : null;
 
             if (subVer <= 7) {
                 cItemFrame = NMS.getConstructor(NMS.mcEntityItemFrameClass, MethodType.methodType(void.class, int.class, int.class, int.class, int.class));

@@ -6,7 +6,7 @@
 > ![use](https://s1.ax1x.com/2022/04/18/Ldo6SK.gif)
 
 ## （＾∀＾●）ﾉｼ
-![Visits](https://count.getloli.com/get/@CustomSprays)  
+![Visits](https://count.getloli.com/get/@CustomSprays?darkmode=0)  
 
 ## 📢 介绍 | Introduce
 ___
@@ -15,13 +15,13 @@ ___
 |:-------------------------:|----------------------------------------------------------|
 | ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                   |
 |      作者 <br> Author       | LSDog                                                    |
-|      版本 <br> Version      | 1.5.16                                                   |
-|      支持 <br> Support      | **1.7.10 ~ 1.21.1** (Bukkit Spigot Paper ...)            |
+|      版本 <br> Version      | 1.5.17                                                   |
+|      支持 <br> Support      | **1.7.10 ~ 1.21.5** (Bukkit Spigot Paper ...)            |
 |        指令 <br> Cmd        | `/sprays` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
 |       权限 <br> Perm        | 请见 "config.yml" / see "config.yml"                       |
 > 
 > Links:
-> [Mcbbs](https://www.mcbbs.net/thread-1289391-1-1.html)
+> [Modrinth](https://modrinth.com/plugin/customsprays)
 > | [Spigot](https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/)
 > | [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
 
