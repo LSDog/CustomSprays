@@ -23,7 +23,7 @@ public class RayTracer {
     final double stepX, stepY, stepZ;       // 单位向量坐标
     final double max;                       // 最大距离
     final int sbx, sby, sbz;                // 给 getFace() 用的解决向量方向计算什么的数, 坐标正数取0，负数取1
-    final int worldMaxHeight;               // 世界最高高度
+    final int worldMaxY, worldMinY;         // 世界高度上下限
     final World world;                      // 当前世界
 
     double x, y, z;                         // 当前点坐标
@@ -54,7 +54,8 @@ public class RayTracer {
         this.stepY = step.getY();
         this.stepZ = step.getZ();
         this.world = start.getWorld();
-        this.worldMaxHeight = world == null ? 256 : world.getMaxHeight();
+        this.worldMaxY = world == null ? 256 : world.getMaxHeight();
+        this.worldMinY = NMS.getSubVer() >= 17 ? -64 : 0;
         this.faces = new BlockFace[] {
                 this.stepX >= 0 ? BlockFace.WEST : BlockFace.EAST,
                 this.stepY >= 0 ? BlockFace.DOWN : BlockFace.UP,
@@ -85,7 +86,7 @@ public class RayTracer {
             getBlockPoses();
 
             // 超出方块可放置位置 return null
-            if (by > worldMaxHeight || by < 0) {
+            if (by > worldMaxY || by < worldMinY) {
                 return null;
             }
 

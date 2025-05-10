@@ -37,7 +37,7 @@ public class SprayRayTracer extends RayTracer {
             getBlockPoses();
 
             // 超出方块可放置位置 return null
-            if (by > worldMaxHeight || by < 0) {
+            if (by > worldMaxY || by < worldMinY) {
                 return null;
             }
 
