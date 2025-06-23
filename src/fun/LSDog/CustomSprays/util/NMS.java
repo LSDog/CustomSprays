@@ -51,6 +51,7 @@ public class NMS {
         put("1.21.3", "1_21_R2");
         put("1.21.4", "1_21_R3");
         put("1.21.5", "1_21_R4");
+        put("1.21.6", "1_21_R5");
     }};
     public static final boolean VER_1_17, VER_1_20_R4, VER_1_21_R2, VER_1_21_R4;
     /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
@@ -151,9 +152,9 @@ public class NMS {
                 case 20:
                     name = "c"; break;
                 case 21:
-                    name = subRVer <= 1 ? "c" : "f"; break;
+                    name = (subRVer <= 1) ? "c" : (subRVer <= 4) ? "f" : "g"; break;
                 default:
-                    name = "f"; break;
+                    name = "g"; break;
             }
             fEntityPlayer_playerConnection = getFieldGetter(mcEntityPlayerClass, name, mcPlayerConnectionClass);
 
@@ -165,7 +166,7 @@ public class NMS {
                 case 19:
                     name = "h"; break;
                 case 20:
-                    name = (subRVer <= 1) ? "h" : ((subRVer <= 3) ? "c" : "e"); break;
+                    name = (subRVer <= 1) ? "h" : (subRVer <= 3) ? "c" : "e"; break;
                 default:
                     name = "e"; break;
             }
@@ -221,8 +222,8 @@ public class NMS {
                 case 18: name = "ae"; break;
                 case 19: name = subRVer == 1 ? "ae" : subRVer == 2 ? "ah" : "af"; break;
                 case 20: name = subRVer == 1 ? "af" : subRVer == 2 ? "ah" : subRVer == 3 ? "aj" : "al"; break;
-                case 21: name = subRVer == 1 ? "an" : subRVer <= 3 ? "ar" : "ao"; break;
-                default: name = "ao"; break;
+                case 21: name = subRVer == 1 ? "an" : subRVer <= 3 ? "ar" : subRVer == 4 ? "ao" : "ar"; break;
+                default: name = "ar"; break;
             }
             Entity_getId = getMethodVirtual(mcEntityClass, name, MethodType.methodType(int.class));
 
@@ -231,8 +232,8 @@ public class NMS {
                 case 18: name = "ai"; break;
                 case 19: name = subRVer == 1 ? "ai" : subRVer == 2 ? "al" : "aj"; break;
                 case 20: name = subRVer == 1 ? "aj" : subRVer == 2 ? "al" : subRVer == 3 ? "an" : "ap"; break;
-                case 21: name = subRVer == 1 ? "ar" : subRVer <= 3 ? "au" : "ar"; break;
-                default: name = "ar"; break;
+                case 21: name = subRVer == 1 ? "ar" : subRVer <= 3 ? "au" : subRVer == 4 ? "ar" : "au"; break;
+                default: name = "au"; break;
             }
             Entity_getDataWatcher = getMethodVirtual(mcEntityClass, name, MethodType.methodType(mcDataWatcherClass));
 

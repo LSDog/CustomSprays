@@ -91,6 +91,7 @@ public class MapFrameFactory {
                 case 2: name = "sI"; break;
                 case 3: name = "sR"; break;
                 case 4: name = "tc"; break;
+                case 5: name = "tt"; break;
             }
             itemMap = NMS.getDeclaredFieldObject(NMS.mcItemsClass, name, null);
 
@@ -142,7 +143,7 @@ public class MapFrameFactory {
                 ItemFrame_setInvisible = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass, "setInvisible", MethodType.methodType(void.class, boolean.class));
             } else {
                 ItemFrame_setInvisible = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass,
-                        (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "j" : "k",
+                        (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "j" : (subVer <= 20 || (subVer == 21 && NMS.getSubRVer() <= 4)) ? "k" : "l",
                         MethodType.methodType(void.class, boolean.class));
             }
 

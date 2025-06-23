@@ -15,8 +15,8 @@ ___
 |:-------------------------:|----------------------------------------------------------|
 | ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                   |
 |      作者 <br> Author       | LSDog                                                    |
-|      版本 <br> Version      | 1.5.17                                                   |
-|      支持 <br> Support      | **1.7.10 ~ 1.21.5** (Bukkit Spigot Paper ...)            |
+|      版本 <br> Version      | 1.5.18                                                   |
+|      支持 <br> Support      | **1.7.10 ~ 1.21.6** (Bukkit Spigot Paper ...)            |
 |        指令 <br> Cmd        | `/sprays` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
 |       权限 <br> Perm        | 请见 "config.yml" / see "config.yml"                       |
 > 
@@ -127,10 +127,10 @@ ___
 ## 💻 开发 | for Developers
 ___
 ### 你只需要...
-- **1.9+ 服务端** 作为库
+- **1.9+ 服务端** 作为库 (推荐1.12.2)
 - 直接构建！构建结果可用于全部适用版本
 ### You only need...
-- **1.9+ server jar** as the library
+- **1.9+ server jar** as the library (1.12.2 recommended)
 - Build the jar! the build results can be used for all applicable versions
 
 ## ✍ TODO
