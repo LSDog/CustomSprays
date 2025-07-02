@@ -52,6 +52,7 @@ public class NMS {
         put("1.21.4", "1_21_R3");
         put("1.21.5", "1_21_R4");
         put("1.21.6", "1_21_R5");
+        put("1.21.7", "1_21_R5");
     }};
     public static final boolean VER_1_17, VER_1_20_R4, VER_1_21_R2, VER_1_21_R4;
     /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
