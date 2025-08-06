@@ -41,6 +41,7 @@ public class NMS {
     private static String rversion = null;
     private static int subVer = -1;
     private static int subRVer = -1;
+    private static final String lastVersionNumber = "1.21.8";
 
     public static final Map<String, String> rVerMap = new HashMap<String, String>(){{
         put("1.20.5", "1_20_R4");
@@ -53,6 +54,7 @@ public class NMS {
         put("1.21.5", "1_21_R4");
         put("1.21.6", "1_21_R5");
         put("1.21.7", "1_21_R5");
+        put("1.21.8", "1_21_R5");
     }};
     public static final boolean VER_1_17, VER_1_20_R4, VER_1_21_R2, VER_1_21_R4;
     /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
@@ -67,7 +69,7 @@ public class NMS {
         String versionString = Bukkit.getServer().getClass().getPackage().getName(); // e.g. org.bukkit.craftbukkit.v1_20_R2.CraftServer
         if (versionString.contains("R")) {
             return rversion = versionString.split("\\.")[3].substring(1); // -> 1_20_R2
-        } else if ((rversion = rVerMap.get(getVersionNumber())) != null) {
+        } else if ((rversion = rVerMap.getOrDefault(getVersionNumber(), rVerMap.get(lastVersionNumber))) != null) {
             return rversion;
         } else {
             throw new RuntimeException("Can't get CraftBukkit revision number! Only got '" + versionString + "' instead.");
