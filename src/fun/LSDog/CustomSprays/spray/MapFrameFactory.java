@@ -92,6 +92,7 @@ public class MapFrameFactory {
                 case 3: name = "sR"; break;
                 case 4: name = "tc"; break;
                 case 5: name = "tt"; break;
+                case 6: name = "tY"; break;
             }
             itemMap = NMS.getDeclaredFieldObject(NMS.mcItemsClass, name, null);
 

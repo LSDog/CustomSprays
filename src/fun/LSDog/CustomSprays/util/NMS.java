@@ -41,7 +41,7 @@ public class NMS {
     private static String rversion = null;
     private static int subVer = -1;
     private static int subRVer = -1;
-    private static final String lastVersionNumber = "1.21.8";
+    private static final String lastVersionNumber = "1.21.10";
 
     public static final Map<String, String> rVerMap = new HashMap<String, String>(){{
         put("1.20.5", "1_20_R4");
@@ -55,6 +55,8 @@ public class NMS {
         put("1.21.6", "1_21_R5");
         put("1.21.7", "1_21_R5");
         put("1.21.8", "1_21_R5");
+        put("1.21.9", "1_21_R6");
+        put("1.21.10", "1_21_R6");
     }};
     public static final boolean VER_1_17, VER_1_20_R4, VER_1_21_R2, VER_1_21_R4;
     /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
@@ -225,18 +227,18 @@ public class NMS {
                 case 18: name = "ae"; break;
                 case 19: name = subRVer == 1 ? "ae" : subRVer == 2 ? "ah" : "af"; break;
                 case 20: name = subRVer == 1 ? "af" : subRVer == 2 ? "ah" : subRVer == 3 ? "aj" : "al"; break;
-                case 21: name = subRVer == 1 ? "an" : subRVer <= 3 ? "ar" : subRVer == 4 ? "ao" : "ar"; break;
-                default: name = "ar"; break;
+                case 21: name = subRVer == 1 ? "an" : subRVer <= 3 ? "ar" : subRVer == 4 ? "ao" : subRVer == 5 ? "ar" : "az"; break;
+                default: name = "az"; break;
             }
             Entity_getId = getMethodVirtual(mcEntityClass, name, MethodType.methodType(int.class));
 
-            name = "getDataWatcher"; // Entity. -> SynchedEntityData
+            name = "getDataWatcher"; // Entity.getEntityData() -> SynchedEntityData
             if (subVer >= 18) switch (subVer) {
                 case 18: name = "ai"; break;
                 case 19: name = subRVer == 1 ? "ai" : subRVer == 2 ? "al" : "aj"; break;
                 case 20: name = subRVer == 1 ? "aj" : subRVer == 2 ? "al" : subRVer == 3 ? "an" : "ap"; break;
-                case 21: name = subRVer == 1 ? "ar" : subRVer <= 3 ? "au" : subRVer == 4 ? "ar" : "au"; break;
-                default: name = "au"; break;
+                case 21: name = subRVer == 1 ? "ar" : subRVer <= 3 ? "au" : subRVer == 4 ? "ar" : subRVer == 5 ? "au" : "aC"; break;
+                default: name = "aC"; break;
             }
             Entity_getDataWatcher = getMethodVirtual(mcEntityClass, name, MethodType.methodType(mcDataWatcherClass));
 
