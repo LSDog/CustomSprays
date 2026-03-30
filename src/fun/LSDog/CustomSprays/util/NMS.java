@@ -39,6 +39,7 @@ public class NMS {
 
     private static String simpleVersionNumber = null;
     private static String rversion = null;
+    private static int mainVer = -1;
     private static int subVer = -1;
     private static int subRVer = -1;
     private static final String lastVersionNumber = "1.21.10";
@@ -58,8 +59,9 @@ public class NMS {
         put("1.21.9", "1_21_R6");
         put("1.21.10", "1_21_R6");
         put("1.21.11", "1_21_R7");
+        put("26.1", "26_1_R1");
     }};
-    public static final boolean VER_1_17, VER_1_20_R4, VER_1_21_R2, VER_1_21_R4, VER_1_21_R7;
+    public static final boolean AFTER_1_17, AFTER_1_20_R4, AFTER_1_21_R2, AFTER_1_21_R4, AFTER_1_21_R7, AFTER_26_1_R1;
     /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
     public static final boolean SP = Double.parseDouble(getVersionNumber().split("\\.",2)[1]) >= 20.5 && Package.getPackage("com.destroystokyo.paper") == null;
 
@@ -77,6 +79,13 @@ public class NMS {
         } else {
             throw new RuntimeException("Can't get CraftBukkit revision number! Only got '" + versionString + "' instead.");
         }
+    }
+
+    /**
+     * Get main version number (v26_1_R1 -> 26)
+     */
+    public static int getmainVer() {
+        return mainVer == -1 ? mainVer = Integer.parseInt(getMcVer().split("_")[0]) : mainVer;
     }
 
     /**
@@ -98,23 +107,22 @@ public class NMS {
 
     // Class
     public static final Class<?>
-            mcWorldClass = getMcClass("world.level.World", "World"),
-            mcWorldServerClass = getMcClass("server.level.WorldServer", "WorldServer"),
-            mcEntityClass = getMcClass("world.entity.Entity", "Entity"),
-            mcEntityPlayerClass = getMcClass("server.level.EntityPlayer", "EntityPlayer"),
-            mcEntityItemFrameClass = getMcClass("world.entity.decoration.EntityItemFrame", "EntityItemFrame"),
-            mcPlayerConnectionClass = getMcClass("server.network.PlayerConnection", "PlayerConnection"),
-            mcServerCommonPacketListenerImplClass = (getSubVer() >= 21 || (getSubVer()==20 && getSubRVer()>=2)) ?
-                    getMcClassNew("server.network.ServerCommonPacketListenerImpl") : null,
-            mcNetworkManagerClass = getMcClass("network.NetworkManager", "NetworkManager"),
-            mcItemStackClass = getMcClass("world.item.ItemStack", "ItemStack"),
-            mcIMaterialClass = getSubVer() >= 13 ? getMcClass("world.level.IMaterial", "IMaterial") : null,
-            mcItemClass = getMcClass("world.item.Item", "Item"),
-            mcItemsClass = getMcClass("world.item.Items", "Items"),
-            mcDataWatcherClass = getMcClass("network.syncher.DataWatcher", "DataWatcher"),
-            mcBlockPositionClass = getMcClass("core.BlockPosition", "BlockPosition"),
-            mcEnumDirectionClass = getMcClass("core.EnumDirection", "EnumDirection"),
-            mcNBTTagCompoundClass = getMcClass("nbt.NBTTagCompound", "NBTTagCompound");
+            mcWorldClass = getMcClass("world.level.Level", "world.level.World", "World"),
+            mcWorldServerClass = getMcClass("server.level.ServerLevel", "server.level.WorldServer", "WorldServer"),
+            mcEntityClass = getMcClass("world.entity.Entity", "world.entity.Entity", "Entity"),
+            mcEntityPlayerClass = getMcClass("server.level.ServerPlayer", "server.level.EntityPlayer", "EntityPlayer"),
+            mcEntityItemFrameClass = getMcClass("world.entity.decoration.ItemFrame", "world.entity.decoration.EntityItemFrame", "EntityItemFrame"),
+            mcPlayerConnectionClass = getMcClass("server.network.ServerGamePacketListenerImpl","server.network.PlayerConnection", "PlayerConnection"),
+            mcServerCommonPacketListenerImplClass = mainVer > 1 || mainVer == 1 && (getSubVer() >= 21 || (getSubVer()==20 && getSubRVer()>=2)) ? getMcClassNew("server.network.ServerCommonPacketListenerImpl") : null,
+            mcNetworkManagerClass = getMcClass("network.Connection", "network.NetworkManager", "NetworkManager"),
+            mcItemStackClass = getMcClass("world.item.ItemStack", "world.item.ItemStack", "ItemStack"),
+            mcIMaterialClass = getmainVer() > 1 || getSubVer() >= 13 ? getMcClass("world.level.ItemLike", "world.level.IMaterial", "IMaterial") : null,
+            mcItemClass = getMcClass("world.item.Item", "world.item.Item", "Item"),
+            mcItemsClass = getMcClass("world.item.Items", "world.item.Items", "Items"),
+            mcDataWatcherClass = getMcClass("network.syncher.SynchedEntityData", "network.syncher.DataWatcher", "DataWatcher"),
+            mcBlockPositionClass = getMcClass("core.BlockPos", "core.BlockPosition", "BlockPosition"),
+            mcEnumDirectionClass = getMcClass("core.Direction", "core.EnumDirection", "EnumDirection"),
+            mcNBTTagCompoundClass = getMcClass("nbt.CompoundTag", "nbt.NBTTagCompound", "NBTTagCompound");
 
     // Field
     private static final MethodHandle
@@ -141,19 +149,23 @@ public class NMS {
     static {
 
         String name;
+        int mainVer = getmainVer();
         int subVer = getSubVer();
         int subRVer = getSubRVer();
 
-        VER_1_17 = subVer >= 17;
-        VER_1_20_R4 = subVer > 20 || (subVer==20 && subRVer>=4);
-        VER_1_21_R2 = subVer > 21 || (subVer==21 && subRVer>=2);
-        VER_1_21_R4 = subVer > 21 || (subVer==21 && subRVer>=4);
-        VER_1_21_R7 = subVer > 21 || (subVer==21 && subRVer>=7);
+        AFTER_1_17 = mainVer > 1 || subVer >= 17;
+        AFTER_1_20_R4 = mainVer > 1 || subVer > 20 || (subVer==20 && subRVer>=4);
+        AFTER_1_21_R2 = mainVer > 1 || subVer > 21 || (subVer==21 && subRVer>=2);
+        AFTER_1_21_R4 = mainVer > 1 || subVer > 21 || (subVer==21 && subRVer>=4);
+        AFTER_1_21_R7 = mainVer > 1 || subVer > 21 || (subVer==21 && subRVer>=7);
+        AFTER_26_1_R1 = mainVer > 26 || (mainVer==26 && subRVer>=1);
 
         try {
 
-            name = "playerConnection";
-            if (subVer >= 17) switch (subVer) {
+            // ServerPlayer connection
+            switch (subVer) {
+                case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16:
+                    name = "playerConnection"; break;
                 case 17: case 18: case 19:
                     name = "b"; break;
                 case 20:
@@ -161,13 +173,14 @@ public class NMS {
                 case 21:
                     name = (subRVer <= 1) ? "c" : (subRVer <= 4) ? "f" : "g"; break;
                 default:
-                    name = "g"; break;
+                    name = "connection"; break;
             }
             fEntityPlayer_playerConnection = getFieldGetter(mcEntityPlayerClass, name, mcPlayerConnectionClass/*ServerGamePacketListenerImpl*/);
 
 
-            name = "networkManager";
-            if (subVer >= 17) switch (subVer) {
+            switch (subVer) {
+                case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16:
+                    name = "networkManager"; break;
                 case 17: case 18:
                     name = "a"; break;
                 case 19:
@@ -175,18 +188,17 @@ public class NMS {
                 case 20:
                     name = (subRVer <= 1) ? "h" : (subRVer <= 3) ? "c" : "e"; break;
                 default:
-                    name = "e"; break;
+                    name = "connection"; break;
             }
-            if (subVer>=20) {
+            if (mainVer > 1 || mainVer == 1 && subVer>=20) {
                 //noinspection DataFlowIssue
                 fPlayerConnection_networkManager = getFieldGetterUnReflect(
-                        (subVer == 20 && subRVer == 1) ? mcPlayerConnectionClass : mcServerCommonPacketListenerImplClass, name);
+                        (mainVer == 1 && subVer == 20 && subRVer == 1) ? mcPlayerConnectionClass : mcServerCommonPacketListenerImplClass, name);
             } else {
                 fPlayerConnection_networkManager = getFieldGetter(mcPlayerConnectionClass, name, mcNetworkManagerClass);
             }
 
-            name = "channel";
-            if (subVer <= 7 || subVer >= 17) switch (subVer) {
+            switch (subVer) {
                 case 17:
                     name = "k"; break;
                 case 7: case 18: case 19:
@@ -196,26 +208,26 @@ public class NMS {
                 case 21:
                     name = (subRVer <= 6) ? "n" : "k"; break;
                 default:
-                    name = "k"; break;
+                    name = "channel"; break;
             }
             fNetworkManager_channel = getFieldGetter(mcNetworkManagerClass, name,
-                    (subVer <= 7) ?
+                    (mainVer == 1 && subVer <= 7) ?
                             Class.forName("net.minecraft.util.io.netty.channel.Channel") :
                             Class.forName("io.netty.channel.Channel"));
 
-            Class<?> packetClass = getPacketClass("PacketPlayOutSpawnEntity");
-            fPacketSpawnEntity_x = subVer <= 7 ? getFieldGetter(packetClass, "b", int.class):null;
-            fPacketSpawnEntity_y = subVer <= 7 ? getFieldGetter(packetClass, "c", int.class):null;
-            fPacketSpawnEntity_z = subVer <= 7 ? getFieldGetter(packetClass, "d", int.class):null;
+            Class<?> packetClass = getPacketClass("ClientboundAddEntityPacket", "PacketPlayOutSpawnEntity");
+            fPacketSpawnEntity_z = mainVer == 1 && subVer <= 7 ? getFieldGetter(packetClass, "d", int.class):null;
+            fPacketSpawnEntity_y = mainVer == 1 && subVer <= 7 ? getFieldGetter(packetClass, "c", int.class):null;
+            fPacketSpawnEntity_x = mainVer == 1 && subVer <= 7 ? getFieldGetter(packetClass, "b", int.class):null;
 
             // Constructor
 
             cBlockPosition = getConstructor(mcBlockPositionClass, MethodType.methodType(void.class, int.class, int.class, int.class));
 
-            cPacketPlayOutEntityDestroy = getConstructor(getPacketClass("PacketPlayOutEntityDestroy"), MethodType.methodType(void.class, int[].class));
+            cPacketPlayOutEntityDestroy = getConstructor(getPacketClass("ClientboundRemoveEntitiesPacket", "PacketPlayOutEntityDestroy"), MethodType.methodType(void.class, int[].class));
 
-            cPacketPlayOutEntityMetadata = getConstructor(NMS.getPacketClass("PacketPlayOutEntityMetadata"),
-                    subVer < 19 || (subVer == 19 && subRVer == 1) ?
+            cPacketPlayOutEntityMetadata = getConstructor(NMS.getPacketClass("ClientboundSetEntityDataPacket", "PacketPlayOutEntityMetadata"),
+                    mainVer == 1 && (subVer < 19 || (subVer == 19 && subRVer == 1)) ?
                             MethodType.methodType(void.class, int.class, mcDataWatcherClass, boolean.class) :
                             MethodType.methodType(void.class, int.class, List.class)
                     );
@@ -225,33 +237,35 @@ public class NMS {
             CraftWorld_getHandle = getMethodVirtual(getCraftClass("CraftWorld"), "getHandle", MethodType.methodType(mcWorldServerClass));
             CraftPlayer_getHandle = getMethodVirtual(getCraftClass("entity.CraftPlayer"), "getHandle", MethodType.methodType(mcEntityPlayerClass));
 
-            name = "getId";
-            if (subVer >= 18) switch (subVer) {
+            switch (subVer) {
                 case 18: name = "ae"; break;
                 case 19: name = subRVer == 1 ? "ae" : subRVer == 2 ? "ah" : "af"; break;
                 case 20: name = subRVer == 1 ? "af" : subRVer == 2 ? "ah" : subRVer == 3 ? "aj" : "al"; break;
                 case 21: name = subRVer == 1 ? "an" : subRVer <= 3 ? "ar" : subRVer == 4 ? "ao" : subRVer == 5 ? "ar" : subRVer == 6 ? "az" : "aA"; break;
-                default: name = "aA"; break;
+                default: name = "getId"; break;
             }
             Entity_getId = getMethodVirtual(mcEntityClass, name, MethodType.methodType(int.class));
 
-            name = "getDataWatcher"; // Entity.getEntityData() -> SynchedEntityData
-            if (subVer >= 18) switch (subVer) {
+            switch (subVer) {
+                case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17:
+                    name = "getDataWatcher"; break;
                 case 18: name = "ai"; break;
                 case 19: name = subRVer == 1 ? "ai" : subRVer == 2 ? "al" : "aj"; break;
                 case 20: name = subRVer == 1 ? "aj" : subRVer == 2 ? "al" : subRVer == 3 ? "an" : "ap"; break;
                 case 21: name = subRVer == 1 ? "ar" : subRVer <= 3 ? "au" : subRVer == 4 ? "ar" : subRVer == 5 ? "au" : subRVer == 6 ? "aC" : "aD"; break;
-                default: name = "aD"; break;
+                default: name = "getEntityData"; break; // SynchedEntityData.getEntityData()
             }
             Entity_getDataWatcher = getMethodVirtual(mcEntityClass, name, MethodType.methodType(mcDataWatcherClass));
 
-            if (subVer <= 17) name = "sendPacket";
+            if (mainVer > 1) name = "send";
+            else if (subVer <= 17) name = "sendPacket";
             else if (subVer < 20 || (subVer == 20 && subRVer <= 1)) name = "a";
             else name = "b"; // wtf 你为什么要在1.20.2这个小版本改这个 mojang你丧尽天良啊啊啊啊啊啊
             PlayerConnection_sendPacket = getMethodVirtual(mcPlayerConnectionClass, name, MethodType.methodType(void.class, getPacketClass()));
 
-            DataWatcher_getNonDefaultValues = (subVer > 19 || (subVer == 19 && subRVer > 1)) ?
-                    getMethodVirtual(mcDataWatcherClass, "c", MethodType.methodType(List.class)) : null;
+            DataWatcher_getNonDefaultValues =
+                    mainVer > 1 ? getMethodVirtual(mcDataWatcherClass, "getNonDefaultValues", MethodType.methodType(List.class)) :
+                    (subVer > 19 || (subVer == 19 && subRVer > 1)) ? getMethodVirtual(mcDataWatcherClass, "c", MethodType.methodType(List.class)) : null;
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -328,11 +342,19 @@ public class NMS {
     }
 
     public static Class<?> getCraftClass(String name) {
-        return getClass("org.bukkit.craftbukkit.v"+getMcVer()+"."+name);
+        return mainVer > 1 ?
+        getClass("org.bukkit.craftbukkit."+name) :
+        getClass("org.bukkit.craftbukkit.v"+getMcVer()+"."+name);
     }
 
-    public static Class<?> getMcClass(String newName, String legacyName) {
-        return getSubVer() <= 16 ? getMcClassLegacy(legacyName) : getMcClassNew(newName);
+    /**
+     * Get NMS class by version. <br>
+     * @param mojName Mojang mapping name (>=26.1)
+     * @param bukkitName Bukkit mapping name
+     * @param legacyBukkitName Bukkit mapping name for legacy versions
+     */
+    public static Class<?> getMcClass(String mojName, String bukkitName, String legacyBukkitName) {
+        return getmainVer() > 1 ? getMcClassNew(mojName) : getSubVer() <= 16 ? getMcClassLegacy(legacyBukkitName) : getMcClassNew(bukkitName);
     }
 
     public static Class<?> getMcClassNew(String name) {
@@ -355,11 +377,15 @@ public class NMS {
     }
 
     public static Class<?> getPacketClass() {
-        return getMcClass("network.protocol.Packet", "Packet");
+        return getMcClass("network.protocol.Packet", "network.protocol.Packet", "Packet");
     }
 
-    public static Class<?> getPacketClass(String packetName) {
-        return getMcClass("network.protocol.game."+packetName, packetName);
+    public static Class<?> getPacketClassMoj(String mojName) {
+        return getMcClassNew("network.protocol.game." + mojName);
+    }
+
+    public static Class<?> getPacketClass(String mojName, String bukkitName) {
+        return getMcClass("network.protocol.game."+mojName, "network.protocol.game."+bukkitName, bukkitName);
     }
 
     public static Object getMcWorld(World world) throws Throwable {
@@ -391,13 +417,13 @@ public class NMS {
     }
 
     public static Object getPacketPlayOutEntityMetadata(Object entity) throws Throwable {
-        if (subVer < 19 || (subVer == 19 && subRVer == 1))
-            return cPacketPlayOutEntityMetadata.invoke(getMcEntityId(entity), getDataWatcher(entity), false);
-        else
+        if (mainVer > 1 || subVer > 19 || (subVer == 19 && subRVer >= 2))
             return cPacketPlayOutEntityMetadata.invoke(
                     getMcEntityId(entity),
                     DataWatcher_getNonDefaultValues.invoke(getDataWatcher(entity))
             );
+        else
+            return cPacketPlayOutEntityMetadata.invoke(getMcEntityId(entity), getDataWatcher(entity), false);
     }
 
     public static void sendDestroyEntities(int[] entityIds, Collection<UUID> toPlayers) {

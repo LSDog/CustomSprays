@@ -1,121 +1,126 @@
-![CustomSprays](media/banner.png)
+<img src="media/banner.png" height="25%" width="100%" style="object-fit: cover;">
 
-# **CustomSprays** | 花样喷漆 🎉
+# 花样喷漆 || **CustomSprays**
 
-> 👇**大概是一些用法 | bla bla usages**
+> **用法展示 (Demonstration)**
 > ![use](https://s1.ax1x.com/2022/04/18/Ldo6SK.gif)
 
-## （＾∀＾●）ﾉｼ
-![Visits](https://count.getloli.com/get/@CustomSprays?darkmode=0)  
 
-## 📢 介绍 | Introduce
+## 介绍 | Info
 ___
 
-|          *Name*           | *Content*                                                |
-|:-------------------------:|----------------------------------------------------------|
-| ![logo](media/logo64.png) | CustomSprays <br> 花样喷漆                                   |
-|      作者 <br> Author       | LSDog                                                    |
-|      版本 <br> Version      | 1.5.22                                                   |
-|      支持 <br> Support      | **1.7.10 ~ 1.21.11** (Bukkit Spigot Paper ...)           |
-|        指令 <br> Cmd        | `/sprays` - 主命令 <br>`/spray` - 喷漆<br>`/spray big` - 喷大喷漆 |
-|       权限 <br> Perm        | 请见 "config.yml" / see "config.yml"                       |
+|          *Name*           | *Content*                                                                                        |
+|:-------------------------:|--------------------------------------------------------------------------------------------------|
+| ![logo](media/logo64.png) | 花样喷漆 (CustomSprays)                                                                              |
+|        作者 (Author)        | LSDog                                                                                            |
+|       版本 (Version)        | 1.5.23                                                                                           |
+|       支持 (Support)        | **1.7.10 ~ 26.1** (Bukkit Spigot Paper etc.)                                                     |
+|       指令 (Command)        | `/sprays` - 主命令 (main help command) <br>`/spray` - 喷漆 (spray)<br>`/spray big` - 喷大喷漆 (big spray) |
+|         权限 (Perm)         | 请见 `config.yml` (please see `config.yml`)                                                        |
 > 
-> Links:
-> [Modrinth](https://modrinth.com/plugin/customsprays)
+> 其他发布页面 (other release links) :
+> | [Modrinth](https://modrinth.com/plugin/customsprays)
 > | [Spigot](https://www.spigotmc.org/resources/customsprays-upload-image-and-spray-it-on-the-wall.98979/)
 > | [PlanetMinecraft](https://www.planetminecraft.com/mod/customsprays-spray-your-image-like-in-source-games/)
+> | [Gitee](https://gitee.com/pixelmc/CustomSprays)
+> |
 
-## ⏬ **下载 | Download** → [发布页 | Releases](https://github.com/LSDog/CustomSprays/releases) !!
-(上面Github打不开? → [Gitee发布页](https://gitee.com/pixelmc/CustomSprays/releases))
+## **下载 | Download**
+### [发布页 | Releases](https://github.com/LSDog/CustomSprays/releases)
+(上面Github打不开? → 打开[Gitee发布页](https://gitee.com/pixelmc/CustomSprays/releases))
 
+## 其他资源 | Other Resources
 
-**🎶 [喷漆音效资源包](https://github.com/LSDog/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) / [Spray sound resource pack](https://github.com/LSDog/CustomSprays/blob/master/spray_sound_pack.zip?raw=true) !**
+**[喷漆音效资源包](https://github.com/LSDog/CustomSprays/blob/master/spray_sound_pack.zip?raw=true)
+| [Spray sound resource pack](https://github.com/LSDog/CustomSprays/blob/master/spray_sound_pack.zip?raw=true)**
 
-**⭐ [ItemsAdder 支持 | ItemsAdder Support](https://github.com/LSDog/CustomSprays/tree/itemsadder) ⭐**
+**[ItemsAdder 支持](https://github.com/LSDog/CustomSprays/tree/itemsadder)
+| [ItemsAdder Support](https://github.com/LSDog/CustomSprays/tree/itemsadder)**
 
-**⭐ [oraxen 支持 | oraxen Support](https://github.com/LSDog/CustomSprays/tree/oraxen) ⭐**
+**[oraxen 支持](https://github.com/LSDog/CustomSprays/tree/oraxen)
+| [oraxen Support](https://github.com/LSDog/CustomSprays/tree/oraxen)**
 
-**💬 English message config is also in config.yml (commented out by #)**
+**Hey! 💬 English messages are at the bottom of config.yml, you can replace it with chinese part, and now u have english messages!**
 
-
-
-## ✨ 用法 | Usage
+## 用法 | Usage
 ___
 ### 步骤
 
-    1 | 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
-      |
-      | (现在去复制图片链接)
-      |
-    2 | 输入指令: /sprays upload <url>  -  上传图片
-    3 | 输入指令: /spray                -  对着墙喷漆
-      |
-    4 | 🎇 如果服务器版本 ≥ 1.9，【快速双击F键】也可以喷漆！🎇
+- 将 CustomSprays.jar 放入 plugins 文件夹，重启服务器
+- 
+- (现在去复制图片链接)
+- 输入指令: /sprays               -  查看所有可用指令
+- 输入指令: /sprays upload <url>  -  上传图片
+- 输入指令: /spray                -  对着墙喷漆
 
 ### Steps:
 
-    1 | Put "CustomSprays.jar" in "plugins" folder，restart the server.
-      |
-      | (now get ur image link)
-      |
-    2 | Send command: /sprays upload <url>  -  Upload image
-    3 | Send command: /spray                -  Spray at wall
-      |
-    4 | 🎇 If server version ≥ 1.9，【Quick double click "F"】can also spray！🎇
+- Put "CustomSprays.jar" in "plugins" folder，restart the server.
+- 
+- (now get ur image link)
+- Send command: /sprays               -  See all available commands
+- Send command: /sprays upload <url>  -  Upload image
+- Send command: /spray                -  Spray at wall
+
+## 配置 | Config
+
+详见 `config.yml`
+
+See `config.yml` for details.
 
 
-
-### 💻 更多指令发送 "/sprays" | Send "/sprays" for more commands  
-
-### 💻 更多设置请见 "config.yml" | See "config.yml" for more configurations
-
-
-## 🎮 版本支持 | Version Support
+## 版本支持 | Version Support
 ___
 
-> 📏 支持的 **"领域"** 插件 | Supported **"region"** plugins:
-> - [x] Residence .......... [ *?* ~ 5.0.1.3+ ]
-> - [x] WorldGuard ......... [ 6.*?* ~ 7.*x* ]
-> - [x] GriefDefender ...... [ *?* ~ 2.1.4+ ]
-> 
-> (理论上支持更新的版本 | newer versions should be ok)
+📏 支持的 **"领域"** 插件 | Supported **"region"** plugins:
+- [x] Residence .......... [ *?* ~ 5.0.1.3+ ]
+- [x] WorldGuard ......... [ 6.*?* ~ 7.*x* ]
+- [x] GriefDefender ...... [ *?* ~ 2.1.4+ ]
 
-## 🏆 特性 | Features
+(理论上支持更新的版本 | newer versions should be ok)
+
+## 特性 | Features
 ___
 
 - 🙅‍ 无 Bungeecord 端插件，所有数据皆由 MySQL / yml 进行存储   
-- 🙅‍ NO Bungeecord-side plugin，all the data storage in MySQL / yml  
-
-
-- 📦 纯发包实现喷漆【避免交互 | 不生成垃圾】    
-- 📦 100% use packets【no interact with spray | no junk generated】  
-
-
-- 📐 限制喷漆的世界或区域！ 
-- 📐 Disable spraying in specific worlds or regions! 
-
-
-- 📺 自定义喷漆物品/音效！   
-- 📺 Custom spray item / sound effect！ 
-
-
+- 📦 使用发包实现喷漆
+- 📐 限制喷漆的世界或区域
+- 📺 可自定义喷漆物品或音效   
 - 👋 复制别人的喷漆，或者禁止别人喷漆！
-- 👋 Copy others spray or prevent others from copying yours!
-
-
-- ☕ 无需前置API，发包纯手搓
-- ☕ No API required ，making NMS sh-t by myself
-
-
-- 🔗 玩家上传图片链接 >> 压缩存储图片 >> 喷漆后自动消失   
-- 🔗 Player uploads link >> Zip & save image >> Spray self-destruct 
-
-
+- ☕ 无需前置API
 - 💴 或者使用 Vault 经济花钱喷漆！
-- 💴 Or use Vault cost players money for spraying！
 
 
-## ⚡ 注意事项 | Warning
+- 🙅‍ NO Bungeecord plugin，all the data storage in MySQL / yml  
+- 📦 Generate sprays by sending packets
+- 📐 Disable spraying in specific worlds or regions
+- 📺 Custom spray item / sound effect！
+- 👋 Copy others spray or prevent others from copying yours!
+- ☕ No other lib required
+- 💴 Or use Vault to cost players money when spraying！
+
+## 工作原理 | How it works
+1. 插件启动时，插件会依据不同的服务端游戏版本，通过反射获取所有所需的 NMS 类和方法
+2. 当玩家使用喷漆指令上传图片时，插件会将图片转换成地图数据
+3. 这些数据将被存储在 MySQL 或 yml 文件中，一个玩家只有一个喷漆数据，一定冷却时间后可更改
+4. 玩家喷漆时，插件通过发包将喷漆的展示框、地图和图案发送给所有玩家：
+   1. 喷漆图案会以无边框地图的形式显示在墙上
+   2. 经过一段时间后，喷漆图案会被自动移除
+   3. 如果玩家在喷漆时按住了 `Shift` 键，喷漆图案会被放大显示
+   4. 当拥有 CustomSprays 管理权限的玩家左键喷漆时，喷漆图案会被删除，并会提示喷漆者的名称
+
+
+1. On plugin startup, the plugin uses reflection to obtain all required NMS classes and methods for the server version.
+2. When a player uploads an image using the spray command, the plugin converts the image into map data.
+3. The data is stored in MySQL or a yml file; each player can have only one spray, which can be changed after a cooldown.
+4. When a player sprays, the plugin sends packets containing the spray frame, map, and image to all players:
+   1. The spray image is displayed on the wall as a borderless map.
+   2. The spray image is automatically removed after a period of time.
+   3. If the player holds `Shift` while spraying, the spray image is shown enlarged.
+   4. When a player with CustomSprays admin permission left-clicks a spray, the spray is removed and the spray owner's name is notified.
+
+
+## 注意事项 | Warning
 ___
 
 > 🔺 已知问题 ***[仅限版本1.7~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换  
@@ -135,15 +140,17 @@ ___
 
 ## ✍ TODO
 ___
+- [ ] 不同世界和位置的管理
+- [ ] 根据喷漆位置动态调整发包的玩家范围
 - [x] 左键喷漆删除喷漆 (因为不想用protocol lib所以需要研究手写pack listener)
 - [ ] 自动获取NMS中用到的混淆名称，这样就不用随版本更新手动添加case了
 - [x] 喷漆动画 (粒子效果；颜色可以与图像颜色稍微对应←貌似这一点做不到欸)
-- [ ] folia 支持 (需要更多研究)
+- [x] folia 支持 (需要更多研究)
 - [ ] 粒子喷漆 (用粒子效果组成图像)
 - [ ] gif 动图支持 (需要更多研究)
 - [ ] SQLite 支持
 - [ ] 商店版 (购买预制的喷漆)
-- [ ] 喷漆仓库，实际上跟上面这个设想有相通的地方，问题是如果单个玩家仓库过大加载单个玩家yaml时间会很长，所以应该要搞成分文件的，直接把384*384转成的bytearray存到奇怪后缀的文件里，sql就不管了，该扩展扩展
+- [ ] 喷漆仓库，多文件存储
 
 
 
@@ -157,3 +164,6 @@ ___
 本项目由 [PixelMC](http://pixelmc.cn/) 团队提供长期支持与维护
 
 ![logo](media/banner_logo.png)
+
+## (Visits)
+![Visits](https://count.getloli.com/get/@CustomSprays?darkmode=0)  

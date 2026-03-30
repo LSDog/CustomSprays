@@ -87,16 +87,16 @@ public class SprayBig extends SprayBase {
             int mapViewId = MapViewId.getId();
 
             Object mcMap = MapFrameFactory.getMcMap(mapViewId);
-            offLocs[i] = NMS.getSubVer() >= 8 ? reLoc : reLoc.add(-blockFace.getModX(), 0, -blockFace.getModZ());
+            offLocs[i] = NMS.getmainVer() > 1 || NMS.getSubVer() >= 8 ? reLoc : reLoc.add(-blockFace.getModX(), 0, -blockFace.getModZ());
             itemFrames[i] = MapFrameFactory.getItemFrame(mcMap, offLocs[i], blockFace, intRotation);
             itemFrameIds[i] = NMS.getMcEntityId(itemFrames[i]);
-            if (NMS.getSubVer() <= 20) spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection);
-            else spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection, NMS.getMcBlockPosition(locs[i]));
-            if (NMS.getSubVer() <= 7) {
+            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 21) spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection, NMS.getMcBlockPosition(locs[i]));
+            else spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection);
+            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 8) {
+                mapPackets[i] = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);
+            } else {
                 NMS.setSpawnPacketLocation_7(spawnPackets[i], offLocs[i]);
                 mapPackets_7s[i] = MapFrameFactory.getMapPackets_7((short) mapViewId, pixelPieces[i]);
-            } else {
-                mapPackets[i] = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);
             }
             dataPackets[i] = NMS.getPacketPlayOutEntityMetadata(itemFrames[i]);
 
@@ -117,6 +117,9 @@ public class SprayBig extends SprayBase {
 
         Collection<? extends UUID> $playersShowTo = playersShown;
 
+        int mainVer = NMS.getmainVer();
+        int subVer = NMS.getSubVer();
+
         if (playersShowTo != null) {
             $playersShowTo = playersShowTo;
             playersShown.addAll($playersShowTo); // 重新生成的也要加到可见玩家里
@@ -128,13 +131,13 @@ public class SprayBig extends SprayBase {
                 Player p = Bukkit.getPlayer(uuid);
                 NMS.sendPacket(p, spawnPackets[i]);
                 NMS.sendPacket(p, dataPackets[i]);
-                if (NMS.getSubVer() >= 8) NMS.sendPacket(p, mapPackets[i]);
+                if (mainVer > 1 || subVer >= 8) NMS.sendPacket(p, mapPackets[i]);
                 else for (Object packet : mapPackets_7s[i]) NMS.sendPacket(p, packet);
             }
 
         }
 
-        if (spawnParticle && NMS.getSubVer() >= 9) ParticleUtil.playSprayParticleEffect(this, 4, 2, length/2.0, 40);
+        if (spawnParticle && (mainVer > 1 || subVer >= 9)) ParticleUtil.playSprayParticleEffect(this, 4, 2, length/2.0, 40);
         if (playSound) SprayManager.playSpraySound(player);
     }
 

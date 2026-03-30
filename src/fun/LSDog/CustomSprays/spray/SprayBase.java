@@ -62,7 +62,7 @@ public abstract class SprayBase implements ISpray {
         if (ray == null) return false;
 
         // 禁止在1.13以下, 在方块上下面喷漆
-        if (ray.isUpOrDown() && ( NMS.getSubVer() < 13 || !CustomSprays.plugin.getConfig().getBoolean("spray_on_ground") )) return false;
+        if (ray.isUpOrDown() && ( NMS.getmainVer() == 1 && NMS.getSubVer() < 13 || !CustomSprays.plugin.getConfig().getBoolean("spray_on_ground") )) return false;
 
         block = ray.getRelativeBlock();
         location = block.getLocation();

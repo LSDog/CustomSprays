@@ -11,9 +11,13 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class PacketHandler {
 
+
+    // From 26.1 there's a new "Attack" packet for entity attack action, so we can directly listen to that instead of interact packet.
+    private static final Field PacketServerboundAttack_entityId;
 
     private static final Field PacketPlayInUseEntity_entityId;
     private static final Field PacketPlayInUseEntity_action; // enum: ATTACK, INTERACT, ...
@@ -21,20 +25,28 @@ public class PacketHandler {
     // use action.a() to get real action enum
     private static Method PacketPlayInUseEntity$Action_getType;
 
+    private static final int mainVer;
+    private static final int subVer;
+
     static {
         try {
-            int subVer = NMS.getSubVer();
-            Class<?> cPacketPlayInUseEntity = NMS.getPacketClass("PacketPlayInUseEntity");
+            mainVer = NMS.getmainVer();
+            subVer = NMS.getSubVer();
+            Class<?> cPacketServerboundAttack = (mainVer > 1) ? NMS.getPacketClassMoj("ServerboundAttackPacket") : null;
+            PacketServerboundAttack_entityId = (mainVer > 1) ? NMS.getDeclaredField(cPacketServerboundAttack, "entityId") : null;
+
+            Class<?> cPacketPlayInUseEntity = NMS.getPacketClass("ServerboundInteractPacket", "PacketPlayInUseEntity");
             PacketPlayInUseEntity_entityId = NMS.getDeclaredField(cPacketPlayInUseEntity,
-                    (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "a" : "b");
+                    (mainVer > 1) ? "entityId" : (subVer > 20 || subVer == 20 && NMS.getSubRVer() >= 4) ? "b" : "a");
             PacketPlayInUseEntity_action = NMS.getDeclaredField(cPacketPlayInUseEntity,
-                    subVer <= 16 ? "action" : (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "b" : "c");
-            if (subVer >= 17) {
-                Class<?> cPacketPlayInUseEntity$EnumEntityUseAction = NMS.getPacketClass("PacketPlayInUseEntity$EnumEntityUseAction");
-                PacketPlayInUseEntity$Action_getType = cPacketPlayInUseEntity$EnumEntityUseAction.getDeclaredMethod("a");
+                    (mainVer > 1) ? null : (subVer <= 16) ? "action" : (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "b" : "c");
+            if (mainVer == 1 || subVer >= 17) {
+                Class<?> cPacketPlayInUseEntity$EnumEntityUseAction = NMS.getPacketClass("ServerboundInteractPacket$Action", "PacketPlayInUseEntity$EnumEntityUseAction");
+                PacketPlayInUseEntity$Action_getType = cPacketPlayInUseEntity$EnumEntityUseAction.getDeclaredMethod(NMS.AFTER_26_1_R1 ? "getType" : "a");
                 PacketPlayInUseEntity$Action_getType.setAccessible(true);
             }
         } catch (NoSuchFieldException | NoSuchMethodException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -42,14 +54,24 @@ public class PacketHandler {
     public static boolean onReceive(Object packet, Player player) {
 
         String packetClassName = packet.getClass().getSimpleName();
+        if (mainVer > 1
+                && !packetClassName.equals("ServerboundAttackPacket")) return false;
+        else if (mainVer == 1
+                && !packetClassName.equals("PacketPlayInUseEntity")
+                && !packetClassName.equals("ServerboundInteractPacket")) return false;
+        try {
 
-        // Spigot mapping name || Mojang mapping name
-        if (packetClassName.equals("PacketPlayInUseEntity") || packetClassName.equals("ServerboundInteractPacket")) try {
+            int entityId;
 
-            // get entity id
-            int entityId = (int) NMS.getDeclaredFieldObject(packet, PacketPlayInUseEntity_entityId);
-            String actionName = getActionNameFromPacketPlayInUseEntity(packet);
-            if (!actionName.equals("ATTACK")) return false;
+            if (mainVer > 1) {
+                entityId = (int) NMS.getDeclaredFieldObject(packet, PacketServerboundAttack_entityId);
+            } else {
+                // get entity id
+                entityId = (int) NMS.getDeclaredFieldObject(packet, PacketPlayInUseEntity_entityId);
+                String actionName = getActionNameFromPacketPlayInUseEntity(packet);
+                if (!actionName.equals("ATTACK")) return false;
+            }
+
             // get spray and check it
             SprayBase spray = SprayManager.getSpray(entityId);
             if (spray == null) return false;
@@ -75,11 +97,11 @@ public class PacketHandler {
 
     private static String getActionNameFromPacketPlayInUseEntity(Object packet) {
         try {
-            if (NMS.getSubVer() <= 16) {
-                return ((Enum<?>) PacketPlayInUseEntity_action.get(packet)).name();
-            } else {
+            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 17) {
                 return ((Enum<?>) PacketPlayInUseEntity$Action_getType.invoke(
                         PacketPlayInUseEntity_action.get(packet))).name();
+            } else {
+                return ((Enum<?>) PacketPlayInUseEntity_action.get(packet)).name();
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();

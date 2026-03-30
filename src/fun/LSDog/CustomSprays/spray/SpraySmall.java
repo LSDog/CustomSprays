@@ -34,17 +34,17 @@ public class SpraySmall extends SprayBase {
 
         int mapViewId = MapViewId.getId();
 
-        Location offLoc = NMS.getSubVer() >= 8 ? location : location.add(-blockFace.getModX(), 0, -blockFace.getModZ());
+        Location offLoc = NMS.getmainVer() > 1 || NMS.getSubVer() >= 8 ? location : location.add(-blockFace.getModX(), 0, -blockFace.getModZ());
         Object mcMap = MapFrameFactory.getMcMap(mapViewId);
         Object itemFrame = MapFrameFactory.getItemFrame(mcMap, offLoc, blockFace, intRotation);
         itemFrameId = NMS.getMcEntityId(itemFrame);
-        if (NMS.getSubVer() <= 20) spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
-        else spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection, NMS.getMcBlockPosition(location));
-        if (NMS.getSubVer() <= 7) {
+        if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 21) spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection, NMS.getMcBlockPosition(location));
+        else spawnPacket = MapFrameFactory.getSpawnPacket(itemFrame, intDirection);
+        if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 8) {
+            mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
+        } else {
             NMS.setSpawnPacketLocation_7(spawnPacket, offLoc);
             mapPackets_7 = MapFrameFactory.getMapPackets_7((short) mapViewId, pixels);
-        } else {
-            mapPacket = MapFrameFactory.getMapPacket(mapViewId, pixels);
         }
         dataPacket = NMS.getPacketPlayOutEntityMetadata(itemFrame);
 
@@ -72,11 +72,11 @@ public class SpraySmall extends SprayBase {
             NMS.sendPacket(p, spawnPacket);  // 生成带地图的展示框
             NMS.sendPacket(p, dataPacket);  // 为展示框添加 dataWatcher
             // 刷新 mapView (也就是"画图")
-            if (NMS.getSubVer() >= 8) NMS.sendPacket(p, mapPacket);
+            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 8) NMS.sendPacket(p, mapPacket);
             else for (Object packet : mapPackets_7) NMS.sendPacket(p, packet);
         }
 
-        if (spawnParticle && NMS.getSubVer() >= 9) ParticleUtil.playSprayParticleEffect(this, 3, 1, 0.8, 80);
+        if (spawnParticle && (NMS.getmainVer() > 1 || NMS.getSubVer() >= 9)) ParticleUtil.playSprayParticleEffect(this, 3, 1, 0.8, 80);
         if (playSound) SprayManager.playSpraySound(player);
 
     }

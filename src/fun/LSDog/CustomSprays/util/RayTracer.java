@@ -55,7 +55,7 @@ public class RayTracer {
         this.stepZ = step.getZ();
         this.world = start.getWorld();
         this.worldMaxY = world == null ? 256 : world.getMaxHeight();
-        this.worldMinY = NMS.getSubVer() >= 17 ? -64 : 0;
+        this.worldMinY = NMS.getmainVer() > 1 || NMS.getSubVer() >= 17 ? -64 : 0;
         this.faces = new BlockFace[] {
                 this.stepX >= 0 ? BlockFace.WEST : BlockFace.EAST,
                 this.stepY >= 0 ? BlockFace.DOWN : BlockFace.UP,

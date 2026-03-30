@@ -190,7 +190,7 @@ destroy_if_exhausted: true
 
 url_regex: "^https?://.*"
 # |url地址匹配的正则表达式    如果不匹配则会发送信息 {配置: Messages.NOT_URL}
-# |The regex of url checking    Send message if not matches {Config: Messages.NOT_URL}
+# |The regex of url checking    Send message {Config: Messages.NOT_URL} if not matches
 # 默认|Default: "^https?://.*"
 
 spray_item: "GOLDEN_HORSE_ARMOR"

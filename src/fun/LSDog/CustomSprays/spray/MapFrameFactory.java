@@ -27,13 +27,14 @@ public class MapFrameFactory {
     // Class
     private static final Class<?>
             mcMapDataClass =
-                NMS.VER_1_21_R2 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$c") :
-                NMS.VER_1_17 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$b") : null,
-            mcMapIdClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("world.level.saveddata.maps.MapId") : null,
-            mcDataComponentHolderClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentHolder") : null,
-            mcDataComponentTypeClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentType") : null,
-            mcDataComponentMapClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentMap") : null,
-            mcPatchedDataComponentMapClass = NMS.VER_1_20_R4 ? NMS.getMcClassNew("core.component.PatchedDataComponentMap") : null;
+                NMS.AFTER_26_1_R1 ? NMS.getMcClassNew("world.level.saveddata.maps.MapItemSavedData$MapPatch") :
+                NMS.AFTER_1_21_R2 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$c") :
+                NMS.AFTER_1_17 ? NMS.getMcClassNew("world.level.saveddata.maps.WorldMap$b") : null,
+            mcMapIdClass = NMS.AFTER_1_20_R4 ? NMS.getMcClassNew("world.level.saveddata.maps.MapId") : null,
+            mcDataComponentHolderClass = NMS.AFTER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentHolder") : null,
+            mcDataComponentTypeClass = NMS.AFTER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentType") : null,
+            mcDataComponentMapClass = NMS.AFTER_1_20_R4 ? NMS.getMcClassNew("core.component.DataComponentMap") : null,
+            mcPatchedDataComponentMapClass = NMS.AFTER_1_20_R4 ? NMS.getMcClassNew("core.component.PatchedDataComponentMap") : null;
     // Constructor
     private static final MethodHandle
             cItemFrame,
@@ -55,6 +56,7 @@ public class MapFrameFactory {
 
     static {
 
+        int mainVer = NMS.getmainVer();
         int subVer = NMS.getSubVer();
         int subRVer = NMS.getSubRVer();
 
@@ -71,7 +73,7 @@ public class MapFrameFactory {
             String name;
 
             name = "sI";
-            if (subVer <= 16) {
+            if (mainVer > 1 || subVer <= 16) {
                 name = "FILLED_MAP";
             } else if (subVer <= 18) {
                 name = "pp";
@@ -96,29 +98,29 @@ public class MapFrameFactory {
             }
             itemMap = NMS.getDeclaredFieldObject(NMS.mcItemsClass, name, null);
 
-
-            DataComponents_MapID = NMS.VER_1_20_R4 ?
+            DataComponents_MapID = NMS.AFTER_1_20_R4 ?
                     NMS.getDeclaredFieldObject(NMS.getMcClassNew("core.component.DataComponents"),
-                            NMS.VER_1_21_R7 ? "T" : NMS.VER_1_21_R4 ? "M" : NMS.VER_1_21_R2 ? "L" : "B", null) : null;
+                            NMS.AFTER_26_1_R1 ? "MAP_ID" : NMS.AFTER_1_21_R7 ? "T" : NMS.AFTER_1_21_R4 ? "M" : NMS.AFTER_1_21_R2 ? "L" : "B", null) : null;
 
-            if (subVer <= 7) {
+            if (mainVer == 1 && subVer <= 7) {
                 cItemFrame = NMS.getConstructor(NMS.mcEntityItemFrameClass, MethodType.methodType(void.class, int.class, int.class, int.class, int.class));
             } else {
                 cItemFrame = NMS.getConstructor(NMS.mcEntityItemFrameClass, MethodType.methodType(void.class, NMS.mcWorldClass, NMS.mcBlockPositionClass, NMS.mcEnumDirectionClass));
             }
 
-            cPacketPlayOutSpawnEntity = NMS.getConstructor(NMS.getPacketClass("PacketPlayOutSpawnEntity"),
-                    (subVer <= 13) ? MethodType.methodType(void.class, NMS.mcEntityClass, int.class, int.class)
+            cPacketPlayOutSpawnEntity = NMS.getConstructor(NMS.getPacketClass("ClientboundAddEntityPacket", "PacketPlayOutSpawnEntity"),
+                    (mainVer > 1) ? MethodType.methodType(void.class, NMS.mcEntityClass, int.class, NMS.mcBlockPositionClass)
+                            : (subVer <= 13) ? MethodType.methodType(void.class, NMS.mcEntityClass, int.class, int.class)
                             : (subVer <= 20) ? MethodType.methodType(void.class, NMS.mcEntityClass, int.class)
                             : MethodType.methodType(void.class, NMS.mcEntityClass, int.class, NMS.mcBlockPositionClass));
 
-            if (subVer <= 12) {
+            if (mainVer == 1 && subVer <= 12) {
                 cItemStack = NMS.getConstructor(NMS.mcItemStackClass, MethodType.methodType(void.class, NMS.mcItemClass, int.class, int.class));
             } else {
                 cItemStack = NMS.getConstructor(NMS.mcItemStackClass, MethodType.methodType(void.class, NMS.mcIMaterialClass));
             }
 
-            if (subVer <= 19 || (subVer == 20 && subRVer <= 3)) {
+            if (mainVer == 1 && (subVer <= 19 || subVer == 20 && subRVer <= 3)) {
                 cNBTTagCompound = NMS.getConstructor(NMS.mcNBTTagCompoundClass, MethodType.methodType(void.class));
                 NbtTagCompound_setInt = NMS.getMethodVirtual(NMS.mcNBTTagCompoundClass,
                         subVer <= 17 ? "setInt" : "a", MethodType.methodType(void.class, String.class, int.class));
@@ -127,28 +129,30 @@ public class MapFrameFactory {
                 cNBTTagCompound = null; NbtTagCompound_setInt = null; Map_setTag = null;
             }
 
-            cMapId = NMS.VER_1_20_R4 ? NMS.getConstructor(mcMapIdClass, MethodType.methodType(void.class, int.class)) : null;
+            cMapId = NMS.AFTER_1_20_R4 ? NMS.getConstructor(mcMapIdClass, MethodType.methodType(void.class, int.class)) : null;
 
-            cPacketPlayOutMap = NMS.getConstructor(NMS.getPacketClass("PacketPlayOutMap"),
+            cPacketPlayOutMap = NMS.getConstructor(NMS.getPacketClass("ClientboundMapItemDataPacket", "PacketPlayOutMap"),
+                    (mainVer > 1) ? MethodType.methodType(void.class, mcMapIdClass, byte.class, boolean.class, Optional.class, Optional.class):
                     (subVer == 7) ? (usingSpigot ? MethodType.methodType(int.class, byte[].class, byte.class) : MethodType.methodType(int.class, byte[].class)):
                     (subVer == 8) ? MethodType.methodType(void.class, int.class, byte.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class):
                     (subVer <= 13) ? MethodType.methodType(void.class, int.class, byte.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class):
                     (subVer <= 16) ? MethodType.methodType(void.class, int.class, byte.class, boolean.class, boolean.class, Collection.class, byte[].class, int.class, int.class, int.class, int.class):
-                    !NMS.VER_1_20_R4 ? MethodType.methodType(void.class, int.class, byte.class, boolean.class, Collection.class, mcMapDataClass):
+                    !NMS.AFTER_1_20_R4 ? MethodType.methodType(void.class, int.class, byte.class, boolean.class, Collection.class, mcMapDataClass):
                     MethodType.methodType(void.class, mcMapIdClass, byte.class, boolean.class, Optional.class, Optional.class)
             );
 
-            cMapData = NMS.VER_1_17 ? NMS.getConstructor(mcMapDataClass, MethodType.methodType(void.class, int.class, int.class, int.class, int.class, byte[].class)):null;
+            cMapData = NMS.AFTER_1_17 ? NMS.getConstructor(mcMapDataClass, MethodType.methodType(void.class, int.class, int.class, int.class, int.class, byte[].class)):null;
 
-            if (subVer <= 17) {
+            if (mainVer > 1 || subVer <= 17) {
                 ItemFrame_setInvisible = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass, "setInvisible", MethodType.methodType(void.class, boolean.class));
             } else {
                 ItemFrame_setInvisible = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass,
-                        (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "j" : (subVer <= 20 || (subVer == 21 && NMS.getSubRVer() <= 4)) ? "k" : "l",
+                        (subVer <= 19 || (subVer == 20 && NMS.getSubRVer() <= 3)) ? "j" : (subVer == 20 || (subVer == 21 && NMS.getSubRVer() <= 4)) ? "k" : "l",
                         MethodType.methodType(void.class, boolean.class));
             }
 
-            switch (subVer) {
+            if (mainVer > 1) name = "setSilent";
+            else switch (subVer) {
                 case 7: name = "e"; break;
                 case 8: name = "b"; break;
                 case 9: name = "c"; break;
@@ -159,21 +163,21 @@ public class MapFrameFactory {
             }
             ItemFrame_setSilent = NMS.getMethodVirtual(NMS.mcEntityClass, name, MethodType.methodType(void.class, boolean.class));
 
-            if (subVer <= 17) {
+            if (mainVer > 1 && subVer <= 17) {
                 ItemFrame_setItem = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass, "setItem", MethodType.methodType(void.class, NMS.mcItemStackClass));
             } else {
                 ItemFrame_setItem = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass, "setItem", MethodType.methodType(void.class, NMS.mcItemStackClass, boolean.class, boolean.class));
             }
 
-            if (subVer <= 17) name = "setRotation";
+            if (mainVer > 1 || subVer <= 17) name = "setRotation";
             else if (subVer == 18) name = "a";
             else if (subVer < 21 || (subVer == 21 && subRVer <= 6)) name = "b";
             else name = "a";
             ItemFrame_setRotation = NMS.getMethodVirtual(NMS.mcEntityItemFrameClass, name, MethodType.methodType(void.class, int.class));
 
-            DataComponentHolder_getComponents = NMS.VER_1_20_R4 ? NMS.getMethodVirtual(mcDataComponentHolderClass, "a", MethodType.methodType(mcDataComponentMapClass)) : null;
+            DataComponentHolder_getComponents = NMS.AFTER_1_20_R4 ? NMS.getMethodVirtual(mcDataComponentHolderClass, NMS.AFTER_26_1_R1 ? "getComponents" : "a", MethodType.methodType(mcDataComponentMapClass)) : null;
 
-            PatchedDataComponentMap_set = NMS.VER_1_20_R4 ? NMS.getMethodVirtual(mcPatchedDataComponentMapClass, "b", MethodType.methodType(Object.class, mcDataComponentTypeClass, Object.class)) : null;
+            PatchedDataComponentMap_set = NMS.AFTER_1_20_R4 ? NMS.getMethodVirtual(mcPatchedDataComponentMapClass,  NMS.AFTER_26_1_R1 ? "set" : "b", MethodType.methodType(Object.class, mcDataComponentTypeClass, Object.class)) : null;
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -189,13 +193,14 @@ public class MapFrameFactory {
      * @return NMS ItemFrame
      */
     protected static Object getItemFrame(Object itemStack, Location location, BlockFace blockFace, int rotation) throws Throwable {
+        int mainVer = NMS.getmainVer();
         int subVer = NMS.getSubVer();
         Object itemFrame;
-        if (subVer <= 7) {
+        if (mainVer > 1 || subVer >= 8) {
+            itemFrame = cItemFrame.invoke(NMS.getMcWorld(location.getWorld()), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
+        } else {
             itemFrame = cItemFrame.invoke(
                     NMS.getMcWorld(location.getWorld()), location.getBlockX(), location.getBlockY(), location.getBlockZ(), blockFaceToIntDirection(blockFace));
-        } else {
-            itemFrame = cItemFrame.invoke(NMS.getMcWorld(location.getWorld()), NMS.getMcBlockPosition(location), blockFaceToEnumDirection(blockFace));
         }
 
         // 设为隐形（展示框1.16以上为真隐形）
@@ -205,10 +210,12 @@ public class MapFrameFactory {
         ItemFrame_setSilent.invoke(itemFrame, true);
 
         // 设置物品
-        if (subVer <= 17) {
+        if (mainVer > 1) {
             ItemFrame_setItem.invoke(itemFrame, itemStack);
-        } else {
+        } else if(subVer >= 18) {
             ItemFrame_setItem.invoke(itemFrame, itemStack, false, false);
+        } else {
+            ItemFrame_setItem.invoke(itemFrame, itemStack);
         }
 
         // 设置旋转
@@ -223,15 +230,16 @@ public class MapFrameFactory {
      * Get spawn packet of ItemFrame
      */
     protected static Object getSpawnPacket(Object itemFrame, int intDirection) throws Throwable {
+        int mainVer = NMS.getmainVer();
         int subVer = NMS.getSubVer();
-        if (subVer <= 13) {
-            /* ItemFrame, ItemFrameID:71, Data:Facing(int) */
-            return cPacketPlayOutSpawnEntity.invoke(itemFrame, 71, intDirection);
-        } else if (subVer <= 20) {
+        if (mainVer > 1 || subVer >= 21) {
+            throw new RuntimeException("SpawnPacket in 1.21+ requires a BlockPosition!");
+        } else if (subVer >= 14) {
             /* ItemFrame, Data:Facing(int) */
             return cPacketPlayOutSpawnEntity.invoke(itemFrame, intDirection);
         } else {
-            throw new RuntimeException("SpawnPacket in 1.21+ requires a BlockPosition!");
+            /* ItemFrame, ItemFrameID:71, Data:Facing(int) */
+            return cPacketPlayOutSpawnEntity.invoke(itemFrame, 71, intDirection);
         }
     }
 
@@ -247,29 +255,29 @@ public class MapFrameFactory {
      * 获取 NMS map
      */
     public static Object getMcMap(int mapViewId) throws Throwable {
+        int mainVer = NMS.getmainVer();
         int subVer = NMS.getSubVer();
         int subRVer = NMS.getSubRVer();
         Object mcMap;
-        if (subVer <= 7) {
-            mcMap = cItemStack.invoke(NMS.mcItemsClass.getField("MAP").get(null), 1, (short) mapViewId);
-        } else if (subVer <= 12) {
-            mcMap = cItemStack.invoke(NMS.mcItemsClass.getField("FILLED_MAP").get(null), 1, (short) mapViewId);
-        } else {
+        if (mainVer > 1 || subVer >= 13) {
             mcMap = cItemStack.invoke(itemMap);
             // set map id tag to map
-            if (subVer <= 19 || (subVer == 20 && subRVer <= 3)) {
-                Object nbtTagCompound = cNBTTagCompound.invoke();
-                NbtTagCompound_setInt.invoke(nbtTagCompound, "map", mapViewId);
-                Map_setTag.invoke(mcMap, nbtTagCompound);
-            } else {
+            if (mainVer > 1 || subVer >= 21 || (subVer == 20 && subRVer >= 4)) {
                 // ((PatchedDataComponentMapClass)mcMap.getComponents()).set(DataComponents.MAP_ID, new MapId(id))
                 PatchedDataComponentMap_set.invoke(
                         mcPatchedDataComponentMapClass.cast(DataComponentHolder_getComponents.invoke(mcMap))
                         ,DataComponents_MapID, cMapId.invoke(mapViewId)
                 );
+            } else {
+                Object nbtTagCompound = cNBTTagCompound.invoke();
+                NbtTagCompound_setInt.invoke(nbtTagCompound, "map", mapViewId);
+                Map_setTag.invoke(mcMap, nbtTagCompound);
             }
+        } else if (subVer >= 8) {
+            mcMap = cItemStack.invoke(NMS.mcItemsClass.getField("FILLED_MAP").get(null), 1, (short) mapViewId);
+        } else {
+            mcMap = cItemStack.invoke(NMS.mcItemsClass.getField("MAP").get(null), 1, (short) mapViewId);
         }
-
         return mcMap;
     }
 
@@ -281,20 +289,21 @@ public class MapFrameFactory {
      */
     public static Object getMapPacket(int mapViewId, byte[] pixels) throws Throwable {
         int subVer = NMS.getSubVer();
+        int mainVer = NMS.getmainVer();
         Object mapPacket;
-        if (subVer == 8) {
-            mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, Collections.emptyList(), pixels, 0, 0, 128, 128);
-        } else if (subVer <= 13) {
-            mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, false, Collections.emptyList(), pixels, 0, 0, 128, 128);
-        } else if (subVer <= 16) {
-            mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, false, false, Collections.emptyList(), pixels, 0, 0, 128, 128);
-        } else {
+        if (mainVer > 1 || subVer >= 17) {
             Object mapData = cMapData.invoke(0, 0, 128, 128, pixels);
-            if (!NMS.VER_1_20_R4) {
+            if (!NMS.AFTER_1_20_R4) {
                 mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, false, Collections.emptyList(), mapData);
             } else {
                 mapPacket = cPacketPlayOutMap.invoke(cMapId.invoke(mapViewId), (byte) 3, false, Optional.empty(), Optional.of(mapData));
             }
+        } else if (subVer >= 14) {
+            mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, false, false, Collections.emptyList(), pixels, 0, 0, 128, 128);
+        } else if (subVer >= 9) {
+            mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, false, Collections.emptyList(), pixels, 0, 0, 128, 128);
+        } else {// subVer == 8
+            mapPacket = cPacketPlayOutMap.invoke(mapViewId, (byte) 3, Collections.emptyList(), pixels, 0, 0, 128, 128);
         }
         return mapPacket;
     }
@@ -368,18 +377,18 @@ public class MapFrameFactory {
      * 根据玩家朝向和方块的上下面计算展示框的旋转
      */
     protected static int getItemFrameRotate(Location location, BlockFace face) {
-        if (NMS.getSubVer() <= 16) {
-            float yaw = location.getYaw() % 360;
-            if (135 < yaw && yaw <= 225) return 0;
-            else if (225 < yaw && yaw <= 315) return face==BlockFace.DOWN ? 3 : 1;
-            else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
-            else return 2;
-        } else {
+        if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 17) {
             float yaw = location.getYaw() % 360;
             if (135 < yaw || yaw <= -135) return 0;
             else if (-135 < yaw && yaw <= -45) return face==BlockFace.DOWN ? 3 : 1;
             else if (45 < yaw) return face==BlockFace.DOWN ? 1 : 3;
                 //else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
+            else return 2;
+        } else {
+            float yaw = location.getYaw() % 360;
+            if (135 < yaw && yaw <= 225) return 0;
+            else if (225 < yaw && yaw <= 315) return face==BlockFace.DOWN ? 3 : 1;
+            else if (45 < yaw && yaw <= 135) return face==BlockFace.DOWN ? 1 : 3;
             else return 2;
         }
     }

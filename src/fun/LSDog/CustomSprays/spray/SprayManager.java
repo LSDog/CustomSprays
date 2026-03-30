@@ -112,7 +112,7 @@ public class SprayManager {
     public static void playSpraySound(Player player) {
         String soundName = CustomSprays.plugin.getConfig().getString("spray_sound");
         if (soundName == null || "default".equals(soundName)) {
-            Sound sound = Sound.valueOf(NMS.getSubVer() <= 8 ? "SILVERFISH_HIT" : "ENTITY_SILVERFISH_HURT");
+            Sound sound = Sound.valueOf(NMS.getmainVer() > 1 || NMS.getSubVer() >= 9 ? "ENTITY_SILVERFISH_HURT" : "SILVERFISH_HIT");
             Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
                     player.getWorld().playSound(player.getLocation(), sound, 1, 0.8F));
         } else {
@@ -129,9 +129,9 @@ public class SprayManager {
     public static void playRemoveSound(Player player) {
         int subVer = NMS.getSubVer();
         String soundName;
-        if (subVer <= 8) soundName = "DIG_WOOL";
-        else if (subVer <= 12) soundName = "BLOCK_CLOTH_HIT";
-        else soundName = "BLOCK_WOOL_HIT";
+        if (NMS.getmainVer() > 1 || subVer >= 13) soundName = "BLOCK_WOOL_HIT";
+        else if (subVer >= 9) soundName = "BLOCK_CLOTH_HIT";
+        else soundName = "DIG_WOOL";
         Sound sound = Sound.valueOf(soundName);
         Bukkit.getScheduler().runTask(CustomSprays.plugin, () ->
                 player.getWorld().playSound(player.getLocation(), sound, 1, 1.2F));

@@ -23,7 +23,7 @@ public class MapViewId {
     }
 
     public static void setIdRange(int max, int min) {
-        if (NMS.getSubVer() < 13) {
+        if (NMS.getmainVer() == 1 && NMS.getSubVer() <= 12) {
             if (max > 32767 || max < -32768 || min > 32767 || min < -32768) return;
         }
         MAX = Math.max(max, min);
