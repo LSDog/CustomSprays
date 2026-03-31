@@ -1,5 +1,3 @@
-<img src="media/banner.png" height="25%" width="100%" style="object-fit: cover;">
-
 # 花样喷漆 || **CustomSprays**
 
 > **用法展示 (Demonstration)**
@@ -123,11 +121,11 @@ ___
 ## 注意事项 | Warning
 ___
 
-> 🔺 已知问题 ***[仅限版本1.7~1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换  
-> 🔺 Known problem ***[Only in version 1.7~1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
+> 🔺 已知问题 ***[仅限版本1.7-1.12]***：当某一世界地图数量 >32467 时 (最多为32767) 喷漆会导致某些原生地图被暂时替换  
+> 🔺 Known problem ***[Only in version 1.7-1.12]***: When the map count is >32467 in a world (max 32767), spraying will make some original map replaced by spray image temporarily.
 >
->> **原因:** 这些版本中插件使用 id [32467~32767] 对地图图案(MapView)进行标识，喷漆时对图案会被替换  
->> **Reason:** In these versions plugin uses id [32467~32767] to target the Mapview, so map with that id will be replaced.
+>> **原因:** 这些版本中插件使用 id [32467-32767] 对地图图案(MapView)进行标识，喷漆时对图案会被替换  
+>> **Reason:** In these versions plugin uses id [32467-32767] to target the Mapview, so map with that id will be replaced.
 
 ## 💻 开发 | for Developers
 ___
@@ -157,13 +155,10 @@ ___
 ##  💖 DONATE ME 💖 喜欢我就给我发电！！
 ___
 
-### 打赏 | Donate: [爱发电 | Aifadian](https://afdian.com/@LSDog)
+### 打赏 | Donate:
+> [爱发电 | Aifadian](https://afdian.com/@LSDog) or [PayPal](https://paypal.me/LSDog)
 
-![who use? I use!](https://bstats.org/signatures/bukkit/CustomSprays.svg)
-
-本项目由 [PixelMC](http://pixelmc.cn/) 团队提供长期支持与维护
-
-![logo](media/banner_logo.png)
+![bstats](https://bstats.org/signatures/bukkit/CustomSprays.svg)
 
 ## (Visits)
 ![Visits](https://count.getloli.com/get/@CustomSprays?darkmode=0)  
