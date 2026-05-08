@@ -189,6 +189,8 @@ public class NMS {
                     name = "h"; break;
                 case 20:
                     name = (subRVer <= 1) ? "h" : (subRVer <= 3) ? "c" : "e"; break;
+                case 21:
+                    name = "e"; break;
                 default:
                     name = "connection"; break;
             }
