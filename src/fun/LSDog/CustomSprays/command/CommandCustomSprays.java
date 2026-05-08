@@ -37,7 +37,7 @@ public class CommandCustomSprays implements TabExecutor {
 
     static {
         try {
-            cPacketPlayOutSetSlot = (NMS.getmainVer() == 1 && NMS.getSubVer() <= 16) ?
+            cPacketPlayOutSetSlot = (NMS.getMainVer() == 1 && NMS.getSubVer() <= 16) ?
                     NMS.getConstructor(NMS.getPacketClass("ClientboundContainerSetSlotPacket", "PacketPlayOutSetSlot"), MethodType.methodType(void.class, int.class, int.class, NMS.mcItemStackClass)) :
                     NMS.getConstructor(NMS.getPacketClass("ClientboundContainerSetSlotPacket", "PacketPlayOutSetSlot"), MethodType.methodType(void.class, int.class, int.class, int.class, NMS.mcItemStackClass));
         } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -79,18 +79,18 @@ public class CommandCustomSprays implements TabExecutor {
 
     public static String getSprayItemMaterialName() {
         String name = CustomSprays.plugin.getConfig().getString("spray_item");
-        if (NMS.getmainVer() == 1 && NMS.getSubVer() <= 12 && "GOLDEN_HORSE_ARMOR".equals(name)) name = "GOLD_BARDING";
+        if (NMS.getMainVer() == 1 && NMS.getSubVer() <= 12 && "GOLDEN_HORSE_ARMOR".equals(name)) name = "GOLD_BARDING";
         return name;
     }
 
     private MapView getMapView(int id) {
         if (methodGetMap == null) try {
-            methodGetMap = Bukkit.class.getMethod("getMap", (NMS.getmainVer() == 1 && NMS.getSubVer() <= 12) ? short.class : int.class);
+            methodGetMap = Bukkit.class.getMethod("getMap", (NMS.getMainVer() == 1 && NMS.getSubVer() <= 12) ? short.class : int.class);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
         try {
-            if (NMS.getmainVer() == 1 && NMS.getSubVer() <= 12) {
+            if (NMS.getMainVer() == 1 && NMS.getSubVer() <= 12) {
                 return (MapView) methodGetMap.invoke(null, (short) id);
             } else return (MapView) methodGetMap.invoke(null, id);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -287,12 +287,12 @@ public class CommandCustomSprays implements TabExecutor {
                         // check image by showing item
                         int id = MapViewId.sprayViewId;
                         try {
-                            if (NMS.getmainVer() == 1 && NMS.getSubVer() < 17) {
+                            if (NMS.getMainVer() == 1 && NMS.getSubVer() < 17) {
                                 NMS.sendPacket(player, cPacketPlayOutSetSlot.invoke(0,36+player.getInventory().getHeldItemSlot(), MapFrameFactory.getMcMap(id)));
                             } else {
                                 NMS.sendPacket(player, cPacketPlayOutSetSlot.invoke(0,0,36+player.getInventory().getHeldItemSlot(), MapFrameFactory.getMcMap(id)));
                             }
-                            if (NMS.getmainVer() == 1 && NMS.getSubVer() <= 7) {
+                            if (NMS.getMainVer() == 1 && NMS.getSubVer() <= 7) {
                                 //NMS.sendPacket(player, MapFrameFactory.getMapScalePacket_7((short) id, (byte) 0));
                                 for (Object packet : MapFrameFactory.getMapPackets_7((short) id, imageBytes)) {
                                     NMS.sendPacket(player, packet);
@@ -304,7 +304,7 @@ public class CommandCustomSprays implements TabExecutor {
                         // Send original mapview back
                         Bukkit.getScheduler().runTaskLater(CustomSprays.plugin, () -> {
                             player.updateInventory();
-                            if (NMS.getmainVer() == 1 && NMS.getSubVer() < 13) {
+                            if (NMS.getMainVer() == 1 && NMS.getSubVer() < 13) {
                                 MapView mapView = getMapView(id);
                                 if (mapView != null) player.sendMap(mapView);
                             }

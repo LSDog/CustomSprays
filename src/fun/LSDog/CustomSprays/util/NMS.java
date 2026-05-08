@@ -86,7 +86,7 @@ public class NMS {
     /**
      * Get main version number (v26_1_R1 -> 26)
      */
-    public static int getmainVer() {
+    public static int getMainVer() {
         return mainVer == -1 ? mainVer = Integer.parseInt(getMcVer().split("_")[0]) : mainVer;
     }
 
@@ -118,7 +118,7 @@ public class NMS {
             mcServerCommonPacketListenerImplClass = mainVer > 1 || mainVer == 1 && (getSubVer() >= 21 || (getSubVer()==20 && getSubRVer()>=2)) ? getMcClassNew("server.network.ServerCommonPacketListenerImpl") : null,
             mcNetworkManagerClass = getMcClass("network.Connection", "network.NetworkManager", "NetworkManager"),
             mcItemStackClass = getMcClass("world.item.ItemStack", "world.item.ItemStack", "ItemStack"),
-            mcIMaterialClass = getmainVer() > 1 || getSubVer() >= 13 ? getMcClass("world.level.ItemLike", "world.level.IMaterial", "IMaterial") : null,
+            mcIMaterialClass = getMainVer() > 1 || getSubVer() >= 13 ? getMcClass("world.level.ItemLike", "world.level.IMaterial", "IMaterial") : null,
             mcItemClass = getMcClass("world.item.Item", "world.item.Item", "Item"),
             mcItemsClass = getMcClass("world.item.Items", "world.item.Items", "Items"),
             mcDataWatcherClass = getMcClass("network.syncher.SynchedEntityData", "network.syncher.DataWatcher", "DataWatcher"),
@@ -151,7 +151,7 @@ public class NMS {
     static {
 
         String name;
-        int mainVer = getmainVer();
+        int mainVer = getMainVer();
         int subVer = getSubVer();
         int subRVer = getSubRVer();
 
@@ -358,7 +358,7 @@ public class NMS {
      * @param legacyBukkitName Bukkit mapping name for legacy versions
      */
     public static Class<?> getMcClass(String mojName, String bukkitName, String legacyBukkitName) {
-        return getmainVer() > 1 ? getMcClassNew(mojName) : getSubVer() <= 16 ? getMcClassLegacy(legacyBukkitName) : getMcClassNew(bukkitName);
+        return getMainVer() > 1 ? getMcClassNew(mojName) : getSubVer() <= 16 ? getMcClassLegacy(legacyBukkitName) : getMcClassNew(bukkitName);
     }
 
     public static Class<?> getMcClassNew(String name) {

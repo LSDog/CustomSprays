@@ -87,12 +87,12 @@ public class SprayBig extends SprayBase {
             int mapViewId = MapViewId.getId();
 
             Object mcMap = MapFrameFactory.getMcMap(mapViewId);
-            offLocs[i] = NMS.getmainVer() > 1 || NMS.getSubVer() >= 8 ? reLoc : reLoc.add(-blockFace.getModX(), 0, -blockFace.getModZ());
+            offLocs[i] = NMS.getMainVer() > 1 || NMS.getSubVer() >= 8 ? reLoc : reLoc.add(-blockFace.getModX(), 0, -blockFace.getModZ());
             itemFrames[i] = MapFrameFactory.getItemFrame(mcMap, offLocs[i], blockFace, intRotation);
             itemFrameIds[i] = NMS.getMcEntityId(itemFrames[i]);
-            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 21) spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection, NMS.getMcBlockPosition(locs[i]));
+            if (NMS.getMainVer() > 1 || NMS.getSubVer() >= 21) spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection, NMS.getMcBlockPosition(locs[i]));
             else spawnPackets[i] = MapFrameFactory.getSpawnPacket(itemFrames[i], intDirection);
-            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 8) {
+            if (NMS.getMainVer() > 1 || NMS.getSubVer() >= 8) {
                 mapPackets[i] = MapFrameFactory.getMapPacket(mapViewId, pixelPieces[i]);
             } else {
                 NMS.setSpawnPacketLocation_7(spawnPackets[i], offLocs[i]);
@@ -117,7 +117,7 @@ public class SprayBig extends SprayBase {
 
         Collection<? extends UUID> $playersShowTo = playersShown;
 
-        int mainVer = NMS.getmainVer();
+        int mainVer = NMS.getMainVer();
         int subVer = NMS.getSubVer();
 
         if (playersShowTo != null) {

@@ -56,7 +56,7 @@ public class MapFrameFactory {
 
     static {
 
-        int mainVer = NMS.getmainVer();
+        int mainVer = NMS.getMainVer();
         int subVer = NMS.getSubVer();
         int subRVer = NMS.getSubRVer();
 
@@ -193,7 +193,7 @@ public class MapFrameFactory {
      * @return NMS ItemFrame
      */
     protected static Object getItemFrame(Object itemStack, Location location, BlockFace blockFace, int rotation) throws Throwable {
-        int mainVer = NMS.getmainVer();
+        int mainVer = NMS.getMainVer();
         int subVer = NMS.getSubVer();
         Object itemFrame;
         if (mainVer > 1 || subVer >= 8) {
@@ -230,7 +230,7 @@ public class MapFrameFactory {
      * Get spawn packet of ItemFrame
      */
     protected static Object getSpawnPacket(Object itemFrame, int intDirection) throws Throwable {
-        int mainVer = NMS.getmainVer();
+        int mainVer = NMS.getMainVer();
         int subVer = NMS.getSubVer();
         if (mainVer > 1 || subVer >= 21) {
             throw new RuntimeException("SpawnPacket in 1.21+ requires a BlockPosition!");
@@ -255,7 +255,7 @@ public class MapFrameFactory {
      * 获取 NMS map
      */
     public static Object getMcMap(int mapViewId) throws Throwable {
-        int mainVer = NMS.getmainVer();
+        int mainVer = NMS.getMainVer();
         int subVer = NMS.getSubVer();
         int subRVer = NMS.getSubRVer();
         Object mcMap;
@@ -289,7 +289,7 @@ public class MapFrameFactory {
      */
     public static Object getMapPacket(int mapViewId, byte[] pixels) throws Throwable {
         int subVer = NMS.getSubVer();
-        int mainVer = NMS.getmainVer();
+        int mainVer = NMS.getMainVer();
         Object mapPacket;
         if (mainVer > 1 || subVer >= 17) {
             Object mapData = cMapData.invoke(0, 0, 128, 128, pixels);
@@ -352,7 +352,7 @@ public class MapFrameFactory {
 
     protected static int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
-        if (NMS.getmainVer() <= 1 && NMS.getSubVer() <= 12) {
+        if (NMS.getMainVer() <= 1 && NMS.getSubVer() <= 12) {
             switch (face) {
                 case SOUTH: return 0;
                 case WEST: return 1;
@@ -377,7 +377,7 @@ public class MapFrameFactory {
      * 根据玩家朝向和方块的上下面计算展示框的旋转
      */
     protected static int getItemFrameRotate(Location location, BlockFace face) {
-        if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 17) {
+        if (NMS.getMainVer() > 1 || NMS.getSubVer() >= 17) {
             float yaw = location.getYaw() % 360;
             if (135 < yaw || yaw <= -135) return 0;
             else if (-135 < yaw && yaw <= -45) return face==BlockFace.DOWN ? 3 : 1;

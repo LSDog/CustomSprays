@@ -29,7 +29,7 @@ public class PacketHandler {
 
     static {
         try {
-            mainVer = NMS.getmainVer();
+            mainVer = NMS.getMainVer();
             subVer = NMS.getSubVer();
             Class<?> cPacketServerboundAttack = (mainVer > 1) ? NMS.getPacketClassMoj("ServerboundAttackPacket") : null;
             PacketServerboundAttack_entityId = (mainVer > 1) ? NMS.getDeclaredField(cPacketServerboundAttack, "entityId") : null;
@@ -96,7 +96,7 @@ public class PacketHandler {
 
     private static String getActionNameFromPacketPlayInUseEntity(Object packet) {
         try {
-            if (NMS.getmainVer() > 1 || NMS.getSubVer() >= 17) {
+            if (NMS.getMainVer() > 1 || NMS.getSubVer() >= 17) {
                 return ((Enum<?>) PacketPlayInUseEntity$Action_getType.invoke(
                         PacketPlayInUseEntity_action.get(packet))).name();
             } else {
