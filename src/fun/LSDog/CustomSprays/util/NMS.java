@@ -42,7 +42,7 @@ public class NMS {
     private static int mainVer = -1;
     private static int subVer = -1;
     private static int subRVer = -1;
-    private static final String lastVersionNumber = "1.21.10";
+    private static final String lastVersionNumber = "26.1.2";
 
     public static final Map<String, String> rVerMap = new HashMap<String, String>(){{
         put("1.20.5", "1_20_R4");
@@ -60,6 +60,8 @@ public class NMS {
         put("1.21.10", "1_21_R6");
         put("1.21.11", "1_21_R7");
         put("26.1", "26_1_R1");
+        put("26.1.1", "26_1_R1");
+        put("26.1.2", "26_1_R2");
     }};
     public static final boolean AFTER_1_17, AFTER_1_20_R4, AFTER_1_21_R2, AFTER_1_21_R4, AFTER_1_21_R7, AFTER_26_1_R1;
     /** Using spigot mapping (paper 1.20.4-) or Mojang mapping (paper 1.20.5+). */
