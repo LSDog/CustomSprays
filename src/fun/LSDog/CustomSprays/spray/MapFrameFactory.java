@@ -352,7 +352,7 @@ public class MapFrameFactory {
 
     protected static int blockFaceToIntDirection(BlockFace face) {
         if (face == null) return 0;
-        if (NMS.getSubVer() <= 12) {
+        if (NMS.getmainVer() <= 1 && NMS.getSubVer() <= 12) {
             switch (face) {
                 case SOUTH: return 0;
                 case WEST: return 1;
