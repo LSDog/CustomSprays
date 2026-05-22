@@ -33,7 +33,13 @@ public class NMS {
     private static String getVersionNumber() {
         if (simpleVersionNumber != null) return simpleVersionNumber;
         String strVer = Bukkit.getServer().getBukkitVersion();
-        strVer = strVer.substring(0, strVer.indexOf("-"));
+        // Bukkit.getLogger().info(strVer);
+        // paper 26.1+: 26.1.2.build.64-stable
+        if (strVer.contains(".build.")) {
+            strVer = strVer.split("\\.build\\.")[0];
+        } else {
+            strVer = strVer.substring(0, strVer.indexOf("-"));
+        }
         return simpleVersionNumber = strVer;
     }
 
